@@ -1,0 +1,61 @@
+<div class="container py-4">
+  <h2 class="text-center mt-5">質問詳細</h2>
+
+  <div class="row justify-content-center">
+    <div class="col-md-6">
+      <div class="card mb-4 border-primary">
+        <div class="card-header bg-white text-left">
+          <h5 class="card-title text-dark">タイトル:</h5>
+          <%= @question.title %>
+        </div>
+        <div class="card-body text-left">
+          <h5>質問内容:</h5>
+          <p class="card-text"><%= @question.content %></p>
+          <p class="card-text text-small">
+            投稿日時: <%= @question.created_at.strftime('%Y/%m/%d %H:%M') %>
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+ <h2 class="text-center mt-5">回答一覧</h2>
+ <% @question.answers.each do |answer| %>
+    <div class="row justify-content-center">
+      <div class="col-md-6">
+        <div class="card mb-4 border-secondary">
+          <div class="card-header bg-white text-left">
+            <h5 class="card-title text-dark">回答者:</h5>
+            <%= answer.user.full_name %>
+          </div>
+          <div class="card-body text-left">
+            <h5>回答内容:</h5>
+            <p class="card-text"><%= answer.content %></p>
+            <p class="card-text text-small">
+              回答日時: <%= answer.created_at.strftime('%Y/%m/%d %H:%M') %>
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  <% end %>
+
+  <div class="row justify-content-center">
+    <div class="col-md-6">
+      <% if current_user&.authority_answer == true %>
+        <h3 class="text-center mt-5">回答投稿</h3>
+         <%= form_with model: [@board, @question, Answer.new || Answer.new], local: true do |form| %>
+          <div class="form-group">
+            <%= form.label :回答内容, class: "font-weight-bold" %>
+            <%= form.text_area :content, class: "form-control", rows: 5, placeholder: "回答の内容を入力してください" %>
+          </div>
+          <div class="text-center mt-5">
+            <%= form.submit "回答する", class: "btn btn-primary btn-lg" %>
+          </div>
+        <% end %>
+      <% else %>
+       
+      <% end %>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,17 @@
+<div class="page-top mt-4"> 
+  <div class="container-fluid">
+    <div class="white-block">
+      <h1 class="block-title text-center font-weight-bold text-primary mb-5">掲示板</h1>
+        <div class="d-flex justify-content-center mb-5">
+          <% @board.each do |board| %>
+          <div class="col-6 col-sm-6 col-md-6 col-lg-4 px-0 text-center">
+            <%= link_to board.title, board_path(board, tab: "questions"), class: "btn btn-primary btn-lg mb-3 mx-2", style: "width: 200px; font-size: 1.25rem;" %> <!-- フォントサイズを追加 -->
+          </div>
+          <% end %>
+        </div>
+      <div class="text-center">
+        <p class="sub-text">各ジャンルの質問や意見交換などの投稿掲示版です。</p>
+      </div>
+    </div>
+  </div>
+</div>

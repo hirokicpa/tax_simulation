@@ -1,0 +1,69 @@
+<div class="container py-4">
+  <div class="row justify-content-center">
+    <div class="col-md-6">
+      <div class="card">
+        <div class="card-body">
+          <h2 class="card-title text-center">アカウント登録</h2>
+
+          <%= form_for(resource, as: resource_name, url: registration_path(resource_name), html: {class: 'form'}) do |f| %>
+            <%= render "devise/shared/error_messages", resource: resource %>
+
+            <div class="form-group mb-4">
+              <%= f.label :姓, class: "font-weight-bold" %>
+              <%= f.text_field :first_name, class: "form-control", placeholder: "姓を入力", required: true %>
+            </div>
+
+            <div class="form-group mb-4">
+              <%= f.label :名, class: "font-weight-bold" %>
+              <%= f.text_field :last_name, class: "form-control", placeholder: "名を入力", required: true %>
+            </div>
+
+            <div class="form-group mb-4">
+              <%= f.label :職業, class: "font-weight-bold", style: "width: 100px; height: 30px; display: inline-block;" %></br>
+              <%= f.select :occupation, ['金融', '営業', 'エンジニア', '経理・財務', '法務', '専門職', 'その他'], prompt: '職業を選択してください', required: true, class: "form-control" %>
+            </div>
+
+            <div class="form-group mb-4">
+              <%= f.label :年代, class: "font-weight-bold", style: "width: 100px; height: 30px; display: inline-block;" %></br>
+              <%= f.select :age, ['20代', '30代', '40代', '50代以上'], prompt: '年代を選択してください', class: "form-control", style: "width: 400px; height: 30px;" %>
+            </div>
+            
+            <div class="form-group mb-4">
+              <%= f.label :画像, class: "font-weight-bold" %>
+              <%= f.file_field :avatar, class: "form-control", accept: "image/*" %>
+            </div>
+
+
+            <div class="form-group mb-4">
+              <%= f.label :email, class: "font-weight-bold" %>
+              <%= f.email_field :email, autofocus: true, autocomplete: "email", class: "form-control", placeholder: "メールアドレスを入力" %>
+            </div>
+
+            <div class="form-group mb-4">
+              <%= f.label :password, class: "font-weight-bold" %>
+              <% if @minimum_password_length %>
+                <em class="password-hint">（<%= @minimum_password_length %>文字以上）</em>
+              <% end %>
+              <%= f.password_field :password, autocomplete: "new-password", class: "form-control", placeholder: "パスワードを入力" %>
+            </div>
+
+            <div class="form-group mb-4">
+              <%= f.label :password_confirmation, class: "font-weight-bold" %>
+              <%= f.password_field :password_confirmation, autocomplete: "new-password", class: "form-control", placeholder: "パスワードを再入力" %>
+            </div>
+
+            <div class="text-center mt-5">
+              <%= f.submit "登録する", class: "btn btn-primary btn-lg" %>
+            </div>
+          <% end %>
+
+          <div class="text-center mt-3">
+            <%= render "devise/shared/links" %>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+

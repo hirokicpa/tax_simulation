@@ -13,3 +13,13 @@
  *= require_tree .
  *= require_self
  */
+@import "bootstrap";
+@import "custom";
+
+.text-small {
+  font-size: 0.75rem;
+}
+
+.text-left {
+  text-align: left;
+}
