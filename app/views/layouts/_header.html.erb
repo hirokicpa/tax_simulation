@@ -1,0 +1,36 @@
+<nav class="navbar navbar-light navbar-expand-md fixed-top bg-white py-1 mt-2" style="box-shadow: 0px 0px 10px 0px #bfc0da;">
+  <div class="container">
+    <%= link_to root_path do %>
+      <%= image_tag 'logo.png', class: 'img-fluid', width: '180px' %>
+    <% end %>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
+      <ul class="navbar-nav ml-auto">
+      <% if user_signed_in? %>
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            <% if current_user.avatar? %>
+              <%= image_tag current_user.avatar_url, class: 'rounded-circle avatar mx-3', width: '30px', height: '30px', alt: 'User avatar' %>
+            <% end %>
+            <%= current_user.full_name %>
+          </a>
+          <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+            <li><%= link_to "掲示板", board_index_path, class: "dropdown-item" %></li>
+            <li><%= link_to "アカウント編集", edit_user_registration_path, class: "dropdown-item" %></li>
+            <li><%= link_to "ログアウト", destroy_user_session_path, method: :delete, class: "dropdown-item" %></li>
+          </ul>
+        </li>
+      <% else %>
+        <li class="nav-item">
+          <%= link_to 'ログイン', new_user_session_path, class: "btn nav-btn me-3 text-purple" %>
+        </li>
+        <li class="nav-item">
+          <%= link_to 'アカウント登録', new_user_registration_path, class: "btn btn-purple" %>
+        </li>
+      <% end %>
+    </ul>
+    </div>
+  </div>
+</nav>

@@ -1,3 +1,17 @@
 Rails.application.routes.draw do
-  # For details on the DSL available within this file, see https://guides.rubyonrails.org/routing.html
+  get 'answers/create'
+  devise_for :users
+  root 'top#index'
+ 
+    resources :board, only:[:index,:show] do
+      resources :questions do
+        resources :answers
+      end
+    end
+   
+    namespace :simulations do
+     get 'incorporation' ,to: 'incorporation#index'
+   end
+    
 end
+

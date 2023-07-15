@@ -1,0 +1,27 @@
+<div class="container py-4">
+  <h2 class="text-center mt-5"><%= @board.title %>に関する質問投稿</h2>
+
+  <div class="text-center mb-9">
+    <%= link_to "質問投稿", new_board_question_path(@board), class: "btn btn-primary btn-sm mt-5 mb-5", style: "font-size: 1.5rem;" %>
+  </div>
+
+  <div class="row justify-content-center">
+    <% @board.questions.each do |question| %>
+    <div class="col-md-6">
+      <div class="card mb-4 border-primary">
+        <div class="card-header bg-white text-left">
+          <h5 class="card-title text-dark">質問タイトル:</h5>
+          <%= link_to question.title, [question.board, question], class: "text-primary font-weight-bold", style: "font-size: 1.2rem;" %>
+        </div>
+        <div class="card-body text-left">
+          <h5>質問内容:</h5>
+          <p class="card-text"><%= question.content %></p>
+            <p class="card-text text-small">
+            投稿日時: <%= question.created_at.strftime('%Y/%m/%d %H:%M') %>
+            </p>
+        </div>
+      </div>
+    </div>
+    <% end %>
+  </div>
+</div>
