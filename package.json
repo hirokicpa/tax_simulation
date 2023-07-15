@@ -1,6 +1,9 @@
 {
   "name": "tax-simulation",
   "private": true,
+  "engines": {
+    "node": "16.x"
+  },
   "dependencies": {
     "@popperjs/core": "^2.11.8",
     "@rails/actioncable": "^6.0.0",
