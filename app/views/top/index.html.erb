@@ -15,9 +15,15 @@
 	<div class="blue-block mb-3">
 		<div class="title-block font-weight-bold text-center my-3 py-3">税金計算シミュレーション</div>
 		<div class="col12 py-2 text-center">
-		　　<%= link_to "法人化した場合の効果検証", '#', class: "btn btn-black text-center font-weight-bold my-3", style: "width: 300px; margin: 0 auto;" %>
+		  <%= link_to "法人化した場合の効果検証", simulations_incorporation_path, class: "btn btn-black text-center font-weight-bold my-3", style: "width: 300px; margin: 0 auto;" %>
+		</div>
+		
+		<div class="col12 py-2 text-center">
+		  <%= link_to "贈与した場合の相続税と贈与税の影響", simulations_succession_gift_path, class: "btn btn-black text-center font-weight-bold my-3", style: "width: 300px; margin: 0 auto;" %>
 		</div>
 	</div>
+	
+	
 	
 	<div class="white-block-2 mt-3">
     	<div class="title-block font-weight-bold text-center my-3 py-3">小規模事業者の悩みをきっと解決</div>

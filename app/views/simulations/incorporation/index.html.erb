@@ -1,0 +1,60 @@
+<div class="page-simulation-incorporation-index">
+  <div class="top-image-size"></div>
+  <div class="container-fluid">
+    <div class="content-main mt-4 mb-2 px-5 responsive-padding" style="display: flex; justify-content: center;">
+  	  <div style="width: 50%; text-align: center;">
+  	  	<h2 class="content-title font-weight-bold" style="color: blue; font-size: 2em;">法人化した場合の税効果</h2>
+  	  	<p class="text-right" style="width: 90%; margin: auto;">*値は全て<span style="font-weight: bold;">半角英数</span>入力してください</p>
+  	  	<%= form_tag(simulations_incorporation_result_tax_path, method: :get, remote: true) do %>
+  	  	    <table class="table mt-4 mb-0" style="width: 90%; margin: auto;">
+  	  	   	  <tbody>
+                <tr>
+                  <td>年間収入</td>
+                  <td class="row" style="display: flex; justify-content: space-between;">
+                    <%= text_field_tag :annual_income, "", class: "form-control", style: "text-align: right; width: 60%;", pattern: "^[0-9]+$", required: "" %>
+                    <div style="width: 30%; text-align: left;">万円</div>
+                  </td>
+  	  	   	    </tr>
+  	  	   	    <tr>
+                  <td>年間費用</td>
+                  <td class="row" style="display: flex; justify-content: space-between;">
+                    <%= text_field_tag :annual_expense, "", class: "form-control", style: "text-align: right; width: 60%;", pattern: "^[0-9]+$", required: "" %>
+                    <div style="width: 30%; text-align: left;">万円</div>
+                  </td>
+  	  	   	    </tr>
+  	  	   	    <tr>
+                  <td>青色申告特別控除</td>
+                  <td class="row" style="display: flex; justify-content: space-between;">
+                    <%= text_field_tag :special_deduction, "", class: "form-control", style: "text-align: right; width: 60%;", pattern: "^[0-9]+$", required: "" %>
+                    <div style="width: 30%; text-align: left;">万円</div>
+                  </td>
+  	  	   	    </tr>
+  	  	   	    <tr>
+                  <td>所得控除</td>
+                  <td class="row" style="display: flex; justify-content: space-between;">
+                    <%= text_field_tag :income_deduction, "", class: "form-control", style: "text-align: right; width: 60%;", pattern: "^[0-9]+$", required: "" %>
+                    <div style="width: 30%; text-align: left;">万円</div>
+                  </td>
+  	  	   	    </tr>
+  	  	   	    <tr>
+                  <td>法人からの月額役員報酬</td>
+                  <td class="row" style="display: flex; justify-content: space-between;">
+                    <%= text_field_tag :month_salary, "", class: "form-control", style: "text-align: right; width: 60%;", pattern: "^[0-9]+$", required: "" %>
+                    <div style="width: 30%; text-align: left;">万円/月✖１２ヶ月️</div>
+                  </td>
+  	  	   	    </tr>
+  	  	   	  </tbody>
+  	  	    </table>
+  	  	    <div style="margin-top: 20px;">
+  	  	      <%= submit_tag "計算する", class: "mt-5 py-3", style: "background-color: blue; color: white; width: 50%; padding: 10px 0;", id: "btn_incorporation" %>
+  	  	    </div>
+  	    <% end %>
+  	  </div>
+  	</div>
+    <div class="row justify-content-center" style="justify-content: center; margin: 50px 0;">
+      <div class="bg-light" style="background-color: #f0f0f0; width: 80%; padding: 20px;">
+        <div id="result_incorporation"></div>
+      </div>
+    </div>
+  </div>
+</div>
