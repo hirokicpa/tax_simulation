@@ -1,0 +1,50 @@
+<div style="width: 100%;">
+  <div style="margin-bottom: 2rem; padding: 5rem;">
+	<div style="margin: 0 auto; padding-left: 0; padding-right: 0;">
+	  <table style="margin: 0 auto;">
+	    <thead>
+	      <tr>
+		    <th style="width: 15%;"></th>	
+			<th style="width: 25%; text-align: right; white-space: nowrap;">贈与実行前</th>
+			<th style="width: 25%; text-align: right; white-space: nowrap;">贈与実行後</th>
+			<th style="width: 25%; text-align: right; white-space: nowrap;">差額</th>
+		  </tr>
+		</thead>
+
+			 <tbody>
+			 	<tr style="border-bottom: 1px solid #f0f0f0;">
+			 	  <th style="text-align: center; white-space: nowrap;">贈与税</th>
+			 	  <td style="text-align: right">0</td>
+			 	  <td style="text-align: right;"><%= @result_gift.to_s(:delimited) %></td>
+			 	  <td style="text-align: right;"><%= (@result_gift - 0).to_s(:delimited) %></td>
+			 	</tr>
+
+			 	<tr style="border-bottom: 1px solid #f0f0f0;">
+			 	  <th style="text-align: center; white-space: nowrap;">相続税</th>
+			 	  <td style="text-align: right;"><%= @result_before_gift.to_s(:delimited) %></td>
+			 	  <td style="text-align: right;"><%= @result_after_gift.to_s(:delimited) %></td>
+			 	  <td style="text-align: right;"><%= (@result_after_gift - @result_before_gift).to_s(:delimited) %></td>
+			 	</tr>
+
+			 	<tr style="border-bottom: 1px solid #f0f0f0;">
+			 	  <th style="text-align: center; white-space: nowrap;">合計</th>
+			 	  <td style="text-align: right;"><%= (0 + @result_before_gift).to_s(:delimited) %></td>
+			 	  <td style="text-align: right;"><%= (@result_gift + @result_after_gift).to_s(:delimited) %></td>
+			 	  <% total_result = ((@result_gift + @result_after_gift) - (0 + @result_before_gift)) %>
+         　　　　　<td style="text-align: right;"><%= total_result.to_s(:delimited) %></td>
+			 	</tr>
+			 </tbody>
+	   </table>
+	   <div style="text-align: center; margin-top: 10px; font-size: 13px;">*相続税は配偶者控除適用前の一次相続税の総額を表示しています。</div>
+	   <div style="clear: both;"></div>
+       </br>
+       <div style="text-align: center; font-size: 18px; font-weight: bold;">
+         <% if total_result <= 0 %>
+       	 <%= "上記贈与を実行した場合、相続税と贈与税の合計額が #{(-total_result).to_s(:delimited)}万円減少します。" %>
+       	 <% elsif total_result > 0 %>
+       	 <%= "上記贈与を実行した場合、相続税と贈与税の合計額が #{total_result.to_s(:delimited)}万円増加します。"%>
+       	 <% end %>
+       </div>
+     </div> 
+   </div>
+</div>
