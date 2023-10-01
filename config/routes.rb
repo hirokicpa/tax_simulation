@@ -11,10 +11,13 @@ Rails.application.routes.draw do
    
     namespace :simulations do
      get 'incorporation' ,to: 'incorporation#index'
-     get 'incorporation/result_tax'
-     
      get 'succession_gift', to: 'succession_gift#index'
+     get 'first_second_succession', to: 'first_second_succession#index'
+
+     
      get 'succession_gift/result_tax'
+     get 'incorporation/result_tax'
+     get 'first_second_succession/result_tax'
    end
     
 end
