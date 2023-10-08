@@ -10,9 +10,9 @@
 import '../stylesheets/application';
 
 // jQuery
-import 'jquery';
+import $ from 'jquery';
 // PopperJS
-import 'popper.js';
+import Popper from 'popper.js';
 // Bootstrap 4
 import 'bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -20,5 +20,5 @@ import 'mdbootstrap/css/mdb.min.css';
 // font-awesome
 import '@fortawesome/fontawesome-free/js/all';
 
-import Rails from 'rails-ujs';
+import Rails from '@rails/ujs';
 Rails.start();

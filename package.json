@@ -11,12 +11,16 @@
     "@popperjs/core": "^2.11.8",
     "@rails/actioncable": "^6.0.0",
     "@rails/activestorage": "^6.0.0",
-    "@rails/ujs": "^6.0.0",
+    "@rails/ujs": "^7.1.0",
     "@rails/webpacker": "5.4.3",
     "bootstrap": "^5.3.0",
+    "jquery": "^3.7.1",
+    "mdbootstrap": "^4.20.0",
+    "popper.js": "^1.16.1",
     "turbolinks": "^5.2.0",
-    "vue": "^3.3.4",
-    "vue-template-compiler": "^2.7.14",
+    "vue": "2",
+    "vue-loader": "15",
+    "vue-template-compiler": "2",
     "webpack": "^4.46.0",
     "webpack-cli": "^3.3.12"
   },
@@ -24,7 +28,6 @@
   "devDependencies": {
     "@babel/plugin-proposal-private-methods": "^7.18.6",
     "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
-    "vue-loader": "^17.2.2",
     "webpack-dev-server": "^3"
   }
 }
