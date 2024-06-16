@@ -10,8 +10,8 @@ Rails.application.routes.draw do
     end
    
     namespace :simulations do
-     get 'incorporation' ,to: 'incorporation#index'
      get 'succession_gift', to: 'succession_gift#index'
+     get 'incorporation' ,to: 'incorporation#index'
      get 'first_second_succession', to: 'first_second_succession#index'
 
      
