@@ -62,7 +62,6 @@ $('#breakdown12').keyup(function(){
 });
 
 function total_breakdown(){
-  console.log('hoge')
   var total_income_deduction = Number($('#basic_deduction').val()) + Number($('#breakdown1').val()) + Number($('#breakdown2').val()) + Number($('#breakdown3').val()) + Number($('#breakdown4').val()) + Number($('#breakdown5').val()) + Number($('#breakdown6').val()) + Number($('#breakdown7').val()) + Number($('#breakdown8').val()) + Number($('#breakdown9').val()) + Number($('#breakdown10').val()) + Number($('#breakdown11').val()) + Number($('#breakdown12').val())
   if (total_income_deduction !== 48){
     $('#total_income_deduction').val(total_income_deduction);
