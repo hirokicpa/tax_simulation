@@ -195,6 +195,8 @@ class Simulations::IncorporationController < ApplicationController
 
     private
     def incorporation_params
-      params.permit(:utf8, :commit, :taxableincome, :total_income_deduction, :blue_return, :transferincome, :salary)
+      params.permit(:utf8, :commit, :taxableincome, :total_income_deduction, :blue_return, :transferincome, :salary,
+                   :breakdown1, :breakdown2, :breakdown3, :breakdown4, :breakdown5, :breakdown6,
+                   :breakdown7, :breakdown8, :breakdown9, :breakdown10, :breakdown11, :breakdown12)
     end
 end
