@@ -1,5 +1,4 @@
-require 'application_controller'
-require 'pry'
+
 
 class Simulations::IncorporationController < ApplicationController
     def index

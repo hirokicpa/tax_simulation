@@ -12,6 +12,7 @@ gem 'turbolinks', '5.2.1'
 gem 'jbuilder', '2.11.5'
 gem 'bootsnap', '1.10.1', require: false
 gem 'net-http'
+gem 'concurrent-ruby', '1.3.4'
 
 group :development, :test do
   gem 'byebug', '11.1.3'
