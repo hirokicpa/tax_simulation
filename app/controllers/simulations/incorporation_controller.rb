@@ -6,7 +6,6 @@ class Simulations::IncorporationController < ApplicationController
     end
     
     def variables
-        binding.pry
         @taxableincome = incorporation_params[:taxableincome].to_i # 個人課税所得額
         @income_deduction = incorporation_params[:total_income_deduction].to_i  #所得控除合計
         @taxableincome_after_deduction = (@taxableincome - @income_deduction).to_i
@@ -15,7 +14,6 @@ class Simulations::IncorporationController < ApplicationController
         @salary = incorporation_params[:salary].to_i # 法人からの役員報酬額
         @corporate_taxableincome_after_salary = (@corporate_taxableincome - @salary *12 ).to_i  #法人化後の給与控除後の課税所得
         @taxableincome_deduction_transferincome = (@taxableincome - @corporate_taxableincome).to_i #法人に移転した後の個人所得
-        binding.pry
     end
     
    
