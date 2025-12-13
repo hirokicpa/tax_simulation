@@ -1,0 +1,377 @@
+<div class="row">
+  <div class="card mx-auto col-12 col-md-10 col-lg-9">
+    <div class="card-body px-0">
+      <h5 class="card-title text-center mb-3">
+        <i class="fa fa-calculator" aria-hidden="true"></i>
+        事業承継税制の検討の<br>シミュレーション(特例措置)
+      </h5>
+
+      <div class="row form-caution">
+        <div class="col-12 mb-1 px-1">
+          <div class="caution-mark-block">※</div>
+          <div class="caution-text-block">
+            値はすべて<strong>半角数字</strong>で入力してください。
+          </div>
+        </div>
+        <div class="col-12 mb-1 px-1">
+          <div class="caution-mark-block">※</div>
+          <div class="caution-text-block">
+            遺産総額の金額は、各種特例や非課税枠及び債務控除等を控除済みの課税価格の金額としています。
+          </div>
+        </div>
+      </div>
+
+      <% if @errors.present? %>
+        <div class="alert alert-danger mt-2">
+          <ul class="mb-0">
+            <% @errors.each do |msg| %>
+              <li><%= msg %></li>
+            <% end %>
+          </ul>
+        </div>
+      <% end %>
+
+      <%= form_with url: simulations_business_succession_path,
+                    method: :get,
+                    local: true,
+                    html: { accept_charset: "UTF-8" } do |f| %>
+        <table class="table">
+          <tbody>
+          <tr>
+            <td class="align-middle">①現在の遺産総額</td>
+            <td>
+              <div class="row">
+                <div class="col-9 col-lg-6">
+                  <%= f.text_field :total_heritage,
+                      value: params[:total_heritage],
+                      class: "form-control text-right input-num",
+                      inputmode: "numeric",
+                      id: "total_heritage_input" %>
+                </div>
+                <div class="py-2">万円</div>
+              </div>
+            </td>
+          </tr>
+
+          <tr>
+            <td class="align-middle">
+              ②①の遺産総額のうち<br>後継者の相続する<br>特例適応対象株式の評価額
+              <div class="form-caution mt-2">※ 後継者は配偶者以外の相続人1人を前提</div>
+            </td>
+            <td>
+              <div class="row mb-3">
+                <div class="col-9 col-lg-6">
+                  <%= f.text_field :heir_special_stock_value,
+                      value: params[:heir_special_stock_value],
+                      class: "form-control text-right input-num",
+                      inputmode: "numeric" %>
+                </div>
+                <div class="py-2">万円</div>
+              </div>
+              <a href="/simulations/stock_price_calculation" class="btn btn-sm btn-default mb-1">株価算定へ行く</a>
+              <div class="form-caution">(金額を把握していない方)</div>
+            </td>
+          </tr>
+
+          <tr>
+            <td class="align-middle">事業承継税制の<br>適用要件を満たす。</td>
+            <td>
+              <div class="row mb-2">
+                <div class="col-9 col-lg-6">
+                  <%= f.select :applied_condition,
+                      options_for_select([
+                        ["選択してください", "", { disabled: true }],
+                        ["はい", "0"],
+                        ["いいえ", "1"]
+                      ], @applied_condition || params[:applied_condition] || ""),
+                      {},
+                      { class: "form-control" } %>
+                </div>
+              </div>
+              <a href="https://www.nta.go.jp/taxes/tetsuzuki/shinsei/annai/sozoku-zoyo/annai/h30pdf/checksheet1.pdf"
+                 class="text-primary" target="_new">要件を確認する</a>
+            </td>
+          </tr>
+
+          <tr>
+            <td class="align-middle no-break">③②以外に後継者が<br>取得する財産</td>
+            <td>
+              <div class="row">
+                <div class="col-9 col-lg-6">
+                  <%= f.text_field :other_heir_get_heritage,
+                      value: params[:other_heir_get_heritage],
+                      class: "form-control text-right input-num",
+                      inputmode: "numeric" %>
+                </div>
+                <div class="py-2">万円</div>
+              </div>
+            </td>
+          </tr>
+
+          <tr>
+            <td>④配偶者の有無</td>
+            <td>
+              <div class="row">
+                <div class="col-9 col-lg-6">
+                  <%= f.select :marital_status,
+                      options_for_select([
+                        ["有", "0"],
+                        ["無", "1"]
+                      ], @marital_status || "0"),
+                      {},
+                      { class: "form-control", id: "marital_status_select" } %>
+                </div>
+              </div>
+            </td>
+          </tr>
+
+          <tr>
+            <td class="align-middle">⑤配偶者以外の<br>法定相続人の数</td>
+            <td>
+              <div>
+                <div class="custom-control custom-radio mb-2">
+                  <%= f.radio_button :legal_heir, "0",
+                      checked: (@legal_heir == "0"),
+                      class: "custom-control-input",
+                      id: "heir_children" %>
+                  <label class="custom-control-label" for="heir_children">子供</label>
+                </div>
+                <%= f.select :children_count,
+                      options_for_select([["選択してください", "", { disabled: true }]] +
+                                         [["0人", "0"]] +
+                                         (1..5).map { |i| ["#{i}人", i.to_s] },
+                                         @children_count),
+                      {},
+                      class: "form-control col-12 col-lg-8",
+                      disabled: (@legal_heir != "0"),
+                      id: "children_count_select" %>
+              </div>
+              <br>
+              <div>
+                <div class="custom-control custom-radio mb-2">
+                  <%= f.radio_button :legal_heir, "2",
+                      checked: (@legal_heir == "2"),
+                      class: "custom-control-input",
+                      id: "heir_siblings" %>
+                  <label class="custom-control-label" for="heir_siblings">兄弟姉妹</label>
+                </div>
+                <%= f.select :siblings_count,
+                      options_for_select([["選択してください", "0", { disabled: true }]] +
+                                         (1..5).map { |i| ["#{i}人", i.to_s] },
+                                         @siblings_count),
+                      {},
+                      class: "form-control col-12 col-lg-8",
+                      disabled: (@legal_heir != "2"),
+                      id: "siblings_count_select" %>
+              </div>
+            </td>
+          </tr>
+
+          <tr>
+            <td>後継者の遺産取得割合</td>
+            <td>
+              <span class="input-num"><%= @result_heir_rate_show || 0 %></span> %
+            </td>
+          </tr>
+
+          <tr class="border-bottom">
+            <td class="align-middle pr-0 no-break">⑥配偶者の遺産取得割合</td>
+            <td>
+              <div class="row">
+                <div class="col-9 col-lg-6">
+                  <%= f.text_field :marital_rate,
+                      value: @marital_rate_show,
+                      class: "form-control text-right input-num",
+                      inputmode: "decimal",
+                      disabled: @marital_rate_disabled,
+                      id: "marital_rate_input" %>
+                </div>
+                <div class="py-2">%</div>
+              </div>
+            </td>
+          </tr>
+          </tbody>
+        </table>
+
+        <div class="text-center">
+          <%= f.submit "計算する", class: "btn btn-navy" %>
+        </div>
+      <% end %>
+    </div>
+  </div>
+
+  <div class="mx-auto my-3 col-12 col-md-10 col-lg-9 px-0">
+    <% if @result_succession.present? %>
+      <div class="card">
+        <div class="card-body">
+          <h6 class="card-title text-center mb-3 my-auto">
+            <strong>相続税額は <%= @result_succession.to_i.to_s(:delimited) %> 万円となります。</strong><br>
+            <strong>後継者の相続税額は <%= @result_heir_succession.to_i.to_s(:delimited) %> 万円となり、</strong><br>
+            <strong>そのうち納税猶予額は <%= @result_tax_grace_amount.to_i.to_s(:delimited) %> 万円となります。</strong>
+          </h6>
+        </div>
+      </div>
+    <% end %>
+  </div>
+
+  <!-- 注意書き -->
+  <div class="mx-auto col-sm-12 col-md-10 col-lg-9 mt-4">
+    <div class="row">
+      <div class="col-12 mb-3">
+        <div class="caution-mark-block">※</div>
+        <div class="caution-text-block">
+          平成３０年度の税制改正で創設された事業承継税制の特例措置に基づき相続税の納税猶予額を計算しています。
+        </div>
+      </div>
+      <div class="col-12 mb-3">
+        <div class="caution-mark-block">※</div>
+        <div class="caution-text-block">
+          本シミュレーションでは、十分に信頼できると判断される情報に基づいて作成しておりますが、正確性、完全性、信頼性、使用可能性、有用性及び適時性を保証するものではありません。
+        </div>
+      </div>
+      <div class="col-12 mb-3">
+        <div class="caution-mark-block">※</div>
+        <div class="caution-text-block">
+          各シミュレーション結果は、お客さまご自身にご入力いただいた情報と、平成27年1月1日施行の法令をもとに、簡易的な試算をしたものであり、シミュレーション結果が実際と異なることがあります。
+        </div>
+      </div>
+      <div class="col-12 mb-3">
+        <div class="caution-mark-block">※</div>
+        <div class="caution-text-block">
+          本シミュレーションを利用されたことにより生じた不利益や損害などには、責任を負いかねますのであらかじめご了承ください。
+        </div>
+      </div>
+      <div class="col-12 mb-3">
+        <div class="caution-mark-block">※</div>
+        <div class="caution-text-block">
+          法令改正等により、税務の取り扱いが変更になった場合には変更後の内容が適用されますのでご注意ください。また、個別の取り扱いについては、税理士等の専門家、または所轄の税務署にご確認のうえ、ご自身の責任において判断ください。
+        </div>
+      </div>
+      <div class="col-12">
+        <div class="caution-mark-block">※</div>
+        <div class="caution-text-block">
+          当社では具体的な税額の計算、および、税務申告書類作成にかかる相談業務は行っておりません。
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // 配偶者の有無と配偶者の遺産取得割合の制御
+    const maritalStatusSelect = document.getElementById('marital_status_select');
+    const maritalRateInput = document.getElementById('marital_rate_input');
+    
+    if (maritalStatusSelect && maritalRateInput) {
+      // 初期状態の設定
+      function updateMaritalRateField() {
+        if (maritalStatusSelect.value === '0') {
+          // 配偶者が「有」の場合、入力可能
+          maritalRateInput.disabled = false;
+        } else {
+          // 配偶者が「無」の場合、入力不可
+          maritalRateInput.disabled = true;
+          maritalRateInput.value = '0';
+        }
+      }
+      
+      // 初期状態を設定
+      updateMaritalRateField();
+      
+      // 変更時に実行
+      maritalStatusSelect.addEventListener('change', updateMaritalRateField);
+    }
+
+    // 子供と兄弟姉妹の選択を排他的に制御
+    const heirChildrenRadio = document.getElementById('heir_children');
+    const heirSiblingsRadio = document.getElementById('heir_siblings');
+    const childrenCountSelect = document.getElementById('children_count_select');
+    const siblingsCountSelect = document.getElementById('siblings_count_select');
+    
+    if (heirChildrenRadio && heirSiblingsRadio && childrenCountSelect && siblingsCountSelect) {
+      // 子供の人数が0人かどうかをチェックする関数
+      function isChildrenCountZero() {
+        const value = childrenCountSelect.value;
+        return value === '0' || value === 0;
+      }
+      
+      // 兄弟姉妹の欄の有効/無効を更新する関数
+      function updateSiblingsFieldAvailability() {
+        if (heirChildrenRadio.checked && isChildrenCountZero()) {
+          // 子供が選択されていて、かつ子供の人数が「0人」の場合、兄弟姉妹のラジオボタンを有効化
+          heirSiblingsRadio.disabled = false;
+          // 兄弟姉妹のラジオボタンが選択されている場合、人数選択も有効化
+          if (heirSiblingsRadio.checked) {
+            siblingsCountSelect.disabled = false;
+          } else {
+            siblingsCountSelect.disabled = true;
+            siblingsCountSelect.value = '0';
+          }
+        } else {
+          // 子供が選択されていない、または子供の人数が「0人」以外の場合、兄弟姉妹の欄を無効化
+          heirSiblingsRadio.disabled = true;
+          if (!heirChildrenRadio.checked || !isChildrenCountZero()) {
+            heirSiblingsRadio.checked = false;
+          }
+          siblingsCountSelect.disabled = true;
+          siblingsCountSelect.value = '0';
+        }
+      }
+      
+      function updateLegalHeirFields() {
+        if (heirChildrenRadio.checked) {
+          // 子供が選択された場合
+          childrenCountSelect.disabled = false;
+          // 兄弟姉妹の欄の有効/無効を更新
+          updateSiblingsFieldAvailability();
+        } else if (heirSiblingsRadio.checked) {
+          // 兄弟姉妹が選択された場合（子供が0人の場合のみ可能）
+          if (heirChildrenRadio.checked && isChildrenCountZero()) {
+            childrenCountSelect.disabled = false;
+            siblingsCountSelect.disabled = false;
+          } else {
+            // 子供が0人でない場合は、兄弟姉妹の選択を解除
+            heirSiblingsRadio.checked = false;
+            siblingsCountSelect.disabled = true;
+            siblingsCountSelect.value = '0';
+          }
+        } else {
+          // どちらも選択されていない場合
+          childrenCountSelect.disabled = true;
+          childrenCountSelect.value = '0';
+          heirSiblingsRadio.disabled = true;
+          siblingsCountSelect.disabled = true;
+          siblingsCountSelect.value = '0';
+        }
+      }
+      
+      // 子供の人数が変更されたときの処理
+      function updateSiblingsFieldOnChildrenCountChange() {
+        if (heirChildrenRadio.checked) {
+          updateSiblingsFieldAvailability();
+        }
+      }
+      
+      // 兄弟姉妹のラジオボタンが変更されたときの処理
+      function updateSiblingsCountOnRadioChange() {
+        if (heirSiblingsRadio.checked && heirChildrenRadio.checked && isChildrenCountZero()) {
+          siblingsCountSelect.disabled = false;
+        } else if (!heirSiblingsRadio.checked) {
+          siblingsCountSelect.disabled = true;
+          siblingsCountSelect.value = '0';
+        }
+      }
+      
+      // 初期状態を設定
+      updateLegalHeirFields();
+      
+      // 変更時に実行
+      heirChildrenRadio.addEventListener('change', updateLegalHeirFields);
+      heirSiblingsRadio.addEventListener('change', function() {
+        updateSiblingsCountOnRadioChange();
+      });
+      childrenCountSelect.addEventListener('change', updateSiblingsFieldOnChildrenCountChange);
+    }
+  });
+</script>
