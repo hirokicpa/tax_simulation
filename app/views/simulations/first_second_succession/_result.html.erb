@@ -1,0 +1,36 @@
+<div class="container-fluid">
+  <div class="content-main row mt-1 mb-2 px-5 py-5 responsive-padding">
+    <div class="col-md-12 mx-auto text-center px-0">
+      <table class="mt-4 mb-0">
+        <thead>
+          <tr>
+            <th>1次相続時の配偶者の</br>遺産取得割合</th>
+            <th>1次相続税</th>
+            <th>2次相続税</th>
+            <th>1次＋2次相続税の合計</th>
+            <th></th>
+          </tr>
+        </thead>
+
+        <tbody>
+          <% for i in 0..10 do %>
+            <tr style="border-bottom: 1px solid #f0f0f0;">
+              <th class="center"><%= @marital_percent[i] %></th>
+              <td style="text-align: right;"><%= @first_results[i].to_s(:delimited) %></td>
+              <td style="text-align: right;"><%= @second_results[i].to_s(:delimited) %></td>
+              <td style="text-align: right;"><%= @total_results[i].to_s(:delimited) %></td>
+              <td></td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+      <%= column_chart @data, colors: ["#03A9F4", "#8BC34A"], xtitle: "1次相続時の配偶者の遺産取得割合", ytitle: "万円", legend: "bottom", stacked: true %>
+      </br>
+      <div class="center" style="font-size: 16px; font-weight: bold;">
+        <div style="white-space: nowrap;"><%= "1次相続時の配偶者の遺産取得割合: #{@min_marital_percent}" %></div>
+        <div style="white-space: nowrap;"><%= "1次＋2次相続税の合計: #{@min_total_result.to_s(:delimited)} 万円" %></div>
+        上記の場合が最小値となります。
+      </div>
+    </div>
+  </div>
+</div>

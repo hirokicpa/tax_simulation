@@ -1,16 +1,42 @@
 <div class="page-top mt-4"> 
   <div class="container-fluid">
     <div class="white-block">
-      <h1 class="block-title text-center font-weight-bold text-primary mb-5">掲示板</h1>
-        <div class="d-flex justify-content-center mb-5">
-          <% @board.each do |board| %>
-          <div class="col-6 col-sm-6 col-md-6 col-lg-4 px-0 text-center">
-            <%= link_to board.title, board_path(board, tab: "questions"), class: "btn btn-primary btn-lg mb-3 mx-2", style: "width: 200px; font-size: 1.25rem;" %> <!-- フォントサイズを追加 -->
+      <h1 class="block-title text-center font-weight-bold text-primary mb-5">相続・事業承継相談掲示板</h1>
+      
+      <div class="row justify-content-center mb-5">
+        <div class="col-md-6">
+          <div class="d-flex flex-column align-items-center">
+            <% inheritance_tax_board = @boards.find_by(title: '相続税') %>
+            <% gift_tax_board = @boards.find_by(title: '贈与税') %>
+            
+            <% if inheritance_tax_board %>
+              <%= link_to "相続税", board_path(inheritance_tax_board), class: "btn btn-primary btn-lg mb-4", style: "width: 250px; font-size: 1.3rem; height: 60px; line-height: 45px;" %>
+            <% end %>
+            
+            <% if gift_tax_board %>
+              <%= link_to "贈与税", board_path(gift_tax_board), class: "btn btn-success btn-lg mb-4", style: "width: 250px; font-size: 1.3rem; height: 60px; line-height: 45px;" %>
+            <% end %>
           </div>
-          <% end %>
         </div>
+        <div class="col-md-6">
+          <div class="d-flex flex-column align-items-center">
+            <% business_succession_board = @boards.find_by(title: '事業承継税制') %>
+            <% income_tax_board = @boards.find_by(title: '所得税') %>
+            
+            <% if business_succession_board %>
+              <%= link_to "事業承継税制", board_path(business_succession_board), class: "btn btn-warning btn-lg mb-4", style: "width: 250px; font-size: 1.3rem; height: 60px; line-height: 45px;" %>
+            <% end %>
+            
+            <% if income_tax_board %>
+              <%= link_to "所得税", board_path(income_tax_board), class: "btn btn-info btn-lg mb-4", style: "width: 250px; font-size: 1.3rem; height: 60px; line-height: 45px;" %>
+            <% end %>
+          </div>
+        </div>
+      </div>
+      
       <div class="text-center">
-        <p class="sub-text">各ジャンルの質問や意見交換などの投稿掲示版です。</p>
+        <p class="sub-text">各税制に関する質問や意見交換などの投稿掲示板です。</p>
+        <p class="sub-text">ご質問やご相談がございましたら、該当する税制の掲示板に投稿してください。</p>
       </div>
     </div>
   </div>

@@ -9,6 +9,12 @@ class User < ApplicationRecord
   has_many :answers
   mount_uploader :avatar, ImageUploader
 
+  # バリデーション
+  validates :first_name, presence: true
+  validates :last_name, presence: true
+  validates :occupation, presence: true
+  validates :age, presence: true
+
   before_destroy :delete_questions
   
   def full_name
