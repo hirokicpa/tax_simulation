@@ -7,7 +7,19 @@
 #   Character.create(name: 'Luke', movie: movies.first)
 
 # 相続事業承継に関する相談項目の掲示板を作成
-Board.create!(title: '相続税')
-Board.create!(title: '贈与税')
-Board.create!(title: '事業承継税制')
-Board.create!(title: '所得税')
+# Board.create!(title: '相続税')
+# Board.create!(title: '贈与税')
+# Board.create!(title: '事業承継税制')
+# Board.create!(title: '所得税')
+
+titles = [
+  "相続税",
+  "贈与税",
+  "事業承継税制",
+  "所得税"
+]
+
+titles.each do |title|
+  # すでに同じtitleがあれば作らない
+  Board.find_or_create_by!(title: title)
+end
