@@ -1,0 +1,32 @@
+ja:
+  devise:
+    failure:
+      already_authenticated: "既にログインしています。"
+      inactive: "アカウントが有効化されていません。"
+      invalid: "メールアドレスまたはパスワードが正しくありません。"
+      locked: "アカウントがロックされています。"
+      last_attempt: "アカウントがロックされる前に、あと1回試行できます。"
+      not_found_in_database: "メールアドレスまたはパスワードが正しくありません。"
+      timeout: "セッションがタイムアウトしました。再度ログインしてください。"
+      unauthenticated: "続行するにはログインまたはアカウント登録が必要です。"
+      unconfirmed: "続行する前にメールアドレスを確認してください。"
+    sessions:
+      signed_in: "ログインしました。"
+      signed_out: "ログアウトしました。"
+    registrations:
+      destroyed: "アカウントを削除しました。またのご利用をお待ちしております。"
+      signed_up: "アカウント登録が完了しました。"
+      signed_up_but_inactive: "アカウント登録が完了しました。ただし、アカウントが有効化されていないため、ログインできません。"
+      signed_up_but_locked: "アカウント登録が完了しました。ただし、アカウントがロックされているため、ログインできません。"
+      signed_up_but_unconfirmed: "確認リンクを含むメールを送信しました。メール内のリンクをクリックしてアカウントを有効化してください。"
+      update_needs_confirmation: "アカウントを更新しました。新しいメールアドレスを確認する必要があります。メールを確認して、確認リンクをクリックしてください。"
+      updated: "アカウントを更新しました。"
+      updated_but_not_signed_in: "アカウントを更新しました。パスワードが変更されたため、再度ログインしてください。"
+    passwords:
+      send_instructions: "パスワードリセットの手順をメールで送信しました。"
+      updated: "パスワードを変更しました。ログインしました。"
+      updated_not_active: "パスワードを変更しました。"
+    confirmations:
+      confirmed: "メールアドレスが確認されました。"
+      send_instructions: "メールアドレスの確認手順をメールで送信しました。"
+

@@ -4,132 +4,128 @@ class Simulations::SuccessionGiftController < ApplicationController
 
 	def variables
 		@total_heritage = succession_params[:total_heritage].to_i
-		@count_heir_children = succession_params[:count_heir_children].to_i
-		succession_params[:check_over_20] == "0" ? @count_over_20 = succession_params[:count_over_20].to_i : @count_over_20 = 0
-		succession_params[:others] == "0" ? @count_others = succession_params[:count_others].to_i : @count_others = 0
+		@has_spouse = succession_params[:has_spouse] == "1"
+		@children_count = succession_params[:children_count].to_i
+		@gift_to_spouse = succession_params[:gift_to_spouse].to_i
+		@gift_to_children_over_20 = succession_params[:gift_to_children_over_20].to_i
+		@gift_to_others = succession_params[:gift_to_others].to_i
 		@one_person_gift = succession_params[:one_person_gift].to_i
 		@years = succession_params[:years].to_i
 		@gift_deduction = @one_person_gift - 110
 		#贈与前：相続税　配偶者のみ
 		@before_gift_heir_mate = @total_heritage - (3000 + 600)
 		#贈与前：相続税　配偶者＆子供
-		@before_gift_heir_mate_children = (@total_heritage - (3000 + 600 * (@count_heir_children + 1))).to_i 
+		@before_gift_heir_mate_children = (@total_heritage - (3000 + 600 * (@children_count + 1))).to_i 
 		#贈与前：相続税　子供のみ
-		@before_gift_heir_children = (@total_heritage - (3000 + 600 * @count_heir_children)).to_i
+		@before_gift_heir_children = (@total_heritage - (3000 + 600 * @children_count)).to_i
 		#贈与後：相続税　配偶者のみ　贈与　配偶者のみ
-		@after_gift_heir_mate_gift_mate = @total_heritage - @one_person_gift * @years * (1 + @count_over_20 + @count_others) - (3000 + 600)
+		@after_gift_heir_mate_gift_mate = @total_heritage - @one_person_gift * @years * (@gift_to_spouse + @gift_to_children_over_20 + @gift_to_others) - (3000 + 600)
 		#贈与後：　相続税　配偶者と子供　贈与　配偶者のみ
-		@after_gift_heir_mate_children_gift_mate = @total_heritage - @one_person_gift * @years * (1 + @count_over_20 + @count_others) - (3000 + 600 * (1 + @count_heir_children))
+		@after_gift_heir_mate_children_gift_mate = @total_heritage - @one_person_gift * @years * (@gift_to_spouse + @gift_to_children_over_20 + @gift_to_others) - (3000 + 600 * (1 + @children_count))
 		#贈与後：　相続税　配偶者と子供　贈与　配偶者以外
-		@after_gift_heir_mate_children_gift_children = @total_heritage - @one_person_gift * @years * (@count_over_20 + @count_others) - (3000 + 600 * (1 + @count_heir_children))
+		@after_gift_heir_mate_children_gift_children = @total_heritage - @one_person_gift * @years * (@gift_to_children_over_20 + @gift_to_others) - (3000 + 600 * (1 + @children_count))
 		#贈与後：　相続税　子供　贈与　配偶者以外
-		@after_gift_heir_children_gift_children = @total_heritage - @one_person_gift * @years *(@count_over_20 + @count_others) -  (3000 + 600 * @count_heir_children)
+		@after_gift_heir_children_gift_children = @total_heritage - @one_person_gift * @years * (@gift_to_children_over_20 + @gift_to_others) - (3000 + 600 * @children_count)
 	end
 
 	def before_gift
 		 variables
-		if succession_params[:select_succession_mate] == "0" && succession_params[:select_succession_children] != "0" 
+		if @has_spouse && @children_count == 0
 		  if @before_gift_heir_mate >= 0
 		     mate_tax = succession_tax(@before_gift_heir_mate)
 		     @result_before_gift = (mate_tax).floor
 		  else
 		 	 @result_before_gift = 0
 		  end
-		elsif succession_params[:select_succession_mate] == "0" && succession_params[:select_succession_children] == "0"
+		elsif @has_spouse && @children_count > 0
 		  if @before_gift_heir_mate_children >= 0
 			 mate_sum = (@before_gift_heir_mate_children / 2).to_f
-			 child_sum = (@before_gift_heir_mate_children / 2 /@count_heir_children).to_f
+			 child_sum = (@before_gift_heir_mate_children / 2 / @children_count).to_f
 			 mate_tax = succession_tax(mate_sum)
 			 child_tax = succession_tax(child_sum)
-			 @result_before_gift = (mate_tax + child_tax * @count_heir_children).floor
+			 @result_before_gift = (mate_tax + child_tax * @children_count).floor
 		  else
 			 @result_before_gift = 0
 		  end
-		elsif succession_params[:select_succession_mate] != "0" && succession_params[:select_succession_children] == "0"
+		elsif !@has_spouse && @children_count > 0
 		  if @before_gift_heir_children >= 0
-			 child_sum = (@before_gift_heir_children  / @count_heir_children).to_f
+			 child_sum = (@before_gift_heir_children / @children_count).to_f
 			 child_tax = succession_tax(child_sum)
-			 @result_before_gift = (child_tax * @count_heir_children).floor
-		  elsif 
+			 @result_before_gift = (child_tax * @children_count).floor
+		  else
 			 @result_before_gift = 0
 		  end	
+		else
+		  @result_before_gift = 0
 		end
 	end
 
 	def gift_method
 		variables
-		   @gift_deduction >= 0
-		   gift_deduction = (@gift_deduction).to_f
-		 if succession_params[:check_over_20] == "0" && succession_params[:select_gift_mate] != "0" && succession_params[:others] !="0"
-		   child_gift_tax = gift_special_tax(gift_deduction).to_f
-		   @result_gift = (child_gift_tax * @years * @count_over_20).floor
-		 elsif succession_params[:check_over_20] != "0" && succession_params[:select_gift_mate] == "0" && succession_params[:others] !="0"
-		   mate_gift_tax = gift_general_tax(gift_deduction).to_f
-		   @result_gift = (mate_gift_tax * @years).floor
-		 elsif succession_params[:check_over_20] != "0" && succession_params[:select_gift_mate] != "0" && succession_params[:others] =="0"
-		   other_gift_tax = gift_general_tax(gift_deduction).to_f
-		   @result_gift = (other_gift_tax * @years * @count_others).floor
-		 elsif succession_params[:check_over_20] == "0" && succession_params[:select_gift_mate] == "0" && succession_params[:others] == "0" 
-		   child_gift_tax = gift_special_tax(gift_deduction).to_f
-		   other_gift_tax = gift_general_tax(gift_deduction).to_f
-		   mate_gift_tax = gift_general_tax(gift_deduction).to_f
-		   @result_gift = ((child_gift_tax * @count_over_20 + other_gift_tax * @count_others + mate_gift_tax) * @years).floor
-		 elsif succession_params[:check_over_20] == "0" && succession_params[:select_gift_mate] == "0" && succession_params[:others] != "0" 
-		   child_gift_tax = gift_special_tax(gift_deduction).to_f
-		   mate_gift_tax = gift_general_tax(gift_deduction).to_f
-		   @result_gift = ((child_gift_tax * @count_over_20 + mate_gift_tax) * @years).floor
-		 elsif succession_params[:check_over_20] == "0" && succession_params[:select_gift_mate] != "0" && succession_params[:others] == "0" 
-		   child_gift_tax = gift_special_tax(gift_deduction).to_f
-		   other_gift_tax = gift_general_tax(gift_deduction).to_f
-		   @result_gift = ((child_gift_tax * @count_over_20 + other_gift_tax * @count_others) * @years).floor
-		 elsif succession_params[:check_over_20] != "0" && succession_params[:select_gift_mate] == "0" && succession_params[:others] == "0" 
-		   mate_gift_tax = gift_general_tax(gift_deduction).to_f
-		   other_gift_tax = gift_general_tax(gift_deduction).to_f
-		   @result_gift = ((mate_gift_tax + other_gift_tax * @count_others) * @years).floor        
-		 end
-
+		return @result_gift = 0 if @gift_deduction < 0
+		
+		gift_deduction = (@gift_deduction).to_f
+		@result_gift = 0
+		
+		# 配偶者への贈与
+		if @gift_to_spouse > 0
+			mate_gift_tax = gift_general_tax(gift_deduction).to_f
+			@result_gift += (mate_gift_tax * @years * @gift_to_spouse).floor
+		end
+		
+		# 子ども（20歳以上）への贈与
+		if @gift_to_children_over_20 > 0
+			child_gift_tax = gift_special_tax(gift_deduction).to_f
+			@result_gift += (child_gift_tax * @years * @gift_to_children_over_20).floor
+		end
+		
+		# 上記以外への贈与
+		if @gift_to_others > 0
+			other_gift_tax = gift_general_tax(gift_deduction).to_f
+			@result_gift += (other_gift_tax * @years * @gift_to_others).floor
+		end
 	end
 
 	def after_gift
 		variables
-		if succession_params[:select_succession_mate] == "0" && succession_params[:select_succession_children] != "0" && succession_params[:select_gift_mate] == "0"
+		if @has_spouse && @children_count == 0 && @gift_to_spouse > 0
 			if @after_gift_heir_mate_gift_mate > 0
-			     mate_tax = succession_tax(@after_gift_heir_mate_gift_mate).to_f
-			     @result_after_gift = (mate_tax).floor
+				mate_tax = succession_tax(@after_gift_heir_mate_gift_mate).to_f
+				@result_after_gift = (mate_tax).floor
 			else
-		 	     @result_after_gift = 0
-		    end
-		elsif succession_params[:select_succession_mate] == "0" && succession_params[:select_succession_children] == "0" && succession_params[:select_gift_mate] == "0"
+				@result_after_gift = 0
+			end
+		elsif @has_spouse && @children_count > 0 && @gift_to_spouse > 0
 			if @after_gift_heir_mate_children_gift_mate > 0
-			     mate_sum = (@after_gift_heir_mate_children_gift_mate / 2).to_f
-			     mate_tax = succession_tax(mate_sum).to_f
-			     child_sum = (@after_gift_heir_mate_children_gift_mate / 2 / @count_heir_children).to_f
-			     child_tax = succession_tax(child_sum).to_f
-			     @result_after_gift = (mate_tax + child_tax * @count_heir_children).floor
-		    else
-		         @result_after_gift = 0
-		    end
-		elsif succession_params[:select_succession_mate] == "0" && succession_params[:select_succession_children] == "0" && succession_params[:select_gift_mate] != "0"
+				mate_sum = (@after_gift_heir_mate_children_gift_mate / 2).to_f
+				mate_tax = succession_tax(mate_sum).to_f
+				child_sum = (@after_gift_heir_mate_children_gift_mate / 2 / @children_count).to_f
+				child_tax = succession_tax(child_sum).to_f
+				@result_after_gift = (mate_tax + child_tax * @children_count).floor
+			else
+				@result_after_gift = 0
+			end
+		elsif @has_spouse && @children_count > 0 && @gift_to_spouse == 0
 			if @after_gift_heir_mate_children_gift_children > 0
-				 mate_sum = (@after_gift_heir_mate_children_gift_children / 2).to_f
-				 mate_tax = succession_tax(mate_sum).to_f
-				 child_sum = (@after_gift_heir_mate_children_gift_children / 2 / @count_heir_children).to_f
-				 child_tax = succession_tax(child_sum).to_f
-				 @result_after_gift = (mate_tax + child_tax * @count_heir_children).floor
-		    else
-		         @result_after_gift = 0
-		    end
-		elsif succession_params[:select_succession_mate] != "0" && succession_params[:select_succession_children] == "0" && succession_params[:select_gift_mate] != "0"
+				mate_sum = (@after_gift_heir_mate_children_gift_children / 2).to_f
+				mate_tax = succession_tax(mate_sum).to_f
+				child_sum = (@after_gift_heir_mate_children_gift_children / 2 / @children_count).to_f
+				child_tax = succession_tax(child_sum).to_f
+				@result_after_gift = (mate_tax + child_tax * @children_count).floor
+			else
+				@result_after_gift = 0
+			end
+		elsif !@has_spouse && @children_count > 0 && @gift_to_spouse == 0
 			if @after_gift_heir_children_gift_children > 0
-				 child_sum = (@after_gift_heir_children_gift_children / @count_heir_children).to_f
-				 child_tax = succession_tax(child_sum).to_f
-				 @result_after_gift = (child_tax * @count_heir_children).floor
-		    else
-		         @result_after_gift = 0
-		    end
-
+				child_sum = (@after_gift_heir_children_gift_children / @children_count).to_f
+				child_tax = succession_tax(child_sum).to_f
+				@result_after_gift = (child_tax * @children_count).floor
+			else
+				@result_after_gift = 0
+			end
+		else
+			@result_after_gift = 0
 		end
-
 	end
 
 	def succession_tax(sum)
@@ -210,6 +206,6 @@ class Simulations::SuccessionGiftController < ApplicationController
 
 	private
 	def succession_params
-		params.permit(:utf8,:commit,:total_heritage,:select_succession_mate,:select_succession_children,:count_heir_children,:select_gift_mate, :check_over_20, :count_over_20, :others, :count_others, :one_person_gift, :years)
+		params.permit(:utf8, :commit, :total_heritage, :has_spouse, :children_count, :gift_to_spouse, :gift_to_children_over_20, :gift_to_others, :one_person_gift, :years)
 	end
 end

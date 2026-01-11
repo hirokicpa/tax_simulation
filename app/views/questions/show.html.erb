@@ -2,59 +2,100 @@
   <h2 class="text-center mt-5">質問詳細</h2>
 
   <div class="row justify-content-center">
-    <div class="col-md-6">
+    <div class="col-md-8">
       <div class="card mb-4 border-primary">
-        <div class="card-header bg-white text-left">
-          <h5 class="card-title text-dark">タイトル:</h5>
-          <%= @question.title %>
+        <div class="card-header bg-primary text-white">
+          <div class="d-flex justify-content-between align-items-center">
+            <h5 class="card-title mb-0">タイトル: <%= @question.title %></h5>
+            <% if current_user == @question.user %>
+              <%= link_to board_question_path(@board, @question), method: :delete, 
+                  data: { confirm: "この質問を削除しますか？削除すると、この質問に関連するすべての回答も削除されます。" }, 
+                  class: "btn btn-danger", 
+                  style: "font-size: 0.875rem; padding: 0.5rem 1rem; white-space: nowrap; display: inline-flex; align-items: center; justify-content: center; min-width: auto; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);" do %>
+                <i class="fa fa-trash mr-1" aria-hidden="true"></i> 質問を削除
+              <% end %>
+            <% end %>
+          </div>
         </div>
-        <div class="card-body text-left">
-          <h5>質問内容:</h5>
+        <div class="card-body">
+          <h5 class="mb-3">質問内容:</h5>
           <p class="card-text"><%= @question.content %></p>
-          <p class="card-text text-small">
-            投稿日時: <%= @question.created_at.strftime('%Y/%m/%d %H:%M') %>
-          </p>
-        </div>
-      </div>
-    </div>
-  </div>
-
- <h2 class="text-center mt-5">回答一覧</h2>
- <% @question.answers.each do |answer| %>
-    <div class="row justify-content-center">
-      <div class="col-md-6">
-        <div class="card mb-4 border-secondary">
-          <div class="card-header bg-white text-left">
-            <h5 class="card-title text-dark">回答者:</h5>
-            <%= answer.user.full_name %>
-          </div>
-          <div class="card-body text-left">
-            <h5>回答内容:</h5>
-            <p class="card-text"><%= answer.content %></p>
-            <p class="card-text text-small">
-              回答日時: <%= answer.created_at.strftime('%Y/%m/%d %H:%M') %>
-            </p>
+          <hr>
+          <div class="d-flex justify-content-between align-items-center">
+            <small class="text-muted">
+              投稿者: <%= @question.user.full_name %>
+            </small>
+            <small class="text-muted">
+              投稿日時: <%= @question.created_at.strftime('%Y/%m/%d %H:%M') %>
+            </small>
           </div>
         </div>
       </div>
-    </div>
-  <% end %>
 
-  <div class="row justify-content-center">
-    <div class="col-md-6">
+      <!-- 回答ボタン -->
       <% if current_user&.authority_answer == true %>
-        <h3 class="text-center mt-5">回答投稿</h3>
-         <%= form_with model: [@board, @question, Answer.new || Answer.new], local: true do |form| %>
-          <div class="form-group">
-            <%= form.label :回答内容, class: "font-weight-bold" %>
-            <%= form.text_area :content, class: "form-control", rows: 5, placeholder: "回答の内容を入力してください" %>
-          </div>
-          <div class="text-center mt-5">
-            <%= form.submit "回答する", class: "btn btn-primary btn-lg" %>
+        <div class="text-center mb-4">
+          <%= link_to new_board_question_answer_path(@board, @question), class: "btn btn-success btn-lg text-center", style: "display: inline-flex; align-items: center; justify-content: center;" do %>
+            <i class="fa fa-reply" aria-hidden="true"></i> 回答する
+          <% end %>
+        </div>
+      <% end %>
+
+      <!-- 回答一覧 -->
+      <h3 class="text-center mt-5 mb-4">
+        <i class="fa fa-comments" aria-hidden="true"></i> 回答一覧 
+        <span class="badge badge-info"><%= @question.answers.count %>件</span>
+      </h3>
+
+      <% if @question.answers.any? %>
+        <% @question.answers.order(created_at: :asc).each do |answer| %>
+          <div class="card mb-3 border-secondary">
+            <div class="card-header bg-light">
+              <div class="d-flex justify-content-between align-items-center">
+                <div>
+                  <strong>回答者:</strong> <%= answer.user.full_name %>
+                  <small class="text-muted ml-3">
+                    <%= answer.created_at.strftime('%Y/%m/%d %H:%M') %>
+                    <% if answer.updated_at != answer.created_at %>
+                      <span class="text-info">（編集済み）</span>
+                    <% end %>
+                  </small>
+                </div>
+                <% if current_user == answer.user || current_user&.authority_answer == true %>
+                  <div>
+                    <%= link_to edit_board_question_answer_path(@board, @question, answer), 
+                        class: "btn btn-primary", 
+                        style: "font-size: 0.875rem; padding: 0.5rem 1rem; white-space: nowrap; display: inline-flex; align-items: center; justify-content: center; min-width: auto; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); margin-right: 0.5rem;" do %>
+                      <i class="fa fa-edit mr-1" aria-hidden="true"></i> 編集
+                    <% end %>
+                    <%= link_to board_question_answer_path(@board, @question, answer), method: :delete, 
+                        data: { confirm: "この回答を削除しますか？" }, 
+                        class: "btn btn-danger",
+                        style: "font-size: 0.875rem; padding: 0.5rem 1rem; white-space: nowrap; display: inline-flex; align-items: center; justify-content: center; min-width: auto; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);" do %>
+                      <i class="fa fa-trash mr-1" aria-hidden="true"></i> 削除
+                    <% end %>
+                  </div>
+                <% end %>
+              </div>
+            </div>
+            <div class="card-body">
+              <p class="card-text"><%= simple_format(answer.content) %></p>
+            </div>
           </div>
         <% end %>
       <% else %>
+        <div class="alert alert-info text-center">
+          <h5>まだ回答がありません</h5>
+          <p>最初の回答を投稿してみませんか？</p>
+        </div>
       <% end %>
+
+      <!-- 戻るボタン -->
+      <div class="text-center mt-4">
+        <%= link_to board_path(@board), class: "btn btn-secondary" do %>
+          <i class="fa fa-arrow-left" aria-hidden="true"></i> 掲示板に戻る
+        <% end %>
+      </div>
     </div>
   </div>
 </div>

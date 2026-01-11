@@ -5,6 +5,7 @@ ruby '2.7.5'
 
 gem 'rails', '~> 6.1.3', '>= 6.1.3.1'
 gem 'mysql2', '0.5.3'
+gem 'sqlite3', '~> 1.4'
 gem 'puma', '5.5.2'
 gem 'sass-rails', '6.0.0'
 gem 'webpacker', '5.4.3'

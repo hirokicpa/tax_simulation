@@ -3,12 +3,12 @@
     <div class="card-body px-4 py-4">
       <div class="header-section text-center mb-4">
         <div class="icon-wrapper mb-3">
-          <i class="fa fa-building fa-3x text-primary" aria-hidden="true"></i>
+          <i class="fa fa-calculator fa-3x text-primary" aria-hidden="true"></i>
         </div>
         <h4 class="card-title mb-2 font-weight-bold">
-          不動産法人化の<br>シミュレーション
+          所得税の<br>シミュレーション
         </h4>
-        <p class="text-muted small mb-0">法人化による税額影響を計算します</p>
+        <p class="text-muted small mb-0">所得税額を計算します</p>
       </div>
 
       <div class="alert alert-info alert-modern mb-4">
@@ -18,30 +18,34 @@
             <strong class="d-block mb-2">入力時のご注意</strong>
             <ul class="mb-0 pl-3">
               <li>値はすべて<strong>半角数字</strong>で入力してください。</li>
-              <li>基礎控除は個人課税所得額に応じて自動設定されます（令和7年分基準）。</li>
+              <li>基礎控除は所得金額に応じて自動設定されます（令和7年分基準）。</li>
               <li>あくまでも目安としてご利用ください。</li>
             </ul>
           </div>
         </div>
       </div>
 
-      <%= form_tag(simulations_incorporation_result_tax_path, method: :get, remote: true, html: { class: "modern-form" }) do %>
+      <%= form_tag(simulations_income_tax_result_tax_path, method: :get, remote: true, html: { accept_charset: "UTF-8", class: "modern-form", id: "income_tax_form" }) do %>
         <div class="form-sections">
           <div class="form-section">
             <div class="form-group">
               <label class="form-label">
                 <span class="step-number">①</span>
-                <span class="label-text">個人課税所得額（所得控除前の不動産所得）</span>
+                <span class="label-text">所得</span>
               </label>
               <div class="input-group-modern">
-                <%= text_field_tag :taxableincome, params[:taxableincome], 
+                <%= text_field_tag :income, params[:income], 
                     class: "form-control form-control-modern text-right",
-                    id: "taxableincome",
+                    id: "income_input",
                     inputmode: "numeric",
                     pattern: "^[0-9]+$",
                     required: "",
                     placeholder: "0" %>
                 <span class="input-unit">万円</span>
+              </div>
+              <div class="form-help-text">
+                <i class="fa fa-info-circle mr-1"></i>
+                合計所得金額を入力してください
               </div>
             </div>
           </div>
@@ -50,26 +54,6 @@
             <div class="form-group">
               <label class="form-label">
                 <span class="step-number">②</span>
-                <span class="label-text">青色申告特別控除額</span>
-              </label>
-              <div class="input-group-modern">
-                <%= select_tag :blue_return, 
-                    options_for_select([
-                      ["選択してください", "0", { disabled: true }],
-                      ["10 万円", "10"],
-                      ["65 万円", "65"],
-                      ["白色申告", "0"],
-                    ], params[:blue_return] || "10"),
-                    class: "form-control form-control-modern",
-                    id: "blue_return" %>
-              </div>
-            </div>
-          </div>
-
-          <div class="form-section">
-            <div class="form-group">
-              <label class="form-label">
-                <span class="step-number">③</span>
                 <span class="label-text">所得控除合計</span>
               </label>
               <div class="input-group-modern">
@@ -282,61 +266,30 @@
               </div>
             </div>
           </div>
-
-          <div class="form-section">
-            <div class="form-group">
-              <label class="form-label">
-                <span class="step-number">④</span>
-                <span class="label-text">法人化による個人所得の法人移転額（役員報酬控除前の法人の課税所得）</span>
-              </label>
-              <div class="input-group-modern">
-                <%= text_field_tag :transferincome, params[:transferincome],
-                    class: "form-control form-control-modern text-right",
-                    inputmode: "numeric",
-                    pattern: "^[0-9]+$",
-                    required: "",
-                    placeholder: "0" %>
-                <span class="input-unit">万円</span>
-              </div>
-            </div>
-          </div>
-
-          <div class="form-section">
-            <div class="form-group">
-              <label class="form-label">
-                <span class="step-number">⑤</span>
-                <span class="label-text">法人からの役員報酬額（月額報酬×12ヶ月）</span>
-              </label>
-              <div class="input-group-modern">
-                <%= text_field_tag :salary, params[:salary],
-                    class: "form-control form-control-modern text-right",
-                    inputmode: "numeric",
-                    pattern: "^[0-9]+$",
-                    required: "",
-                    placeholder: "0" %>
-                <span class="input-unit">万円/月×12ヶ月</span>
-              </div>
-            </div>
-          </div>
         </div>
 
         <div class="text-center mt-4">
-          <%= submit_tag "計算する", class: "btn btn-primary btn-lg btn-calculate", id: "btn_incometax_corporate" %>
+          <%= submit_tag "計算する", class: "btn btn-primary btn-lg btn-calculate", id: "btn_income_tax" %>
         </div>
       <% end %>
     </div>
   </div>
 
+  <!-- 結果表示 -->
   <div class="mx-auto my-4 col-12 col-md-10 col-lg-9 px-0" id="result-section">
-    <div id="result_incorporation"></div>
+    <div id="result_income_tax" class="card result-card" style="display: none;">
+      <div class="card-body p-4">
+        <div id="result-content"></div>
+      </div>
+    </div>
   </div>
 </div>
 
 <script>
   document.addEventListener('DOMContentLoaded', function() {
-    const taxableIncomeInput = document.getElementById('taxableincome');
-    const basicDeductionDisplay = document.getElementById('basic_deduction_display');
+    const incomeInput = document.getElementById('income_input');
     const totalIncomeDeductionField = document.getElementById('total_income_deduction');
+    const basicDeductionDisplay = document.getElementById('basic_deduction_display');
     
     // 基礎控除の自動計算（令和7年分基準）
     function calculateBasicDeduction(income) {
@@ -385,7 +338,7 @@
       }
       
       // 基礎控除を取得
-      const income = taxableIncomeInput ? (taxableIncomeInput.value.replace(/,/g, '') || '0') : '0';
+      const income = incomeInput ? (incomeInput.value.replace(/,/g, '') || '0') : '0';
       const basicDeduction = calculateBasicDeduction(income);
       
       // 基礎控除を表示
@@ -402,11 +355,11 @@
       }
     }
     
-    // 個人課税所得額入力時に基礎控除を自動更新
-    if (taxableIncomeInput) {
-      taxableIncomeInput.addEventListener('input', function() {
+    // 所得入力時に基礎控除を自動更新
+    if (incomeInput) {
+      incomeInput.addEventListener('input', function() {
         // 基礎控除が0になる場合は手動入力モードを解除して自動更新を許可
-        const income = taxableIncomeInput.value.replace(/,/g, '') || '0';
+        const income = incomeInput.value.replace(/,/g, '') || '0';
         const basicDeduction = calculateBasicDeduction(income);
         if (basicDeduction === 0) {
           isManualInputMode = false; // 基礎控除が0の場合は自動更新を許可
@@ -415,7 +368,7 @@
       });
       
       // 初期値の設定
-      const initialIncome = taxableIncomeInput.value.replace(/,/g, '');
+      const initialIncome = incomeInput.value.replace(/,/g, '');
       if (initialIncome) {
         const basicDeduction = calculateBasicDeduction(initialIncome);
         if (basicDeduction === 0) {
@@ -429,7 +382,7 @@
     if (totalIncomeDeductionField) {
       // フォーカス時：手動入力モードを有効化
       totalIncomeDeductionField.addEventListener('focus', function() {
-        const income = taxableIncomeInput ? (taxableIncomeInput.value.replace(/,/g, '') || '0') : '0';
+        const income = incomeInput ? (incomeInput.value.replace(/,/g, '') || '0') : '0';
         const basicDeduction = calculateBasicDeduction(income);
         // 基礎控除が0の場合は手動入力モードを有効化
         if (basicDeduction === 0) {
@@ -439,7 +392,7 @@
       
       // 手動入力時：手動入力モードを維持
       totalIncomeDeductionField.addEventListener('input', function() {
-        const income = taxableIncomeInput ? (taxableIncomeInput.value.replace(/,/g, '') || '0') : '0';
+        const income = incomeInput ? (incomeInput.value.replace(/,/g, '') || '0') : '0';
         const basicDeduction = calculateBasicDeduction(income);
         // 基礎控除が0の場合は手動入力モードを維持
         if (basicDeduction === 0) {
@@ -449,7 +402,7 @@
       
       // フォーカスが外れた時：基礎控除が0でない場合は自動更新を再開
       totalIncomeDeductionField.addEventListener('blur', function() {
-        const income = taxableIncomeInput ? (taxableIncomeInput.value.replace(/,/g, '') || '0') : '0';
+        const income = incomeInput ? (incomeInput.value.replace(/,/g, '') || '0') : '0';
         const basicDeduction = calculateBasicDeduction(income);
         // 基礎控除が0でない場合は手動入力モードを解除
         if (basicDeduction !== 0) {
@@ -508,3 +461,4 @@
     updateTotalIncomeDeduction();
   });
 </script>
+

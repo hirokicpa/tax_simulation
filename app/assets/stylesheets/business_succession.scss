@@ -1,0 +1,685 @@
+// Business Succession Tax Simulation - Modern Styles
+
+.business-succession-container {
+  padding: 2rem 0;
+  font-size: 1.1rem; // PC画面での基本フォントサイズを大きく
+}
+
+// PC画面でのフォントサイズ調整
+@media (min-width: 769px) {
+  .business-succession-container {
+    font-size: 1.15rem;
+  }
+  
+  .form-label {
+    font-size: 1.1rem;
+  }
+  
+  .form-control-modern {
+    font-size: 1.1rem;
+    padding: 0.875rem 1.25rem;
+  }
+  
+  .result-value {
+    font-size: 1.75rem;
+  }
+  
+  .result-display {
+    .result-value {
+      font-size: 1.75rem;
+    }
+  }
+}
+
+// Modern Card Styles
+.modern-card {
+  border: none;
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
+  overflow: hidden;
+
+  &:hover {
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+  }
+}
+
+// Header Section
+.header-section {
+  padding-bottom: 1.5rem;
+  border-bottom: 2px solid #f0f0f0;
+
+  .icon-wrapper {
+    display: inline-block;
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto;
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+
+    i {
+      color: white;
+    }
+  }
+
+  h4 {
+    color: #2c3e50;
+    font-size: 1.5rem;
+    line-height: 1.6;
+  }
+}
+
+// Alert Styles
+.alert-modern {
+  border: none;
+  border-radius: 12px;
+  border-left: 4px solid;
+  padding: 1.25rem 1.5rem;
+
+  &.alert-info {
+    background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+    border-left-color: #2196f3;
+    color: #1565c0;
+  }
+
+  &.alert-danger {
+    background: linear-gradient(135deg, #ffebee 0%, #ffcdd2 100%);
+    border-left-color: #f44336;
+    color: #c62828;
+  }
+
+  i {
+    flex-shrink: 0;
+  }
+
+  ul {
+    margin-bottom: 0;
+  }
+}
+
+// Form Sections
+.form-sections {
+  padding: 1.5rem 0;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.form-section {
+  margin-bottom: 2rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid #f0f0f0;
+
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+.form-group {
+  margin-bottom: 0;
+  text-align: center;
+}
+
+.form-label {
+  display: block;
+  font-weight: 600;
+  color: #2c3e50;
+  margin-bottom: 0.75rem;
+  font-size: 1rem;
+  text-align: center;
+
+  .step-number {
+    display: inline-block;
+    width: 28px;
+    height: 28px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-radius: 50%;
+    text-align: center;
+    line-height: 28px;
+    font-size: 0.875rem;
+    font-weight: bold;
+    margin-right: 0.75rem;
+    vertical-align: middle;
+  }
+
+  .label-text {
+    vertical-align: middle;
+  }
+}
+
+// Input Group Modern
+.input-group-modern {
+  position: relative;
+  display: flex;
+  align-items: center;
+  max-width: 300px;
+  margin: 0 auto;
+
+  .form-control-modern {
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 0.75rem 1rem;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    background: #fff;
+    width: 100%;
+    max-width: 200px;
+    text-align: right;
+
+    &:focus {
+      border-color: #667eea;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+      outline: none;
+    }
+
+    &:disabled {
+      background-color: #f5f5f5;
+      cursor: not-allowed;
+    }
+  }
+
+  .input-unit {
+    margin-left: 0.75rem;
+    color: #666;
+    font-weight: 500;
+    font-size: 1rem;
+    white-space: nowrap;
+  }
+}
+
+.form-control-modern {
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+  background: #fff;
+  max-width: 300px;
+  margin: 0 auto;
+  display: block;
+  text-align: right;
+
+  &:focus {
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    outline: none;
+  }
+
+  &:disabled {
+    background-color: #f5f5f5;
+    cursor: not-allowed;
+  }
+
+  &.is-invalid {
+    border-color: #f44336;
+    box-shadow: 0 0 0 3px rgba(244, 67, 54, 0.1);
+  }
+}
+
+.error-message {
+  font-size: 0.875rem;
+  color: #f44336;
+  margin-top: 0.25rem;
+  display: block;
+  
+  &:empty {
+    display: none;
+  }
+}
+
+.form-help-text {
+  font-size: 0.875rem;
+  color: #666;
+  margin-top: 0.5rem;
+  text-align: center;
+
+  i {
+    color: #667eea;
+  }
+}
+
+// Radio Group Modern
+.radio-group-modern {
+  max-width: 400px;
+  margin: 0 auto;
+
+  .radio-option {
+    padding: 1rem;
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    background: #fafafa;
+    text-align: center;
+
+    &:hover {
+      border-color: #667eea;
+      background: #f5f5ff;
+    }
+
+    .custom-control-label {
+      font-weight: 500;
+      color: #2c3e50;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      i {
+        color: #667eea;
+      }
+    }
+
+    .custom-control-input:checked ~ .custom-control-label {
+      color: #667eea;
+    }
+  }
+}
+
+// Result Display
+.result-display {
+  display: flex;
+  align-items: baseline;
+  padding: 1rem;
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  border-radius: 8px;
+  border: 2px solid #e0e0e0;
+  max-width: 300px;
+  margin: 0 auto;
+  justify-content: center;
+
+  .result-value {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #2c3e50;
+    margin-right: 0.5rem;
+  }
+
+  .result-unit {
+    font-size: 1rem;
+    color: #666;
+  }
+}
+
+// Calculate Button
+.btn-calculate {
+  padding: 1.25rem 4rem;
+  font-size: 1.25rem;
+  font-weight: 600;
+  border-radius: 50px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border: none;
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+  transition: all 0.3s ease;
+  line-height: 1.5;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 60px;
+  vertical-align: middle;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+}
+
+// Result Card
+.result-card {
+  border: none;
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+  overflow: hidden;
+
+  .result-header {
+    padding-bottom: 1.5rem;
+    border-bottom: 2px solid #e0e0e0;
+
+    i {
+      animation: pulse 2s infinite;
+    }
+  }
+
+  .result-items {
+    padding-top: 1.5rem;
+  }
+
+  .result-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.25rem;
+    margin-bottom: 1rem;
+    background: white;
+    border-radius: 12px;
+    border: 2px solid #f0f0f0;
+    transition: all 0.3s ease;
+
+    &:hover {
+      border-color: #667eea;
+      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.15);
+      transform: translateX(5px);
+    }
+
+    &.highlight {
+      background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
+      border-color: #4caf50;
+
+      .result-label {
+        color: #2e7d32;
+        font-weight: 600;
+      }
+    }
+
+    .result-label {
+      font-size: 1rem;
+      color: #666;
+      font-weight: 500;
+
+      i {
+        color: #ffc107;
+      }
+    }
+
+    .result-amount {
+      display: flex;
+      align-items: baseline;
+
+      .amount-value {
+        font-size: 1.5rem;
+        font-weight: bold;
+        color: #2c3e50;
+        margin-right: 0.5rem;
+      }
+
+      .amount-unit {
+        font-size: 1rem;
+        color: #666;
+      }
+    }
+  }
+}
+
+// Caution Card
+.caution-card {
+  border: none;
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  background: #fffbf0;
+
+  .card-title {
+    color: #f57c00;
+    font-weight: 600;
+    font-size: 1.125rem;
+  }
+
+  .caution-list {
+    .caution-item {
+      display: flex;
+      align-items: flex-start;
+      padding: 0.75rem 0;
+      font-size: 0.875rem;
+      line-height: 1.6;
+      color: #666;
+
+      i {
+        margin-top: 0.25rem;
+        font-size: 0.5rem;
+      }
+
+      span {
+        flex: 1;
+      }
+    }
+  }
+}
+
+// Animations
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+// Responsive Design
+@media (max-width: 768px) {
+  .business-succession-container {
+    padding: 1rem 0;
+  }
+
+  .modern-card {
+    .card-body {
+      padding: 1.5rem;
+    }
+  }
+
+  .header-section {
+    .icon-wrapper {
+      width: 60px;
+      height: 60px;
+
+      i {
+        font-size: 1.5rem;
+      }
+    }
+
+    h4 {
+      font-size: 1.25rem;
+    }
+  }
+
+  .form-label {
+    .step-number {
+      width: 24px;
+      height: 24px;
+      line-height: 24px;
+      font-size: 0.75rem;
+    }
+  }
+
+  .input-group-modern {
+    max-width: 100%;
+
+      .form-control-modern {
+        max-width: 100%;
+      }
+    }
+
+  .form-group {
+    text-align: center;
+  }
+
+  .form-label {
+    text-align: center;
+  }
+
+  .form-help-text {
+    text-align: center;
+  }
+
+  .radio-group-modern {
+    .radio-option {
+      text-align: center;
+    }
+  }
+
+  .form-control-modern {
+    max-width: 100%;
+  }
+
+  .btn-calculate {
+    padding: 0.875rem 2rem;
+    font-size: 1rem;
+    width: 100%;
+  }
+
+  .result-item {
+    flex-direction: column;
+    align-items: flex-start;
+
+    .result-amount {
+      margin-top: 0.5rem;
+    }
+  }
+}
+
+// Link Styles
+.btn-link {
+  color: #667eea;
+  text-decoration: none;
+  font-weight: 500;
+  transition: all 0.3s ease;
+
+  &:hover {
+    color: #764ba2;
+    text-decoration: underline;
+  }
+}
+
+.btn-outline-primary {
+  border: 2px solid #667eea;
+  color: #667eea;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+
+  &:hover {
+    background: #667eea;
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+  }
+}
+
+// Modern Button Styles (株価算定へ行く、要件を確認する)
+.btn-modern {
+  padding: 0.875rem 2rem;
+  font-size: 1.1rem;
+  font-weight: 600;
+  border-radius: 50px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 50px;
+  line-height: 1.5;
+  vertical-align: middle;
+  text-align: center;
+  white-space: nowrap;
+  
+  i {
+    flex-shrink: 0;
+  }
+}
+
+// PC画面でのボタンサイズ調整
+@media (min-width: 769px) {
+  .btn-modern {
+    padding: 1rem 2.5rem;
+    font-size: 1.15rem;
+    min-height: 55px;
+  }
+}
+
+// テーブルスタイル
+.table-modern {
+  background-color: #fff;
+  border-radius: 8px;
+  overflow: hidden;
+  
+  thead {
+    background-color: #f8f9fa;
+    
+    th {
+      font-weight: 600;
+      color: #495057;
+      border-bottom: 2px solid #dee2e6;
+      padding: 1rem;
+    }
+  }
+  
+  tbody {
+    tr {
+      transition: background-color 0.2s;
+      
+      &:hover {
+        background-color: #f8f9fa;
+      }
+      
+      td {
+        padding: 0.875rem 1rem;
+        border-bottom: 1px solid #e9ecef;
+      }
+    }
+  }
+}
+
+// チャートコンテナ
+.chart-container {
+  background-color: #fff;
+  border-radius: 8px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+// 結果サマリー
+.result-summary {
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  
+  .result-summary-items {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    
+    .result-summary-item {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      
+      .result-summary-label {
+        font-size: 0.95rem;
+        color: #6c757d;
+      }
+      
+      .result-summary-value {
+        font-size: 1.1rem;
+        color: #212529;
+      }
+    }
+  }
+}
+
+// レスポンシブ対応
+@media (max-width: 768px) {
+  .table-modern {
+    font-size: 0.875rem;
+    
+    thead th,
+    tbody td {
+      padding: 0.75rem 0.5rem;
+    }
+  }
+  
+  .result-summary {
+    padding: 1.5rem 1rem !important;
+    
+    .result-summary-items {
+      .result-summary-item {
+        flex-direction: column;
+        text-align: center;
+      }
+    }
+  }
+}
+

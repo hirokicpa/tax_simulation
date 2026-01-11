@@ -1,0 +1,30 @@
+<div class="result-header text-center mb-4">
+  <i class="fa fa-chart-line fa-2x text-success mb-3"></i>
+  <h5 class="font-weight-bold mb-0">計算結果</h5>
+</div>
+
+<div class="result-items">
+  <div class="result-item" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 2rem; border-radius: 12px; margin-top: 1rem;">
+    <div class="result-label" style="color: white; font-size: 1.2rem; font-weight: 700;">
+      <i class="fa fa-yen-sign mr-2"></i>所得税額
+    </div>
+    <div class="result-amount" style="color: white;">
+      <span class="amount-value" style="font-size: 2.5rem; font-weight: 700;"><%= ((@income_tax * 1.021 / 10000.0).round(2)).to_s(:delimited) %></span>
+      <span class="amount-unit" style="font-size: 1.2rem;">万円</span>
+    </div>
+  </div>
+</div>
+
+<div class="caution-card mt-4">
+  <div class="card-body">
+    <h6 class="card-title">
+      <i class="fa fa-info-circle mr-2"></i>ご注意
+    </h6>
+    <ul class="mb-0 pl-3">
+      <li>この計算結果は目安です。実際の税額は各種控除や特例等により異なる場合があります。</li>
+      <li>基礎控除は令和7年分の基準で計算しています。</li>
+      <li>課税される所得金額は1,000円未満の端数を切り捨てています。</li>
+    </ul>
+  </div>
+</div>
+

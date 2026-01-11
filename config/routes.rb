@@ -15,6 +15,7 @@ Rails.application.routes.draw do
      get 'first_second_succession', to: 'first_second_succession#index'
     #  get 'business_succession', to: 'business_succession_tax#index', as: :business_succession
      get  'business_succession', to: 'business_succession_tax#index', as: :business_succession
+     get "income_tax", to: "income_tax#index", as: :income_tax
 
      
      get 'succession_gift/result_tax', to: 'succession_gift#result_tax'
@@ -23,6 +24,7 @@ Rails.application.routes.draw do
      get 'business_succession_tax/result_heir_rate', to: 'business_succession_tax#result_heir_rate'
     # API：納税猶予額・後継者相続税額の最終結果
      get 'business_succession_tax/result_business_succession', to: 'business_succession_tax#result_business_succession'
+     get 'income_tax/result_tax', to: 'income_tax#result_tax'
      
    end
     

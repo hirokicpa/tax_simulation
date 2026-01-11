@@ -1,256 +1,305 @@
-<div class="row">
-  <div class="card mx-auto col-12 col-md-10 col-lg-9">
-    <div class="card-body px-0">
-      <h5 class="card-title text-center mb-3">
-        <i class="fa fa-calculator" aria-hidden="true"></i>
-        事業承継税制の検討の<br>シミュレーション(特例措置)
-      </h5>
-
-      <div class="row form-caution">
-        <div class="col-12 mb-1 px-1">
-          <div class="caution-mark-block">※</div>
-          <div class="caution-text-block">
-            値はすべて<strong>半角数字</strong>で入力してください。
-          </div>
+<div class="row business-succession-container">
+  <div class="card mx-auto col-12 col-md-10 col-lg-9 modern-card">
+    <div class="card-body px-4 py-4">
+      <div class="header-section text-center mb-4">
+        <div class="icon-wrapper mb-3">
+          <i class="fa fa-calculator fa-3x text-primary" aria-hidden="true"></i>
         </div>
-        <div class="col-12 mb-1 px-1">
-          <div class="caution-mark-block">※</div>
-          <div class="caution-text-block">
-            遺産総額の金額は、各種特例や非課税枠及び債務控除等を控除済みの課税価格の金額としています。
+        <h4 class="card-title mb-2 font-weight-bold">
+          事業承継税制の検討の<br>シミュレーション(特例措置)
+        </h4>
+        <p class="text-muted small mb-0">相続税の納税猶予額を計算します</p>
+      </div>
+
+      <div class="alert alert-info alert-modern mb-4">
+        <div class="d-flex align-items-start">
+          <i class="fa fa-info-circle fa-lg mr-2 mt-1"></i>
+          <div>
+            <strong class="d-block mb-2">入力時のご注意</strong>
+            <ul class="mb-0 pl-3">
+              <li>値はすべて<strong>半角数字</strong>で入力してください。</li>
+              <li>遺産総額の金額は、各種特例や非課税枠及び債務控除等を控除済みの課税価格の金額としています。</li>
+            </ul>
           </div>
         </div>
       </div>
 
       <% if @errors.present? %>
-        <div class="alert alert-danger mt-2">
-          <ul class="mb-0">
-            <% @errors.each do |msg| %>
-              <li><%= msg %></li>
-            <% end %>
-          </ul>
+        <div class="alert alert-danger alert-modern mb-4">
+          <div class="d-flex align-items-start">
+            <i class="fa fa-exclamation-triangle fa-lg mr-2 mt-1"></i>
+            <div>
+              <strong class="d-block mb-2">入力エラー</strong>
+              <ul class="mb-0 pl-3">
+                <% @errors.each do |msg| %>
+                  <li><%= msg %></li>
+                <% end %>
+              </ul>
+            </div>
+          </div>
         </div>
       <% end %>
 
       <%= form_with url: simulations_business_succession_path,
                     method: :get,
                     local: true,
-                    html: { accept_charset: "UTF-8" } do |f| %>
-        <table class="table">
-          <tbody>
-          <tr>
-            <td class="align-middle">①現在の遺産総額</td>
-            <td>
-              <div class="row">
-                <div class="col-9 col-lg-6">
-                  <%= f.text_field :total_heritage,
-                      value: params[:total_heritage],
-                      class: "form-control text-right input-num",
-                      inputmode: "numeric",
-                      id: "total_heritage_input" %>
-                </div>
-                <div class="py-2">万円</div>
+                    html: { accept_charset: "UTF-8", class: "modern-form" } do |f| %>
+        <div class="form-sections">
+          <div class="form-section">
+            <div class="form-group">
+              <label class="form-label">
+                <span class="step-number">①</span>
+                <span class="label-text">現在の遺産総額</span>
+              </label>
+              <div class="input-group-modern">
+                <%= f.text_field :total_heritage,
+                    value: params[:total_heritage],
+                    class: "form-control form-control-modern text-right",
+                    inputmode: "numeric",
+                    id: "total_heritage_input",
+                    placeholder: "0" %>
+                <span class="input-unit">万円</span>
               </div>
-            </td>
-          </tr>
+            </div>
+          </div>
 
-          <tr>
-            <td class="align-middle">
-              ②①の遺産総額のうち<br>後継者の相続する<br>特例適応対象株式の評価額
-              <div class="form-caution mt-2">※ 後継者は配偶者以外の相続人1人を前提</div>
-            </td>
-            <td>
-              <div class="row mb-3">
-                <div class="col-9 col-lg-6">
-                  <%= f.text_field :heir_special_stock_value,
-                      value: params[:heir_special_stock_value],
-                      class: "form-control text-right input-num",
-                      inputmode: "numeric" %>
-                </div>
-                <div class="py-2">万円</div>
+          <div class="form-section">
+            <div class="form-group">
+              <label class="form-label">
+                <span class="step-number">②</span>
+                <span class="label-text">①の遺産総額のうち後継者の相続する特例適応対象株式の評価額</span>
+              </label>
+              <div class="input-group-modern">
+                <%= f.text_field :heir_special_stock_value,
+                    value: params[:heir_special_stock_value],
+                    class: "form-control form-control-modern text-right",
+                    inputmode: "numeric",
+                    id: "heir_special_stock_value_input",
+                    placeholder: "0" %>
+                <span class="input-unit">万円</span>
               </div>
-              <a href="/simulations/stock_price_calculation" class="btn btn-sm btn-default mb-1">株価算定へ行く</a>
-              <div class="form-caution">(金額を把握していない方)</div>
-            </td>
-          </tr>
+              <div id="heir_special_stock_value_error" class="error-message text-danger mt-1" style="display: none;"></div>
+              <div class="form-help-text">
+                <i class="fa fa-info-circle mr-1"></i>
+                後継者は配偶者以外の相続人1人を前提
+              </div>
+            </div>
+          </div>
 
-          <tr>
-            <td class="align-middle">事業承継税制の<br>適用要件を満たす。</td>
-            <td>
-              <div class="row mb-2">
-                <div class="col-9 col-lg-6">
-                  <%= f.select :applied_condition,
-                      options_for_select([
-                        ["選択してください", "", { disabled: true }],
-                        ["はい", "0"],
-                        ["いいえ", "1"]
-                      ], @applied_condition || params[:applied_condition] || ""),
-                      {},
-                      { class: "form-control" } %>
-                </div>
-              </div>
+          <div class="form-section">
+            <div class="form-group">
+              <label class="form-label">
+                <span class="step-number">③</span>
+                <span class="label-text">事業承継税制の適用要件を満たす</span>
+              </label>
+              <%= f.select :applied_condition,
+                  options_for_select([
+                    ["選択してください", "", { disabled: true }],
+                    ["はい", "0"],
+                    ["いいえ", "1"]
+                  ], @applied_condition || params[:applied_condition] || ""),
+                  {},
+                  { class: "form-control form-control-modern" } %>
               <a href="https://www.nta.go.jp/taxes/tetsuzuki/shinsei/annai/sozoku-zoyo/annai/h30pdf/checksheet1.pdf"
-                 class="text-primary" target="_new">要件を確認する</a>
-            </td>
-          </tr>
+                 class="btn btn-outline-primary btn-modern mt-2" target="_new">
+                <i class="fa fa-external-link-alt mr-2"></i>要件を確認する
+              </a>
+            </div>
+          </div>
 
-          <tr>
-            <td class="align-middle no-break">③②以外に後継者が<br>取得する財産</td>
-            <td>
-              <div class="row">
-                <div class="col-9 col-lg-6">
-                  <%= f.text_field :other_heir_get_heritage,
-                      value: params[:other_heir_get_heritage],
-                      class: "form-control text-right input-num",
-                      inputmode: "numeric" %>
-                </div>
-                <div class="py-2">万円</div>
+          <div class="form-section">
+            <div class="form-group">
+              <label class="form-label">
+                <span class="step-number">④</span>
+                <span class="label-text">②以外に後継者が取得する財産</span>
+              </label>
+              <div class="input-group-modern">
+                <%= f.text_field :other_heir_get_heritage,
+                    value: params[:other_heir_get_heritage],
+                    class: "form-control form-control-modern text-right",
+                    inputmode: "numeric",
+                    id: "other_heir_get_heritage_input",
+                    placeholder: "0" %>
+                <span class="input-unit">万円</span>
               </div>
-            </td>
-          </tr>
+              <div id="other_heir_get_heritage_error" class="error-message text-danger mt-1" style="display: none;"></div>
+            </div>
+          </div>
 
-          <tr>
-            <td>④配偶者の有無</td>
-            <td>
-              <div class="row">
-                <div class="col-9 col-lg-6">
-                  <%= f.select :marital_status,
-                      options_for_select([
-                        ["有", "0"],
-                        ["無", "1"]
-                      ], @marital_status || "0"),
-                      {},
-                      { class: "form-control", id: "marital_status_select" } %>
+          <div class="form-section">
+            <div class="form-group">
+              <label class="form-label">
+                <span class="step-number">⑤</span>
+                <span class="label-text">配偶者の有無</span>
+              </label>
+              <%= f.select :marital_status,
+                  options_for_select([
+                    ["有", "0"],
+                    ["無", "1"]
+                  ], @marital_status || "0"),
+                  {},
+                  { class: "form-control form-control-modern", id: "marital_status_select" } %>
+            </div>
+          </div>
+
+          <div class="form-section">
+            <div class="form-group">
+              <label class="form-label">
+                <span class="step-number">⑥</span>
+                <span class="label-text">配偶者以外の法定相続人の数</span>
+              </label>
+              <div class="radio-group-modern">
+                <div class="radio-option">
+                  <div class="custom-control custom-radio">
+                    <%= f.radio_button :legal_heir, "0",
+                        checked: (@legal_heir == "0"),
+                        class: "custom-control-input",
+                        id: "heir_children" %>
+                    <label class="custom-control-label" for="heir_children">
+                      <i class="fa fa-child mr-2"></i>子供
+                    </label>
+                  </div>
+                  <%= f.select :children_count,
+                        options_for_select([["選択してください", "", { disabled: true }]] +
+                                           [["0人", "0"]] +
+                                           (1..5).map { |i| ["#{i}人", i.to_s] },
+                                           @children_count),
+                        {},
+                        class: "form-control form-control-modern mt-2",
+                        disabled: (@legal_heir != "0"),
+                        id: "children_count_select" %>
+                </div>
+                <div class="radio-option mt-3">
+                  <div class="custom-control custom-radio">
+                    <%= f.radio_button :legal_heir, "2",
+                        checked: (@legal_heir == "2"),
+                        class: "custom-control-input",
+                        id: "heir_siblings" %>
+                    <label class="custom-control-label" for="heir_siblings">
+                      <i class="fa fa-users mr-2"></i>兄弟姉妹
+                    </label>
+                  </div>
+                  <%= f.select :siblings_count,
+                        options_for_select([["選択してください", "0", { disabled: true }]] +
+                                           (1..5).map { |i| ["#{i}人", i.to_s] },
+                                           @siblings_count),
+                        {},
+                        class: "form-control form-control-modern mt-2",
+                        disabled: (@legal_heir != "2"),
+                        id: "siblings_count_select" %>
                 </div>
               </div>
-            </td>
-          </tr>
+            </div>
+          </div>
 
-          <tr>
-            <td class="align-middle">⑤配偶者以外の<br>法定相続人の数</td>
-            <td>
-              <div>
-                <div class="custom-control custom-radio mb-2">
-                  <%= f.radio_button :legal_heir, "0",
-                      checked: (@legal_heir == "0"),
-                      class: "custom-control-input",
-                      id: "heir_children" %>
-                  <label class="custom-control-label" for="heir_children">子供</label>
-                </div>
-                <%= f.select :children_count,
-                      options_for_select([["選択してください", "", { disabled: true }]] +
-                                         [["0人", "0"]] +
-                                         (1..5).map { |i| ["#{i}人", i.to_s] },
-                                         @children_count),
-                      {},
-                      class: "form-control col-12 col-lg-8",
-                      disabled: (@legal_heir != "0"),
-                      id: "children_count_select" %>
+          <div class="form-section">
+            <div class="form-group">
+              <label class="form-label">
+                <span class="label-text">後継者の遺産取得割合</span>
+              </label>
+              <div class="result-display">
+                <span class="result-value" id="heir_rate_display"><%= @result_heir_rate_show.present? ? @result_heir_rate_show.to_f.round(2) : 0.00 %></span>
+                <span class="result-unit">%</span>
               </div>
-              <br>
-              <div>
-                <div class="custom-control custom-radio mb-2">
-                  <%= f.radio_button :legal_heir, "2",
-                      checked: (@legal_heir == "2"),
-                      class: "custom-control-input",
-                      id: "heir_siblings" %>
-                  <label class="custom-control-label" for="heir_siblings">兄弟姉妹</label>
-                </div>
-                <%= f.select :siblings_count,
-                      options_for_select([["選択してください", "0", { disabled: true }]] +
-                                         (1..5).map { |i| ["#{i}人", i.to_s] },
-                                         @siblings_count),
-                      {},
-                      class: "form-control col-12 col-lg-8",
-                      disabled: (@legal_heir != "2"),
-                      id: "siblings_count_select" %>
+            </div>
+          </div>
+
+          <div class="form-section">
+            <div class="form-group">
+              <label class="form-label">
+                <span class="step-number">⑦</span>
+                <span class="label-text">配偶者の遺産取得割合</span>
+              </label>
+              <div class="input-group-modern">
+                <%= f.text_field :marital_rate,
+                    value: @marital_rate_show,
+                    class: "form-control form-control-modern text-right",
+                    inputmode: "decimal",
+                    disabled: @marital_rate_disabled,
+                    id: "marital_rate_input",
+                    placeholder: "0" %>
+                <span class="input-unit">%</span>
               </div>
-            </td>
-          </tr>
+            </div>
+          </div>
+        </div>
 
-          <tr>
-            <td>後継者の遺産取得割合</td>
-            <td>
-              <span class="input-num"><%= @result_heir_rate_show || 0 %></span> %
-            </td>
-          </tr>
-
-          <tr class="border-bottom">
-            <td class="align-middle pr-0 no-break">⑥配偶者の遺産取得割合</td>
-            <td>
-              <div class="row">
-                <div class="col-9 col-lg-6">
-                  <%= f.text_field :marital_rate,
-                      value: @marital_rate_show,
-                      class: "form-control text-right input-num",
-                      inputmode: "decimal",
-                      disabled: @marital_rate_disabled,
-                      id: "marital_rate_input" %>
-                </div>
-                <div class="py-2">%</div>
-              </div>
-            </td>
-          </tr>
-          </tbody>
-        </table>
-
-        <div class="text-center">
-          <%= f.submit "計算する", class: "btn btn-navy" %>
+        <div class="text-center mt-4">
+          <%= f.submit "計算する", class: "btn btn-primary btn-lg btn-calculate", id: "calculate-button" %>
         </div>
       <% end %>
     </div>
   </div>
 
-  <div class="mx-auto my-3 col-12 col-md-10 col-lg-9 px-0">
-    <% if @result_succession.present? %>
-      <div class="card">
-        <div class="card-body">
-          <h6 class="card-title text-center mb-3 my-auto">
-            <strong>相続税額は <%= @result_succession.to_i.to_s(:delimited) %> 万円となります。</strong><br>
-            <strong>後継者の相続税額は <%= @result_heir_succession.to_i.to_s(:delimited) %> 万円となり、</strong><br>
-            <strong>そのうち納税猶予額は <%= @result_tax_grace_amount.to_i.to_s(:delimited) %> 万円となります。</strong>
-          </h6>
+  <div class="mx-auto my-4 col-12 col-md-10 col-lg-9 px-0" id="result-section">
+    <div class="card result-card" id="result-card" style="<%= 'display: none;' unless @result_succession.present? %>">
+      <div class="card-body p-4">
+        <div class="result-header text-center mb-4">
+          <i class="fa fa-chart-line fa-2x text-success mb-3"></i>
+          <h5 class="font-weight-bold mb-0">計算結果</h5>
+        </div>
+        <div class="result-items">
+          <div class="result-item">
+            <div class="result-label">相続税額</div>
+            <div class="result-amount">
+              <span class="amount-value" id="result-succession"><%= @result_succession.present? ? @result_succession.to_i.to_s(:delimited) : '0' %></span>
+              <span class="amount-unit">万円</span>
+            </div>
+          </div>
+          <div class="result-item">
+            <div class="result-label">後継者の相続税額</div>
+            <div class="result-amount">
+              <span class="amount-value" id="result-heir-succession"><%= @result_heir_succession.present? ? @result_heir_succession.to_i.to_s(:delimited) : '0' %></span>
+              <span class="amount-unit">万円</span>
+            </div>
+          </div>
+          <div class="result-item highlight">
+            <div class="result-label">
+              <i class="fa fa-star mr-2"></i>納税猶予額
+            </div>
+            <div class="result-amount">
+              <span class="amount-value text-success" id="result-tax-grace-amount"><%= @result_tax_grace_amount.present? ? @result_tax_grace_amount.to_i.to_s(:delimited) : '0' %></span>
+              <span class="amount-unit">万円</span>
+            </div>
+          </div>
         </div>
       </div>
-    <% end %>
+    </div>
+    <div id="result-errors" style="display: none;"></div>
   </div>
 
   <!-- 注意書き -->
   <div class="mx-auto col-sm-12 col-md-10 col-lg-9 mt-4">
-    <div class="row">
-      <div class="col-12 mb-3">
-        <div class="caution-mark-block">※</div>
-        <div class="caution-text-block">
-          平成３０年度の税制改正で創設された事業承継税制の特例措置に基づき相続税の納税猶予額を計算しています。
-        </div>
-      </div>
-      <div class="col-12 mb-3">
-        <div class="caution-mark-block">※</div>
-        <div class="caution-text-block">
-          本シミュレーションでは、十分に信頼できると判断される情報に基づいて作成しておりますが、正確性、完全性、信頼性、使用可能性、有用性及び適時性を保証するものではありません。
-        </div>
-      </div>
-      <div class="col-12 mb-3">
-        <div class="caution-mark-block">※</div>
-        <div class="caution-text-block">
-          各シミュレーション結果は、お客さまご自身にご入力いただいた情報と、平成27年1月1日施行の法令をもとに、簡易的な試算をしたものであり、シミュレーション結果が実際と異なることがあります。
-        </div>
-      </div>
-      <div class="col-12 mb-3">
-        <div class="caution-mark-block">※</div>
-        <div class="caution-text-block">
-          本シミュレーションを利用されたことにより生じた不利益や損害などには、責任を負いかねますのであらかじめご了承ください。
-        </div>
-      </div>
-      <div class="col-12 mb-3">
-        <div class="caution-mark-block">※</div>
-        <div class="caution-text-block">
-          法令改正等により、税務の取り扱いが変更になった場合には変更後の内容が適用されますのでご注意ください。また、個別の取り扱いについては、税理士等の専門家、または所轄の税務署にご確認のうえ、ご自身の責任において判断ください。
-        </div>
-      </div>
-      <div class="col-12">
-        <div class="caution-mark-block">※</div>
-        <div class="caution-text-block">
-          当社では具体的な税額の計算、および、税務申告書類作成にかかる相談業務は行っておりません。
+    <div class="card caution-card">
+      <div class="card-body p-4">
+        <h6 class="card-title mb-3">
+          <i class="fa fa-exclamation-circle mr-2 text-warning"></i>ご注意事項
+        </h6>
+        <div class="caution-list">
+          <div class="caution-item">
+            <i class="fa fa-circle text-muted mr-2"></i>
+            <span>平成３０年度の税制改正で創設された事業承継税制の特例措置に基づき相続税の納税猶予額を計算しています。</span>
+          </div>
+          <div class="caution-item">
+            <i class="fa fa-circle text-muted mr-2"></i>
+            <span>本シミュレーションでは、十分に信頼できると判断される情報に基づいて作成しておりますが、正確性、完全性、信頼性、使用可能性、有用性及び適時性を保証するものではありません。</span>
+          </div>
+          <div class="caution-item">
+            <i class="fa fa-circle text-muted mr-2"></i>
+            <span>各シミュレーション結果は、お客さまご自身にご入力いただいた情報と、平成27年1月1日施行の法令をもとに、簡易的な試算をしたものであり、シミュレーション結果が実際と異なることがあります。</span>
+          </div>
+          <div class="caution-item">
+            <i class="fa fa-circle text-muted mr-2"></i>
+            <span>本シミュレーションを利用されたことにより生じた不利益や損害などには、責任を負いかねますのであらかじめご了承ください。</span>
+          </div>
+          <div class="caution-item">
+            <i class="fa fa-circle text-muted mr-2"></i>
+            <span>法令改正等により、税務の取り扱いが変更になった場合には変更後の内容が適用されますのでご注意ください。また、個別の取り扱いについては、税理士等の専門家、または所轄の税務署にご確認のうえ、ご自身の責任において判断ください。</span>
+          </div>
+          <div class="caution-item">
+            <i class="fa fa-circle text-muted mr-2"></i>
+            <span>当社では具体的な税額の計算、および、税務申告書類作成にかかる相談業務は行っておりません。</span>
+          </div>
         </div>
       </div>
     </div>
@@ -258,30 +307,515 @@
 </div>
 
 <script>
-  document.addEventListener('DOMContentLoaded', function() {
-    // 配偶者の有無と配偶者の遺産取得割合の制御
+  // 後継者の遺産取得割合の自動計算関数（グローバルスコープで定義）
+  function updateHeirRate() {
+    // デバッグ用ログ
+    const totalHeritageInput = document.getElementById('total_heritage_input');
+    const heirSpecialStockValueInput = document.getElementById('heir_special_stock_value_input');
+    const otherHeirGetHeritageInput = document.getElementById('other_heir_get_heritage_input');
+    
+    console.log("updateHeirRate fired", {
+      total: totalHeritageInput?.value,
+      stock: heirSpecialStockValueInput?.value,
+      other: otherHeirGetHeritageInput?.value,
+    });
+    
+    const heirRateDisplay = document.getElementById('heir_rate_display');
+    if (!heirRateDisplay) {
+      return;
+    }
+    
+    if (!totalHeritageInput || !heirSpecialStockValueInput || !otherHeirGetHeritageInput) {
+      return;
+    }
+    
+    // カンマを除去して数値に変換する関数
+    function removeComma(str) {
+      return (str || '').toString().replace(/,/g, '').trim();
+    }
+    
+    // ①現在の遺産総額（カンマ区切りを除去して数値化）
+    const totalHeritageStr = removeComma(totalHeritageInput.value);
+    const totalHeritage = parseFloat(totalHeritageStr) || 0;
+    
+    // ②特例適応対象株式の評価額（カンマ区切りを除去して数値化）
+    const heirSpecialStockValueStr = removeComma(heirSpecialStockValueInput.value);
+    const heirSpecialStockValue = parseFloat(heirSpecialStockValueStr) || 0;
+    
+    // ④その他の財産（カンマ区切りを除去して数値化）
+    const otherHeirGetHeritageStr = removeComma(otherHeirGetHeritageInput.value);
+    const otherHeirGetHeritage = parseFloat(otherHeirGetHeritageStr) || 0;
+    
+    let heirRate = 0;
+    
+    // ①が入力されている場合のみ計算
+    if (totalHeritage > 0) {
+      // (② + ④) / ① × 100
+      heirRate = ((heirSpecialStockValue + otherHeirGetHeritage) / totalHeritage * 100);
+      
+      // NaNや無限大のチェック
+      if (isNaN(heirRate) || !isFinite(heirRate)) {
+        heirRate = 0;
+      }
+    }
+    
+    // 表示を更新（小数点以下2桁まで）
+    heirRateDisplay.textContent = heirRate.toFixed(2);
+    
+    // バリデーションを実行
+    validateHeirInputs();
+  }
+  
+  // バリデーション関数
+  function validateHeirInputs() {
+    // カンマを除去して数値に変換する関数
+    function removeComma(str) {
+      return (str || '').toString().replace(/,/g, '').trim();
+    }
+    
+    const totalHeritageInput = document.getElementById('total_heritage_input');
+    const heirSpecialStockValueInput = document.getElementById('heir_special_stock_value_input');
+    const otherHeirGetHeritageInput = document.getElementById('other_heir_get_heritage_input');
+    const heirSpecialStockValueError = document.getElementById('heir_special_stock_value_error');
+    const otherHeirGetHeritageError = document.getElementById('other_heir_get_heritage_error');
+    
+    if (!totalHeritageInput || !heirSpecialStockValueInput || !otherHeirGetHeritageInput) {
+      return;
+    }
+    
+    // ①現在の遺産総額（カンマ区切りを除去して数値化）
+    const totalHeritageStr = removeComma(totalHeritageInput.value);
+    const totalHeritage = parseFloat(totalHeritageStr) || 0;
+    
+    // ②特例適応対象株式の評価額（カンマ区切りを除去して数値化）
+    const heirSpecialStockValueStr = removeComma(heirSpecialStockValueInput.value);
+    const heirSpecialStockValue = parseFloat(heirSpecialStockValueStr) || 0;
+    
+    // ④その他の財産（カンマ区切りを除去して数値化）
+    const otherHeirGetHeritageStr = removeComma(otherHeirGetHeritageInput.value);
+    const otherHeirGetHeritage = parseFloat(otherHeirGetHeritageStr) || 0;
+    
+    // エラーメッセージをクリア
+    if (heirSpecialStockValueError) {
+      heirSpecialStockValueError.style.display = 'none';
+      heirSpecialStockValueError.textContent = '';
+      heirSpecialStockValueInput.classList.remove('is-invalid');
+    }
+    if (otherHeirGetHeritageError) {
+      otherHeirGetHeritageError.style.display = 'none';
+      otherHeirGetHeritageError.textContent = '';
+      otherHeirGetHeritageInput.classList.remove('is-invalid');
+    }
+    
+    // ①が入力されている場合のみバリデーション
+    if (totalHeritage > 0) {
+      let hasError = false;
+      
+      // ②が遺産総額を超える場合
+      if (heirSpecialStockValue > totalHeritage) {
+        if (heirSpecialStockValueError) {
+          heirSpecialStockValueError.textContent = '②特例適応対象株式の評価額は、①現在の遺産総額を超えることはできません。';
+          heirSpecialStockValueError.style.display = 'block';
+          heirSpecialStockValueInput.classList.add('is-invalid');
+          hasError = true;
+        }
+      }
+      
+      // ④が遺産総額を超える場合
+      if (otherHeirGetHeritage > totalHeritage) {
+        if (otherHeirGetHeritageError) {
+          otherHeirGetHeritageError.textContent = '④後継者が取得するその他の財産は、①現在の遺産総額を超えることはできません。';
+          otherHeirGetHeritageError.style.display = 'block';
+          otherHeirGetHeritageInput.classList.add('is-invalid');
+          hasError = true;
+        }
+      }
+      
+      // ②+④の合計が遺産総額を超える場合
+      if ((heirSpecialStockValue + otherHeirGetHeritage) > totalHeritage) {
+        if (heirSpecialStockValueError && heirSpecialStockValue > 0) {
+          heirSpecialStockValueError.textContent = '②特例適応対象株式の評価額と④後継者が取得するその他の財産の合計は、①現在の遺産総額を超えることはできません。';
+          heirSpecialStockValueError.style.display = 'block';
+          heirSpecialStockValueInput.classList.add('is-invalid');
+          hasError = true;
+        }
+        if (otherHeirGetHeritageError && otherHeirGetHeritage > 0) {
+          otherHeirGetHeritageError.textContent = '②特例適応対象株式の評価額と④後継者が取得するその他の財産の合計は、①現在の遺産総額を超えることはできません。';
+          otherHeirGetHeritageError.style.display = 'block';
+          otherHeirGetHeritageInput.classList.add('is-invalid');
+          hasError = true;
+        }
+      }
+      
+      // 後継者の遺産取得割合が100%を超える場合
+      const heirRate = ((heirSpecialStockValue + otherHeirGetHeritage) / totalHeritage * 100);
+      if (heirRate > 100) {
+        if (heirSpecialStockValueError && heirSpecialStockValue > 0) {
+          heirSpecialStockValueError.textContent = '後継者の遺産取得割合が100%を超えることはできません。';
+          heirSpecialStockValueError.style.display = 'block';
+          heirSpecialStockValueInput.classList.add('is-invalid');
+          hasError = true;
+        }
+        if (otherHeirGetHeritageError && otherHeirGetHeritage > 0) {
+          otherHeirGetHeritageError.textContent = '後継者の遺産取得割合が100%を超えることはできません。';
+          otherHeirGetHeritageError.style.display = 'block';
+          otherHeirGetHeritageInput.classList.add('is-invalid');
+          hasError = true;
+        }
+      }
+    }
+  }
+  
+  // 初期化関数（Turbo対応）
+  function initBusinessSuccessionAutoCalc() {
+    // ①、②、④の入力フィールドを取得
+    const totalHeritageInput = document.getElementById('total_heritage_input');
+    const heirSpecialStockValueInput = document.getElementById('heir_special_stock_value_input');
+    const otherHeirGetHeritageInput = document.getElementById('other_heir_get_heritage_input');
+    const heirRateDisplay = document.getElementById('heir_rate_display');
+
+    if (!totalHeritageInput || !heirSpecialStockValueInput || !otherHeirGetHeritageInput || !heirRateDisplay) {
+      // 要素が見つからない場合は再試行
+      setTimeout(initBusinessSuccessionAutoCalc, 100);
+      return;
+    }
+
+    // すでに初期化済みなら二重に付けない
+    if (document.body.dataset.bsAutoCalcInitialized === "true") {
+      // Turboのフォーム復元が入ることがあるので、再計算だけは毎回しておく
+      updateHeirRate();
+      return;
+    }
+    document.body.dataset.bsAutoCalcInitialized = "true";
+
+    // debounce関数
+    function debounce(func, wait) {
+      let timeout;
+      return function(...args) {
+        clearTimeout(timeout);
+        timeout = setTimeout(() => func.apply(this, args), wait);
+      }
+    }
+    const debouncedUpdateHeirRate = debounce(updateHeirRate, 200);
+    const debouncedValidate = debounce(validateHeirInputs, 200);
+
+    // カンマを除去して数値に変換する関数
+    function removeComma(str) {
+      return (str || '').toString().replace(/,/g, '').trim();
+    }
+    
+    // 入力値を制限する関数
+    function limitInputValue(input, fieldType) {
+      const totalHeritageInput = document.getElementById('total_heritage_input');
+      if (!totalHeritageInput) return;
+      
+      const totalHeritageStr = removeComma(totalHeritageInput.value);
+      const totalHeritage = parseFloat(totalHeritageStr) || 0;
+      
+      if (totalHeritage <= 0) return;
+      
+      const inputValueStr = removeComma(input.value);
+      const inputValue = parseFloat(inputValueStr) || 0;
+      
+      // 入力値が遺産総額を超える場合は、遺産総額に制限
+      if (inputValue > totalHeritage) {
+        input.value = totalHeritage.toLocaleString('ja-JP');
+        input.dispatchEvent(new Event('input'));
+      }
+      
+      // ②と④の合計が遺産総額を超える場合は、もう一方の値を考慮して制限
+      if (fieldType === 'heir_special_stock_value') {
+        const otherHeirGetHeritageInput = document.getElementById('other_heir_get_heritage_input');
+        const otherHeirGetHeritageStr = removeComma(otherHeirGetHeritageInput?.value || '0');
+        const otherHeirGetHeritage = parseFloat(otherHeirGetHeritageStr) || 0;
+        const maxValue = totalHeritage - otherHeirGetHeritage;
+        if (inputValue > maxValue && maxValue >= 0) {
+          input.value = maxValue.toLocaleString('ja-JP');
+          input.dispatchEvent(new Event('input'));
+        }
+      } else if (fieldType === 'other_heir_get_heritage') {
+        const heirSpecialStockValueInput = document.getElementById('heir_special_stock_value_input');
+        const heirSpecialStockValueStr = removeComma(heirSpecialStockValueInput?.value || '0');
+        const heirSpecialStockValue = parseFloat(heirSpecialStockValueStr) || 0;
+        const maxValue = totalHeritage - heirSpecialStockValue;
+        if (inputValue > maxValue && maxValue >= 0) {
+          input.value = maxValue.toLocaleString('ja-JP');
+          input.dispatchEvent(new Event('input'));
+        }
+      }
+    }
+
+    // 入力イベントをまとめて付ける（inputだけで十分なことが多い）
+    [totalHeritageInput, heirSpecialStockValueInput, otherHeirGetHeritageInput].forEach((el) => {
+      el.addEventListener('input', debouncedUpdateHeirRate);
+      el.addEventListener('change', updateHeirRate);
+      el.addEventListener('input', debouncedValidate);
+      el.addEventListener('change', validateHeirInputs);
+    });
+    
+    // ②と④の入力時に値を制限
+    heirSpecialStockValueInput.addEventListener('blur', function() {
+      limitInputValue(this, 'heir_special_stock_value');
+    });
+    otherHeirGetHeritageInput.addEventListener('blur', function() {
+      limitInputValue(this, 'other_heir_get_heritage');
+    });
+
+    // 初期計算（フォーム復元後の値も拾えるように）
+    updateHeirRate();
+    validateHeirInputs();
+  }
+  
+  // 計算結果がない場合のみフォームをクリアする関数
+  function clearFormOnFirstLoad() {
+    // 計算結果がある場合は、フォームをクリアしない（計算ボタンを押した後の状態を保持）
+    <% if @result_succession.present? %>
+      // 計算結果がある場合は、フォームをクリアしない
+      return;
+    <% end %>
+    
+    // 計算ボタンを押したフラグがある場合は、フォームをクリアしない
+    if (sessionStorage.getItem('formSubmitted') === 'true') {
+      // フラグをクリア（次回のリロード時にクリアされるように）
+      sessionStorage.removeItem('formSubmitted');
+      return;
+    }
+    
+    // 初回読み込み時のみクリア（Turboの復元と競合しないように）
+    if (document.body.dataset.bsFormCleared === "true") {
+      return;
+    }
+    document.body.dataset.bsFormCleared = "true";
+    
+    // ページ読み込み時にフォームの値を全てクリア
+    const formInputs = document.querySelectorAll('input[type="text"], input[type="number"], select');
+    formInputs.forEach(function(input) {
+      // 配偶者の遺産取得割合の入力フィールドは除外（後で個別に処理）
+      if (input.id === 'marital_rate_input') {
+        return;
+      }
+      
+      // disabledでない入力フィールドをクリア
+      if (!input.disabled) {
+        // セレクトボックスの場合は最初のオプション（空または0）にリセット
+        if (input.tagName === 'SELECT') {
+          const firstOption = input.querySelector('option[value=""]') || input.querySelector('option[value="0"]');
+          if (firstOption) {
+            input.value = firstOption.value;
+          } else {
+            input.selectedIndex = 0;
+          }
+        } else {
+          input.value = '';
+        }
+      }
+    });
+    
+    // 後継者の遺産取得割合をリセット
+    const heirRateDisplay = document.getElementById('heir_rate_display');
+    if (heirRateDisplay) {
+      heirRateDisplay.textContent = '0.00';
+    }
+    
+    // エラーメッセージもクリア
+    const maritalRateError = document.getElementById('marital_rate_error');
+    if (maritalRateError) {
+      maritalRateError.remove();
+    }
+    
+    // エラースタイルもクリア
+    const invalidInputs = document.querySelectorAll('.is-invalid');
+    invalidInputs.forEach(function(input) {
+      input.classList.remove('is-invalid');
+    });
+  }
+  
+  // 配偶者の有無と配偶者の遺産取得割合の制御（Turbo対応）
+  function initMaritalRateControl() {
     const maritalStatusSelect = document.getElementById('marital_status_select');
     const maritalRateInput = document.getElementById('marital_rate_input');
+    const maritalRateError = document.getElementById('marital_rate_error');
+    const legalHeirChildren = document.getElementById('heir_children');
+    const legalHeirSiblings = document.getElementById('heir_siblings');
+    const childrenCountSelect = document.getElementById('children_count_select');
+    
+    if (!maritalStatusSelect || !maritalRateInput) {
+      // 要素が見つからない場合は再試行
+      setTimeout(initMaritalRateControl, 100);
+      return;
+    }
+    
+    // すでに初期化済みなら二重に付けない
+    if (document.body.dataset.bsMaritalControlInitialized === "true") {
+      return;
+    }
+    document.body.dataset.bsMaritalControlInitialized = "true";
+    
+    // 配偶者以外の相続人が子供1人かどうかを判定
+    function isChildOne() {
+      return maritalStatusSelect.value === '0' && 
+             legalHeirChildren && legalHeirChildren.checked &&
+             childrenCountSelect && childrenCountSelect.value === '1';
+    }
+    
+    // 配偶者の遺産取得割合を自動計算
+    function updateMaritalRateAuto() {
+      if (!isChildOne()) return;
+      
+      // 後継者の遺産取得割合を取得
+      const heirRateText = document.getElementById('heir_rate_display')?.textContent || '0';
+      const heirRate = parseFloat(heirRateText) || 0;
+      
+      // 100%から後継者の遺産取得割合を控除
+      const maritalRate = (100 - heirRate).toFixed(2);
+      maritalRateInput.value = maritalRate;
+    }
+    
+    // 配偶者の遺産取得割合のバリデーション
+    function validateMaritalRate() {
+      if (!maritalRateInput || !maritalStatusSelect) return;
+      
+      // 配偶者が「無」の場合はバリデーション不要
+      if (maritalStatusSelect.value !== '0') {
+        if (maritalRateError) {
+          maritalRateError.remove();
+        }
+        return;
+      }
+      
+      // 子供1人の場合は自動計算されるため、バリデーション不要
+      if (isChildOne()) {
+        if (maritalRateError) {
+          maritalRateError.remove();
+        }
+        maritalRateInput.classList.remove('is-invalid');
+        return true;
+      }
+      
+      const maritalRate = parseFloat(maritalRateInput.value.replace(/,/g, '') || 0);
+      
+      // 後継者の遺産取得割合を取得
+      const heirRateText = document.getElementById('heir_rate_display')?.textContent || '0';
+      const heirRate = parseFloat(heirRateText) || 0;
+      
+      // 既存のエラーメッセージを削除
+      if (maritalRateError) {
+        maritalRateError.remove();
+      }
+      
+      // バリデーション
+      if (maritalRateInput.value && (heirRate + maritalRate) > 100) {
+        // エラーメッセージを表示
+        const errorDiv = document.createElement('div');
+        errorDiv.id = 'marital_rate_error';
+        errorDiv.className = 'alert alert-danger alert-modern mt-2';
+        errorDiv.innerHTML = '<div class="d-flex align-items-start"><i class="fa fa-exclamation-triangle fa-lg mr-2 mt-1"></i><div><strong class="d-block mb-1">入力エラー</strong><div>配偶者の遺産取得割合は、後継者の遺産取得割合と合わせて100%を超えることはできません。</div></div></div>';
+        maritalRateInput.parentElement.parentElement.appendChild(errorDiv);
+        
+        // 入力フィールドにエラースタイルを適用
+        maritalRateInput.classList.add('is-invalid');
+        return false;
+      } else {
+        // エラーがない場合はスタイルを削除
+        maritalRateInput.classList.remove('is-invalid');
+        return true;
+      }
+    }
     
     if (maritalStatusSelect && maritalRateInput) {
+      // バリデーション用のイベントリスナーを追加（一度だけ）
+      let maritalRateValidationAttached = false;
+      
+      function attachMaritalRateValidation() {
+        if (!maritalRateValidationAttached) {
+          maritalRateInput.addEventListener('input', validateMaritalRate, false);
+          maritalRateInput.addEventListener('change', validateMaritalRate, false);
+          maritalRateValidationAttached = true;
+        }
+      }
+      
       // 初期状態の設定
       function updateMaritalRateField() {
         if (maritalStatusSelect.value === '0') {
-          // 配偶者が「有」の場合、入力可能
-          maritalRateInput.disabled = false;
+          // 配偶者が「有」の場合
+          if (isChildOne()) {
+            // 子供1人の場合は自動計算
+            maritalRateInput.disabled = true;
+            updateMaritalRateAuto();
+          } else {
+            // それ以外の場合は入力可能
+            maritalRateInput.disabled = false;
+            maritalRateInput.removeAttribute('readonly');
+            // 入力時にバリデーション（一度だけ追加）
+            attachMaritalRateValidation();
+          }
         } else {
           // 配偶者が「無」の場合、入力不可
           maritalRateInput.disabled = true;
           maritalRateInput.value = '0';
+          // エラーメッセージを削除
+          if (maritalRateError) {
+            maritalRateError.remove();
+          }
+          maritalRateInput.classList.remove('is-invalid');
         }
+        validateMaritalRate();
       }
       
       // 初期状態を設定
       updateMaritalRateField();
       
       // 変更時に実行
-      maritalStatusSelect.addEventListener('change', updateMaritalRateField);
+      maritalStatusSelect.addEventListener('change', updateMaritalRateField, false);
+      if (legalHeirChildren) {
+        legalHeirChildren.addEventListener('change', updateMaritalRateField, false);
+      }
+      if (legalHeirSiblings) {
+        legalHeirSiblings.addEventListener('change', updateMaritalRateField, false);
+      }
+      if (childrenCountSelect) {
+        childrenCountSelect.addEventListener('change', updateMaritalRateField, false);
+      }
+      
+      // 後継者の遺産取得割合が変更されたときにも自動計算を実行
+      const observer = new MutationObserver(function(mutations) {
+        if (isChildOne()) {
+          updateMaritalRateAuto();
+        }
+      });
+      const heirRateDisplay = document.getElementById('heir_rate_display');
+      if (heirRateDisplay) {
+        observer.observe(heirRateDisplay, { childList: true, characterData: true, subtree: true });
+      }
+      
+      // updateHeirRate関数が呼ばれたときにも自動計算を実行
+      const originalUpdateHeirRate = window.updateHeirRate;
+      if (originalUpdateHeirRate) {
+        window.updateHeirRate = function() {
+          originalUpdateHeirRate();
+          if (isChildOne()) {
+            setTimeout(updateMaritalRateAuto, 100);
+          } else {
+            // 子供1人でない場合もバリデーションを実行
+            setTimeout(validateMaritalRate, 100);
+          }
+        };
+      }
     }
+  }
+  
+  // Turbo環境向け
+  document.addEventListener('turbo:load', function() {
+    clearFormOnFirstLoad();
+    initBusinessSuccessionAutoCalc();
+    initMaritalRateControl();
+  });
+  
+  // Turboが無い場合/初回向け
+  document.addEventListener('DOMContentLoaded', function() {
+    clearFormOnFirstLoad();
+    initBusinessSuccessionAutoCalc();
+    initMaritalRateControl();
 
     // 子供と兄弟姉妹の選択を排他的に制御
     const heirChildrenRadio = document.getElementById('heir_children');
@@ -293,7 +827,7 @@
       // 子供の人数が0人かどうかをチェックする関数
       function isChildrenCountZero() {
         const value = childrenCountSelect.value;
-        return value === '0' || value === 0;
+        return value === '0' || value === '' || value === null;
       }
       
       // 兄弟姉妹の欄の有効/無効を更新する関数
@@ -301,13 +835,8 @@
         if (heirChildrenRadio.checked && isChildrenCountZero()) {
           // 子供が選択されていて、かつ子供の人数が「0人」の場合、兄弟姉妹のラジオボタンを有効化
           heirSiblingsRadio.disabled = false;
-          // 兄弟姉妹のラジオボタンが選択されている場合、人数選択も有効化
-          if (heirSiblingsRadio.checked) {
-            siblingsCountSelect.disabled = false;
-          } else {
-            siblingsCountSelect.disabled = true;
-            siblingsCountSelect.value = '0';
-          }
+          // 子供が0人の場合、兄弟姉妹のSELECTを直接有効化（ラジオボタンの選択状態に関係なく）
+          siblingsCountSelect.disabled = false;
         } else {
           // 子供が選択されていない、または子供の人数が「0人」以外の場合、兄弟姉妹の欄を無効化
           heirSiblingsRadio.disabled = true;
@@ -333,13 +862,17 @@
           } else {
             // 子供が0人でない場合は、兄弟姉妹の選択を解除
             heirSiblingsRadio.checked = false;
-            siblingsCountSelect.disabled = true;
-            siblingsCountSelect.value = '0';
+            if (!isChildrenCountZero()) {
+              siblingsCountSelect.disabled = true;
+              siblingsCountSelect.value = '0';
+            }
           }
         } else {
           // どちらも選択されていない場合
           childrenCountSelect.disabled = true;
-          childrenCountSelect.value = '0';
+          if (childrenCountSelect.value === '0' || childrenCountSelect.value === '') {
+            childrenCountSelect.value = '0';
+          }
           heirSiblingsRadio.disabled = true;
           siblingsCountSelect.disabled = true;
           siblingsCountSelect.value = '0';
@@ -355,7 +888,8 @@
       
       // 兄弟姉妹のラジオボタンが変更されたときの処理
       function updateSiblingsCountOnRadioChange() {
-        if (heirSiblingsRadio.checked && heirChildrenRadio.checked && isChildrenCountZero()) {
+        // 子供が0人の場合、兄弟姉妹のSELECTは常に有効
+        if (heirChildrenRadio.checked && isChildrenCountZero()) {
           siblingsCountSelect.disabled = false;
         } else if (!heirSiblingsRadio.checked) {
           siblingsCountSelect.disabled = true;
@@ -373,5 +907,226 @@
       });
       childrenCountSelect.addEventListener('change', updateSiblingsFieldOnChildrenCountChange);
     }
+    
+    // 数値をカンマ区切りでフォーマットする関数
+    function formatNumber(num) {
+      return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+    }
+    
+    // 計算結果を表示する関数
+    function displayCalculationResult(data) {
+      const resultCard = document.getElementById('result-card');
+      const resultErrors = document.getElementById('result-errors');
+      
+      if (data.success) {
+        // 計算結果を表示
+        document.getElementById('result-succession').textContent = formatNumber(data.result_succession);
+        document.getElementById('result-heir-succession').textContent = formatNumber(data.result_heir_succession);
+        document.getElementById('result-tax-grace-amount').textContent = formatNumber(data.result_tax_grace_amount);
+        
+        resultCard.style.display = 'block';
+        resultErrors.style.display = 'none';
+        
+        // 計算結果セクションにスクロール
+        setTimeout(function() {
+          resultCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }, 100);
+      } else {
+        // エラーメッセージを表示
+        resultCard.style.display = 'none';
+        resultErrors.style.display = 'block';
+        resultErrors.innerHTML = '<div class="alert alert-danger alert-modern"><div class="d-flex align-items-start"><i class="fa fa-exclamation-triangle fa-lg mr-2 mt-1"></i><div><strong class="d-block mb-1">入力エラー</strong><ul class="mb-0">' + 
+          data.errors.map(function(error) {
+            return '<li>' + error + '</li>';
+          }).join('') + 
+          '</ul></div></div></div>';
+        
+        // エラーメッセージの位置にスクロール
+        setTimeout(function() {
+          resultErrors.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }, 100);
+      }
+    }
+    
+    // 計算ボタンを押したらAjaxで計算結果を取得
+    function setupCalculateButton() {
+      const calculateButton = document.getElementById('calculate-button');
+      
+      if (!calculateButton) {
+        setTimeout(setupCalculateButton, 100);
+        return;
+      }
+      
+      // フォーム送信イベントを監視
+      const form = calculateButton.closest('form');
+      if (!form) {
+        console.error('フォームが見つかりません');
+        return;
+      }
+      
+      // 既にイベントリスナーが設定されている場合はスキップ
+      if (form.dataset.ajaxCalculated === 'true') {
+        return;
+      }
+      form.dataset.ajaxCalculated = 'true';
+      
+      form.addEventListener('submit', function(e) {
+        // デフォルトのフォーム送信を阻止
+        e.preventDefault();
+        e.stopPropagation();
+        
+        console.log('フォーム送信を阻止しました');
+        
+        // バリデーションエラーがある場合は送信を阻止
+        const maritalStatusSelect = document.getElementById('marital_status_select');
+        const maritalRateInput = document.getElementById('marital_rate_input');
+        
+        if (maritalStatusSelect && maritalRateInput && maritalStatusSelect.value === '0') {
+          // validateMaritalRate関数が定義されているか確認
+          if (typeof validateMaritalRate === 'function') {
+            if (!validateMaritalRate()) {
+              // エラーメッセージの位置にスクロール
+              const errorDiv = document.getElementById('marital_rate_error');
+              if (errorDiv) {
+                errorDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
+              }
+              return false;
+            }
+          }
+        }
+        
+        // フォームデータを取得
+        const formData = new FormData(form);
+        
+        // カンマを除去して数値に変換
+        function removeComma(str) {
+          return (str || '').toString().replace(/,/g, '').trim();
+        }
+        
+        // フォームデータを準備（カンマを除去）
+        const params = new URLSearchParams();
+        formData.forEach(function(value, key) {
+          if (typeof value === 'string' && (key.includes('heritage') || key.includes('value') || key.includes('rate'))) {
+            params.append(key, removeComma(value));
+          } else {
+            params.append(key, value);
+          }
+        });
+        
+        // 計算ボタンのフラグを設定
+        params.append('commit', '計算する');
+        
+        // ローディング表示
+        calculateButton.disabled = true;
+        const originalText = calculateButton.textContent;
+        calculateButton.textContent = '計算中...';
+        
+        // Ajaxで計算結果を取得
+        let baseUrl = form.action;
+        if (!baseUrl) {
+          // フォームのaction属性が取得できない場合は、現在のURLから構築
+          baseUrl = window.location.pathname;
+        }
+        // 相対パスの場合は絶対パスに変換
+        if (baseUrl.startsWith('/')) {
+          baseUrl = window.location.origin + baseUrl;
+        } else if (!baseUrl.startsWith('http')) {
+          baseUrl = window.location.origin + '/' + baseUrl;
+        }
+        const url = baseUrl.endsWith('.json') ? baseUrl : baseUrl + '.json';
+        const fullUrl = url + '?' + params.toString();
+        
+        console.log('計算リクエストURL:', fullUrl);
+        console.log('計算リクエストパラメータ:', params.toString());
+        
+        fetch(fullUrl, {
+          method: 'GET',
+          headers: {
+            'Accept': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest'
+          },
+          credentials: 'same-origin'
+        })
+        .then(function(response) {
+          console.log('レスポンスステータス:', response.status);
+          console.log('レスポンスContent-Type:', response.headers.get('Content-Type'));
+          if (!response.ok) {
+            throw new Error('HTTP error! status: ' + response.status);
+          }
+          return response.json();
+        })
+        .then(function(data) {
+          console.log('計算結果:', data);
+          // 計算結果を表示
+          displayCalculationResult(data);
+          
+          // 計算ボタンを押したフラグを設定（フォームをクリアしないようにするため）
+          sessionStorage.setItem('formSubmitted', 'true');
+        })
+        .catch(function(error) {
+          console.error('計算エラー:', error);
+          alert('計算中にエラーが発生しました。\nエラー内容: ' + error.message + '\n\nブラウザのコンソールを確認してください。');
+        })
+        .finally(function() {
+          // ローディング表示を解除
+          calculateButton.disabled = false;
+          calculateButton.textContent = originalText;
+        });
+        
+        return false;
+      }, true); // キャプチャフェーズで実行
+    }
+    
+    // 初期化（Turbo対応）
+    setupCalculateButton();
+    
+    // Turbo環境向け
+    document.addEventListener('turbo:load', function() {
+      setupCalculateButton();
+    });
+    
+    // ページ読み込み時に計算結果がある場合、計算結果セクションにスクロール
+    <% if @result_succession.present? %>
+      // ページ読み込み完了を待つ
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', function() {
+          checkAndScrollToResult();
+        });
+      } else {
+        checkAndScrollToResult();
+      }
+      
+      function checkAndScrollToResult() {
+        const shouldScrollToResult = sessionStorage.getItem('scrollToResult');
+        if (shouldScrollToResult === 'true') {
+          sessionStorage.removeItem('scrollToResult');
+          // 計算結果セクションが表示されるまで待つ
+          setTimeout(function() {
+            const resultSection = document.getElementById('result-section');
+            if (resultSection) {
+              // 計算結果のタイトル部分（「計算結果」）にスクロール
+              const resultCard = resultSection.querySelector('.result-card');
+              if (resultCard) {
+                resultCard.scrollIntoView({ 
+                  behavior: 'smooth', 
+                  block: 'center' 
+                });
+              } else {
+                resultSection.scrollIntoView({ 
+                  behavior: 'smooth', 
+                  block: 'center' 
+                });
+              }
+            }
+          }, 500);
+        }
+      }
+    <% else %>
+      // ページ更新時（計算結果がない場合）のみTOPにスクロール
+      window.scrollTo({ 
+        top: 0, 
+        behavior: 'smooth' 
+      });
+    <% end %>
   });
 </script>

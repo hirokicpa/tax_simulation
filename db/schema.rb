@@ -12,26 +12,26 @@
 
 ActiveRecord::Schema.define(version: 2023_06_21_133738) do
 
-  create_table "answers", charset: "utf8mb4", force: :cascade do |t|
+  create_table "answers", force: :cascade do |t|
     t.text "content"
-    t.bigint "user_id", null: false
-    t.bigint "question_id", null: false
+    t.integer "user_id", null: false
+    t.integer "question_id", null: false
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
     t.index ["question_id"], name: "index_answers_on_question_id"
     t.index ["user_id"], name: "index_answers_on_user_id"
   end
 
-  create_table "boards", charset: "utf8mb4", force: :cascade do |t|
+  create_table "boards", force: :cascade do |t|
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
     t.string "title"
   end
 
-  create_table "questions", charset: "utf8mb4", force: :cascade do |t|
+  create_table "questions", force: :cascade do |t|
     t.string "title"
     t.text "content"
-    t.bigint "board_id", null: false
+    t.integer "board_id", null: false
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
     t.bigint "user_id", null: false
@@ -39,7 +39,7 @@ ActiveRecord::Schema.define(version: 2023_06_21_133738) do
     t.index ["user_id"], name: "index_questions_on_user_id"
   end
 
-  create_table "users", charset: "utf8mb4", force: :cascade do |t|
+  create_table "users", force: :cascade do |t|
     t.string "email", default: "", null: false
     t.string "encrypted_password", default: "", null: false
     t.string "reset_password_token"

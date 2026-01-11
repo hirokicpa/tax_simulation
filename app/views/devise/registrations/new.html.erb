@@ -52,8 +52,18 @@
               <%= f.password_field :password_confirmation, autocomplete: "new-password", class: "form-control", placeholder: "パスワードを再入力", required: true %>
             </div>
 
+            <div class="form-group mb-4">
+              <div class="form-check">
+                <%= f.check_box :authority_answer, class: "form-check-input", id: "authority_answer" %>
+                <%= f.label :authority_answer, "回答権限を有効にする", class: "form-check-label", for: "authority_answer" %>
+                <small class="form-text text-muted d-block mt-2">
+                  チェックを入れると、質問に対して回答を投稿できるようになります。
+                </small>
+              </div>
+            </div>
+
             <div class="text-center mt-5">
-              <%= f.submit "登録する", class: "btn btn-primary btn-lg" %>
+              <%= f.submit "登録する", class: "btn btn-primary btn-lg", style: "display: inline-flex; align-items: center; justify-content: center; min-height: 50px; padding: 0.75rem 2rem; font-size: 1.15rem; line-height: 1.5;" %>
             </div>
           <% end %>
 

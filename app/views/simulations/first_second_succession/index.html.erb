@@ -1,76 +1,104 @@
-<div class="page-simulation-first_second_succession-index">
-  <div class="top-image-size"></div>
-
-  <div class="container-fluid">
-    <div class="row justify-content-center mt-4 mb-2 px-3">
-      <div class="col-12 col-md-8 col-lg-6 px-0">
-        <div class="content-title mt-4 mb-3 text-center font-weight-bold">
+<div class="row business-succession-container">
+  <div class="card mx-auto col-12 col-md-10 col-lg-9 modern-card">
+    <div class="card-body px-4 py-4">
+      <div class="header-section text-center mb-4">
+        <div class="icon-wrapper mb-3">
+          <i class="fa fa-calculator fa-3x text-primary" aria-hidden="true"></i>
+        </div>
+        <h4 class="card-title mb-2 font-weight-bold">
           1次相続による2次相続への<br>影響のシミュレーション
+        </h4>
+        <p class="text-muted small mb-0">1次相続と2次相続の税額を計算します</p>
+      </div>
+
+      <div class="alert alert-info alert-modern mb-4">
+        <div class="d-flex align-items-start">
+          <i class="fa fa-info-circle fa-lg mr-2 mt-1"></i>
+          <div>
+            <strong class="d-block mb-2">入力時のご注意</strong>
+            <ul class="mb-0 pl-3">
+              <li>値はすべて<strong>半角数字</strong>で入力してください。</li>
+            </ul>
+          </div>
         </div>
+      </div>
 
-        <div class="text-right mb-3 pr-2 small text-muted">
-          ※ 値はすべて <span class="font-weight-bold">半角英数</span> で入力してください
-        </div>
+      <%= form_tag(simulations_first_second_succession_result_tax_path, method: :get, remote: true, html: { accept_charset: "UTF-8", class: "modern-form" }) do %>
+        <div class="form-sections">
+          <div class="form-section">
+            <div class="form-group">
+              <label class="form-label">
+                <span class="step-number">①</span>
+                <span class="label-text">現在の遺産総額</span>
+              </label>
+              <div class="input-group-modern">
+                <%= text_field_tag :total_heritage, "", 
+                    class: "form-control form-control-modern text-right", 
+                    inputmode: "numeric",
+                    pattern: "^[0-9]+$", 
+                    required: true,
+                    placeholder: "0" %>
+                <span class="input-unit">万円</span>
+              </div>
+            </div>
+          </div>
 
-        <%= form_tag(simulations_first_second_succession_result_tax_path, method: :get, remote: true) do %>
-          <table class="table table-bordered">
-            <tbody>
-              <!-- 現在の遺産総額 -->
-              <tr>
-                <th class="align-middle text-center" style="width: 40%;">現在の遺産総額</th>
-                <td>
-                  <div class="input-group">
-                    <%= text_field_tag :total_heritage, "", class: "form-control text-right", pattern: "^[0-9]+$", required: true %>
-                    <div class="input-group-append">
-                      <span class="input-group-text">万円</span>
-                    </div>
-                  </div>
-                </td>
-              </tr>
-
-              <!-- 子供の人数 -->
-              <tr>
-                <th class="align-middle text-center">子供の人数</th>
-                <td>
-                  <%= select_tag "count_heir_children", options_for_select([
-                    ["選択してください", "0"],
+          <div class="form-section">
+            <div class="form-group">
+              <label class="form-label">
+                <span class="step-number">②</span>
+                <span class="label-text">子供の人数</span>
+              </label>
+              <%= select_tag "count_heir_children", 
+                  options_for_select([
+                    ["選択してください", "0", { disabled: true }],
                     ["1人", "1"],
                     ["2人", "2"],
                     ["3人", "3"],
                     ["4人", "4"],
                     ["5人", "5"]
-                  ]), class: "form-control", required: true %>
-                </td>
-              </tr>
-
-              <!-- 配偶者の固有の財産 -->
-              <tr>
-                <th class="align-middle text-center">配偶者の固有の財産</th>
-                <td>
-                  <div class="input-group">
-                    <%= text_field_tag :mate_own_heritage, "", class: "form-control text-right", pattern: "^[0-9]+$", required: true %>
-                    <div class="input-group-append">
-                      <span class="input-group-text">万円</span>
-                    </div>
-                  </div>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-
-          <div class="text-center mt-4 mb-5">
-            <%= submit_tag "計算する", class: "btn btn-primary btn-lg px-5 py-2", id: "btn_first_second_succession" %>
+                  ]), 
+                  class: "form-control form-control-modern", 
+                  required: true %>
+            </div>
           </div>
-        <% end %>
-      </div>
-    </div>
 
-    <!-- 結果表示 -->
-    <div class="row justify-content-center">
-      <div class="col-12 col-md-10 mt-5 mb-5">
-        <div id="result_first_second_succession" class="bg-light p-4 rounded shadow-sm"></div>
+          <div class="form-section">
+            <div class="form-group">
+              <label class="form-label">
+                <span class="step-number">③</span>
+                <span class="label-text">配偶者の固有の財産</span>
+              </label>
+              <div class="input-group-modern">
+                <%= text_field_tag :mate_own_heritage, "", 
+                    class: "form-control form-control-modern text-right", 
+                    inputmode: "numeric",
+                    pattern: "^[0-9]+$", 
+                    required: true,
+                    placeholder: "0" %>
+                <span class="input-unit">万円</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="text-center mt-4">
+          <%= submit_tag "計算する", class: "btn btn-primary btn-lg btn-calculate", id: "btn_first_second_succession" %>
+        </div>
+      <% end %>
+    </div>
+  </div>
+
+  <!-- 結果表示 -->
+  <div class="mx-auto my-4 col-12 col-md-10 col-lg-9 px-0" id="result-section">
+    <div id="result_first_second_succession" class="card result-card" style="display: none;">
+      <div class="card-body p-4">
+        <div class="result-header text-center mb-4">
+          <i class="fa fa-chart-line fa-2x text-success mb-3"></i>
+          <h5 class="font-weight-bold mb-0">計算結果</h5>
+        </div>
+        <div id="result-content"></div>
       </div>
     </div>
   </div>
 </div>
-
