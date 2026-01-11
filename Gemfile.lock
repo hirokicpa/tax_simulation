@@ -100,6 +100,7 @@ GEM
       warden (~> 1.2.3)
     erubi (1.13.1)
     ffi (1.17.2)
+    ffi (1.17.2-x86_64-darwin)
     globalid (1.2.1)
       activesupport (>= 6.1)
     groupdate (6.2.1)
