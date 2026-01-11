@@ -1,7 +1,7 @@
 source 'https://rubygems.org'
 git_source(:github) { |repo| "https://github.com/#{repo}.git" }
 
-ruby '2.7.5'
+ruby '3.1.2'
 
 gem 'rails', '~> 6.1.3', '>= 6.1.3.1'
 gem 'mysql2', '0.5.3'
@@ -40,5 +40,5 @@ gem 'devise'
 gem 'carrierwave', '~> 2.0'
 
 group :production do
-  gem 'pg', '1.2.3'
+  gem 'pg','1.6.3'
 end
