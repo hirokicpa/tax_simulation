@@ -5,3 +5,9 @@
 #
 #   movies = Movie.create([{ name: 'Star Wars' }, { name: 'Lord of the Rings' }])
 #   Character.create(name: 'Luke', movie: movies.first)
+
+# 相続事業承継に関する相談項目の掲示板を作成
+Board.create!(title: '相続税')
+Board.create!(title: '贈与税')
+Board.create!(title: '事業承継税制')
+Board.create!(title: '所得税')

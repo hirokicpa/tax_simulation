@@ -23,6 +23,16 @@ class QuestionsController < ApplicationController
           render :new
         end
     end
+
+    def destroy
+      if @question.user == current_user
+        @board = @question.board
+        @question.destroy
+        redirect_to board_path(@board), notice: "質問を削除しました。"
+      else
+        redirect_to board_question_path(@question.board, @question), alert: "質問を削除する権限がありません。"
+      end
+    end
      
      
    

@@ -1,22 +1,102 @@
-<div class="container">
-  <h1 class="text-center mt-5 mb-2">質問投稿</h1>
-　<%= form_with(model: @question, url: board_questions_path(@board.id), local: true) do |form| %>
-    <div class="row">
-      <div class="col-md-6 offset-md-3">
-        <div class="form-group">
-          <%= form.label :タイトル, class: "font-weight-bold" %>
-          <%= form.text_field :title, class: "form-control", placeholder: "質問のタイトルを入力してください" %>
+<div class="row business-succession-container">
+  <div class="card mx-auto col-12 col-md-10 col-lg-9 modern-card">
+    <div class="card-body px-4 py-4">
+      <div class="header-section text-center mb-4">
+        <div class="icon-wrapper mb-3">
+          <i class="fa fa-question-circle fa-3x text-primary" aria-hidden="true"></i>
         </div>
+        <h4 class="card-title mb-2 font-weight-bold">
+          新しい質問を<br>投稿する
+        </h4>
+        <p class="text-muted small mb-0">質問のタイトルと内容を入力してください</p>
+      </div>
 
-        <div class="form-group">
-          <%= form.label :質問内容, class: "font-weight-bold mt-4" %>
-          <%= form.text_area :content, class: "form-control", rows: 5, placeholder: "質問の内容を入力してください" %>
-        </div>
-
-        <div class="text-center mt-5">
-          <%= form.submit "質問する", class: "btn btn-primary btn-lg" %>
+      <div class="alert alert-info alert-modern mb-4">
+        <div class="d-flex align-items-start">
+          <i class="fa fa-info-circle fa-lg mr-2 mt-1"></i>
+          <div>
+            <strong class="d-block mb-2">投稿時のご注意</strong>
+            <ul class="mb-0 pl-3">
+              <li>タイトルは50文字以内で入力してください。</li>
+              <li>質問内容は200文字以内で入力してください。</li>
+              <li>適切な内容で投稿してください。</li>
+            </ul>
+          </div>
         </div>
       </div>
+
+      <%= form_with(model: @question, url: board_questions_path(@board.id), local: true, html: { class: "modern-form" }) do |form| %>
+        <div class="form-sections">
+          <div class="form-section">
+            <div class="form-group">
+              <label class="form-label">
+                <span class="step-number">①</span>
+                <span class="label-text">タイトル</span>
+              </label>
+              <div class="d-flex justify-content-center">
+                <%= form.text_field :title, 
+                    class: "form-control",
+                    placeholder: "質問のタイトルを入力してください",
+                    maxlength: 50,
+                    required: true,
+                    style: "font-size: 1.1rem; padding: 0.875rem 1.25rem; max-width: 600px; width: 100%; border: 2px solid #e0e0e0; border-radius: 8px; margin: 0 auto; display: block;" %>
+              </div>
+              <div class="form-help-text">
+                <i class="fa fa-info-circle mr-1"></i>
+                50文字以内で入力してください
+              </div>
+            </div>
+          </div>
+
+          <div class="form-section">
+            <div class="form-group">
+              <label class="form-label">
+                <span class="step-number">②</span>
+                <span class="label-text">質問内容</span>
+              </label>
+              <div style="max-width: 100%; margin: 0 auto;">
+                <%= form.text_area :content, 
+                    class: "form-control",
+                    rows: 12,
+                    placeholder: "質問の内容を入力してください",
+                    maxlength: 200,
+                    required: true,
+                    style: "width: 100%; min-height: 250px; font-size: 1rem; line-height: 1.6; padding: 1rem; border: 2px solid #e0e0e0; border-radius: 8px; resize: vertical;" %>
+              </div>
+              <div class="form-help-text">
+                <i class="fa fa-info-circle mr-1"></i>
+                200文字以内で入力してください
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="text-center mt-4">
+          <%= form.submit "質問する", 
+              class: "btn btn-primary btn-lg btn-calculate",
+              style: "display: inline-flex; align-items: center; justify-content: center; min-height: 50px; padding: 0.75rem 2rem; font-size: 1.15rem; line-height: 1.5;" %>
+        </div>
+      <% end %>
+
+      <div class="text-center mt-4">
+        <%= link_to board_path(@board), class: "btn btn-secondary btn-modern" do %>
+          <i class="fa fa-arrow-left mr-2"></i>キャンセル
+        <% end %>
+      </div>
     </div>
-  <% end %>
+  </div>
 </div>
+
+<style>
+  .form-control[type="textarea"],
+  textarea.form-control {
+    transition: all 0.3s ease;
+  }
+  
+  .form-control[type="textarea"]:focus,
+  textarea.form-control:focus {
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    outline: none;
+  }
+</style>

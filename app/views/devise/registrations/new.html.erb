@@ -20,12 +20,12 @@
 
             <div class="form-group mb-4">
               <%= f.label :職業, class: "font-weight-bold", style: "width: 100px; height: 30px; display: inline-block;" %></br>
-              <%= f.select :occupation, ['金融', '営業', 'エンジニア', '経理・財務', '法務', '専門職', 'その他'], prompt: '職業を選択してください', required: true, class: "form-control" %>
+              <%= f.select :occupation, [['職業を選択してください', ''], '金融', '営業', 'エンジニア', '経理・財務', '法務', '専門職', 'その他'], {}, {required: true, class: "form-control"} %>
             </div>
 
             <div class="form-group mb-4">
               <%= f.label :年代, class: "font-weight-bold", style: "width: 100px; height: 30px; display: inline-block;" %></br>
-              <%= f.select :age, ['20代', '30代', '40代', '50代以上'], prompt: '年代を選択してください', class: "form-control", style: "width: 400px; height: 30px;" %>
+              <%= f.select :age, [['年代を選択してください', ''], '20代', '30代', '40代', '50代以上'], {}, {required: true, class: "form-control", style: "width: 400px; height: 30px;"} %>
             </div>
             
             <div class="form-group mb-4">
@@ -36,7 +36,7 @@
 
             <div class="form-group mb-4">
               <%= f.label :email, class: "font-weight-bold" %>
-              <%= f.email_field :email, autofocus: true, autocomplete: "email", class: "form-control", placeholder: "メールアドレスを入力" %>
+              <%= f.email_field :email, autofocus: true, autocomplete: "email", class: "form-control", placeholder: "メールアドレスを入力", required: true %>
             </div>
 
             <div class="form-group mb-4">
@@ -44,16 +44,26 @@
               <% if @minimum_password_length %>
                 <em class="password-hint">（<%= @minimum_password_length %>文字以上）</em>
               <% end %>
-              <%= f.password_field :password, autocomplete: "new-password", class: "form-control", placeholder: "パスワードを入力" %>
+              <%= f.password_field :password, autocomplete: "new-password", class: "form-control", placeholder: "パスワードを入力", required: true %>
             </div>
 
             <div class="form-group mb-4">
               <%= f.label :password_confirmation, class: "font-weight-bold" %>
-              <%= f.password_field :password_confirmation, autocomplete: "new-password", class: "form-control", placeholder: "パスワードを再入力" %>
+              <%= f.password_field :password_confirmation, autocomplete: "new-password", class: "form-control", placeholder: "パスワードを再入力", required: true %>
+            </div>
+
+            <div class="form-group mb-4">
+              <div class="form-check">
+                <%= f.check_box :authority_answer, class: "form-check-input", id: "authority_answer" %>
+                <%= f.label :authority_answer, "回答権限を有効にする", class: "form-check-label", for: "authority_answer" %>
+                <small class="form-text text-muted d-block mt-2">
+                  チェックを入れると、質問に対して回答を投稿できるようになります。
+                </small>
+              </div>
             </div>
 
             <div class="text-center mt-5">
-              <%= f.submit "登録する", class: "btn btn-primary btn-lg" %>
+              <%= f.submit "登録する", class: "btn btn-primary btn-lg", style: "display: inline-flex; align-items: center; justify-content: center; min-height: 50px; padding: 0.75rem 2rem; font-size: 1.15rem; line-height: 1.5;" %>
             </div>
           <% end %>
 

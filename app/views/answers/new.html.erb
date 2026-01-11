@@ -1,0 +1,105 @@
+<div class="row business-succession-container">
+  <div class="card mx-auto col-12 col-md-10 col-lg-9 modern-card">
+    <div class="card-body px-4 py-4">
+      <div class="header-section text-center mb-4">
+        <div class="icon-wrapper mb-3">
+          <i class="fa fa-reply fa-3x text-success" aria-hidden="true"></i>
+        </div>
+        <h4 class="card-title mb-2 font-weight-bold">
+          回答を<br>投稿する
+        </h4>
+        <p class="text-muted small mb-0">質問に対する回答を入力してください</p>
+      </div>
+
+      <!-- 質問内容の表示 -->
+      <div class="card mb-4" style="border-radius: 12px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);">
+        <div class="card-header" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-radius: 12px 12px 0 0; padding: 1.25rem 1.5rem;">
+          <h5 class="mb-0" style="font-size: 1.2rem;">質問: <%= @question.title %></h5>
+        </div>
+        <div class="card-body" style="padding: 1.5rem;">
+          <h6 class="mb-3" style="font-weight: 600; color: #2c3e50;">質問内容:</h6>
+          <p class="card-text" style="line-height: 1.8; color: #495057; font-size: 1.05rem;"><%= simple_format(@question.content) %></p>
+          <hr>
+          <div class="d-flex justify-content-between align-items-center">
+            <small class="text-muted">
+              <i class="fa fa-user mr-1"></i>投稿者: <%= @question.user.full_name %>
+            </small>
+            <small class="text-muted">
+              <i class="fa fa-clock mr-1"></i><%= @question.created_at.strftime('%Y/%m/%d %H:%M') %>
+            </small>
+          </div>
+        </div>
+      </div>
+
+      <!-- 回答フォーム -->
+      <div class="card" style="border-radius: 12px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);">
+        <div class="card-header text-center" style="background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%); color: white; border-radius: 12px 12px 0 0; padding: 1.25rem 1.5rem;">
+          <h5 class="mb-0" style="font-size: 1.2rem;">回答を投稿</h5>
+        </div>
+        <div class="card-body" style="padding: 1.5rem;">
+          <%= form_with model: [@board, @question, @answer], local: true, html: { class: "modern-form" } do |form| %>
+            <% if @answer.errors.any? %>
+              <div class="alert alert-danger alert-modern mb-4">
+                <div class="d-flex align-items-start">
+                  <i class="fa fa-exclamation-triangle fa-lg mr-2 mt-1"></i>
+                  <div>
+                    <strong class="d-block mb-2">入力エラー</strong>
+                    <ul class="mb-0 pl-3">
+                      <% @answer.errors.full_messages.each do |message| %>
+                        <li><%= message %></li>
+                      <% end %>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            <% end %>
+
+            <div class="form-section">
+              <div class="form-group">
+                <label class="form-label">
+                  <span class="step-number">①</span>
+                  <span class="label-text">回答内容</span>
+                </label>
+                <div style="max-width: 100%; margin: 0 auto;">
+                  <%= form.text_area :content, 
+                      class: "form-control",
+                      rows: 15,
+                      placeholder: "回答の内容を入力してください",
+                      required: true,
+                      style: "width: 100%; min-height: 300px; font-size: 1.05rem; line-height: 1.8; padding: 1.25rem; border: 2px solid #e0e0e0; border-radius: 8px; resize: vertical; transition: all 0.3s ease;" %>
+                </div>
+                <div class="form-help-text">
+                  <i class="fa fa-info-circle mr-1"></i>
+                  適切な回答内容を入力してください
+                </div>
+              </div>
+            </div>
+
+            <div class="text-center mt-4">
+              <%= form.submit "回答を投稿", 
+                  class: "btn btn-success btn-lg btn-calculate",
+                  style: "display: inline-flex; align-items: center; justify-content: center; min-height: 55px; padding: 0.875rem 2rem; font-size: 1.15rem; line-height: 1.5;" %>
+              <%= link_to "キャンセル", board_question_path(@board, @question), 
+                  class: "btn btn-secondary btn-lg ml-2",
+                  style: "display: inline-flex; align-items: center; justify-content: center; min-height: 55px; padding: 0.875rem 2rem; font-size: 1.15rem; line-height: 1.5;" %>
+            </div>
+          <% end %>
+        </div>
+      </div>
+
+      <div class="text-center mt-4">
+        <%= link_to board_question_path(@board, @question), class: "btn btn-secondary btn-modern" do %>
+          <i class="fa fa-arrow-left mr-2"></i>質問詳細に戻る
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  textarea.form-control:focus {
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    outline: none;
+  }
+</style>

@@ -1,130 +1,201 @@
-<style>
-    .content-main {
-        margin: 4rem auto 2rem;
-        padding: 2.5rem;
-        max-width: 800px;
-    }
+<div class="row business-succession-container">
+  <div class="card mx-auto col-12 col-md-10 col-lg-9 modern-card">
+    <div class="card-body px-4 py-4">
+      <div class="header-section text-center mb-4">
+        <div class="icon-wrapper mb-3">
+          <i class="fa fa-calculator fa-3x text-primary" aria-hidden="true"></i>
+        </div>
+        <h4 class="card-title mb-2 font-weight-bold">
+          贈与による相続税への影響
+        </h4>
+        <p class="text-muted small mb-0">生前贈与による相続税への影響を計算します</p>
+      </div>
 
-    .content-title {
-        margin-top: 1.5rem;
-        margin-bottom: 0.5rem;
-        font-weight: bold;
-        color: #005cbf;
-    }
+      <div class="alert alert-info alert-modern mb-4">
+        <div class="d-flex align-items-start">
+          <i class="fa fa-info-circle fa-lg mr-2 mt-1"></i>
+          <div>
+            <strong class="d-block mb-2">入力時のご注意</strong>
+            <ul class="mb-0 pl-3">
+              <li>値はすべて<strong>半角数字</strong>で入力してください。</li>
+            </ul>
+          </div>
+        </div>
+      </div>
 
-    .form-table {
-        margin-top: 2rem;
-        margin-bottom: 0;
-    }
-
-    .form-control {
-        border: 2px solid #005cbf;
-        border-radius: 5px;
-    }
-
-    .btn-primary {
-        background-color: #005cbf;
-        border-color: #005cbf;
-    }
-</style>
-
-<div class="page-simulation-succession_gift-index">
-    <div class="top-image-size"></div>
-    <div class="content-main">
-        <div class="text-center">
-            <h2 class="content-title">贈与による相続税への影響</h2>
-            <p class="text-right">*値は全て<span style="font-weight: bold;">半角英数</span>入力してください</p>
-            <%= form_tag(simulations_succession_gift_result_tax_path, method: :get, remote: true) do %>
-            <table class="form-table">
-           	<tbody>
-  	      	  <thead>
-                <tr>
-                  <td>現在の遺産総額</td>
-                    <td class="row">
-                	<%= text_field_tag :total_heritage, "", class: "form-control col-8", style: "text-align right; padding-right:15px;", pattern: "^[0-9]+$",required: "" %>
-                	  <div class="col-3 d-flex align-items-center">万円</div>
-                    </td>
-                </tr>
-
-                <tr>
-                	<td class="align-middle">相続人</td>
-                      <td class="row">
-                  	  <div class="mt-2 md-checkbox align-middle">
-                  	    <%= check_box_tag :select_succession_mate, "0", false, class: "filled-in" %>
-                  	    <%= label_tag :select_succession_mate, "配偶者", style: "color: rgba(0,0,0,0,7);" %>
-                  	  </div>
-                      </td>
-
-                     <td class="row">
-                     <div class="md-radio mt-2 mr-2 text-left">
-                      <%= check_box_tag :select_succession_children, "0", false, class: "pt-3 pb-3" %>
-                      <%= label_tag :select_succession_children, "子供", style: "color: rgba(0,0,0,0.7);" %>
-                     </div>
-                     <div class="ml-3 custom-control-inline">
-                      <%= select_tag :count_heir_children, options_for_select([["選択して下さい", "0"], ["1 人", "1"], ["2 人", "2"], ["3 人", "3"], ["4 人", "4"], ["5 人", "5"]]), class: "form-control", style: "color: rgba(0,0,0,0.7);" %>
-                     </div>
-                   </td>
-                </tr>
-
-                <tr>
-                  <td class="align-middle">贈与する相手</td>
-                    <td class="row">
-                  	  <div class="md-radio mt-2 text-left">
-                  		<%= check_box_tag :select_gift_mate, "0", false, class: "filled-in" %>
-                  		<%= label_tag :select_gift_mate, "配偶者", style: "color: rgba(0,0,0,0,7);" %>
-                  	  </div>
-                    </td>
-
-                    <td class="row">
-                    <div class="md-radio mt-2 text-left">
-                    <%= check_box_tag :check_over_20,"0",false, class: "pt-3 pb-3" %>
-                	<%= label_tag :check_over_20, "子供（20歳以上）", style: "color: rgba(0,0,0,0,7);" %>
-                	</div>
-                	<div class="custom-control-inline">
-                    <%= select_tag :count_over_20 ,options_for_select([["選択して下さい","0"], ["1人", "1"],["2人", "2"],["3人", "3"],["4人", "4"],["5人", "5"]]), class: "form-control", style:"color:rgba(0,0,0,0,7);" %>
-                    </div>
-                  </td>
-             
-                  <td class="row">
-                    <div class="md-radio mt-2 mr-3 text-left">
-                    <%= check_box_tag :others,"0",false, class: "filled-in" %>
-                	<%= label_tag :others, "上記以外", style: "color: rgba(0,0,0,0.7);" %>
-                	</div>
-                	<div class="custom-control-inline">
-                      <%= select_tag :count_others ,options_for_select([["選択して下さい","0"], ["1人", "1"],["2人", "2"],["3人", "3"],["4人", "4"],["5人", "5"]]), class: "form-control", style:"rgba(0,0,0,0,7);" %>
-                    </div>
-                  </td>
-                </tr>
-
-                <tr>
-                  <td>一人あたりの贈与金額</td>
-
-                    <td class="row">
-                    <%= text_field_tag :one_person_gift, "", class: "form-control col-8", style: "text-align: right; margin-right: 15px;font-size: 20px;", pattern: "^[0-9]+$", required: "" %>
-                    <div class="col-3 d-flex align-items-center">万円</div>	</td>
-                </tr>
-
-                <tr>
-                  <td>上記金額を生前贈与する年数</td>
-                    <td class="row">
-                    <%= text_field_tag :years, "", class: "form-control col-8", style: "text-align right; margin-right:15px;", pattern: "^[0-9]+$",required: "" %>
-                  	<div class="col-3 d-flex align-items-center">年間</div>
-                    </td>
-                </tr>
-              </thead>
-  	      	</tbody>
-            </table>
-            <div class="text-center">
-                <%= submit_tag "計算する", class: "my-3 py-3 btn btn-primary", id: "button" %>
+      <%= form_tag(simulations_succession_gift_result_tax_path, method: :get, remote: true, html: { accept_charset: "UTF-8", class: "modern-form", id: "succession_gift_form" }) do %>
+        <div class="form-sections">
+          <div class="form-section">
+            <div class="form-group">
+              <label class="form-label">
+                <span class="step-number">①</span>
+                <span class="label-text">現在の遺産総額</span>
+              </label>
+              <div class="input-group-modern">
+                <%= text_field_tag :total_heritage, "", 
+                    class: "form-control form-control-modern text-right", 
+                    inputmode: "numeric",
+                    pattern: "^[0-9]+$", 
+                    required: true,
+                    placeholder: "0" %>
+                <span class="input-unit">万円</span>
+              </div>
             </div>
-            <% end %>
+          </div>
+
+          <div class="form-section">
+            <div class="form-group">
+              <label class="form-label">
+                <span class="step-number">②</span>
+                <span class="label-text">相続人</span>
+              </label>
+              
+              <!-- 配偶者の有無 -->
+              <div class="mb-3">
+                <div class="form-label small mb-2 text-center">配偶者</div>
+                <%= select_tag :has_spouse,
+                  options_for_select([
+                    ["無", "0"],
+                    ["有", "1"]
+                  ], "0"),
+                  class: "form-control form-control-modern",
+                  id: "has_spouse_select" %>
+              </div>
+
+              <!-- 子どもの人数 -->
+              <div>
+                <div class="form-label small mb-2">子どもの人数</div>
+                <%= select_tag :children_count,
+                  options_for_select([["0人", "0"]] + (1..5).map { |i| ["#{i}人", i.to_s] }, "0"),
+                  class: "form-control form-control-modern",
+                  id: "children_count_select" %>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-section">
+            <div class="form-group">
+              <label class="form-label">
+                <span class="step-number">③</span>
+                <span class="label-text">贈与する相手（人数）</span>
+              </label>
+
+              <div class="mb-3">
+                <div class="form-label small mb-2">配偶者へ贈与</div>
+                <%= select_tag :gift_to_spouse,
+                  options_for_select([["0人（贈与しない）", "0"], ["1人", "1"]], "0"),
+                  class: "form-control form-control-modern",
+                  id: "gift_to_spouse_select" %>
+              </div>
+
+              <div class="mb-3">
+                <div class="form-label small mb-2">子ども（20歳以上）へ贈与</div>
+                <%= select_tag :gift_to_children_over_20,
+                  options_for_select([["0人（贈与しない）", "0"]] + (1..5).map { |i| ["#{i}人", i.to_s] }, "0"),
+                  class: "form-control form-control-modern",
+                  id: "gift_to_children_over_20_select" %>
+              </div>
+
+              <div>
+                <div class="form-label small mb-2">上記以外へ贈与</div>
+                <%= select_tag :gift_to_others,
+                  options_for_select([["0人（贈与しない）", "0"]] + (1..5).map { |i| ["#{i}人", i.to_s] }, "0"),
+                  class: "form-control form-control-modern",
+                  id: "gift_to_others_select" %>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-section">
+            <div class="form-group">
+              <label class="form-label">
+                <span class="step-number">④</span>
+                <span class="label-text">一人あたりの贈与金額</span>
+              </label>
+              <div class="input-group-modern">
+                <%= text_field_tag :one_person_gift, "", 
+                    class: "form-control form-control-modern text-right", 
+                    inputmode: "numeric",
+                    pattern: "^[0-9]+$", 
+                    required: true,
+                    placeholder: "0" %>
+                <span class="input-unit">万円</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-section">
+            <div class="form-group">
+              <label class="form-label">
+                <span class="step-number">⑤</span>
+                <span class="label-text">上記金額を生前贈与する年数</span>
+              </label>
+              <div class="input-group-modern">
+                <%= text_field_tag :years, "", 
+                    class: "form-control form-control-modern text-right", 
+                    inputmode: "numeric",
+                    pattern: "^[0-9]+$", 
+                    required: true,
+                    placeholder: "0" %>
+                <span class="input-unit">年間</span>
+              </div>
+            </div>
+          </div>
         </div>
-    </div>
-    <div class="text-center">
-        <div class="mt-5 mb-5">
-            <div id="result_succession_gift"></div>
+
+        <div class="text-center mt-4">
+          <%= submit_tag "計算する", class: "btn btn-primary btn-lg btn-calculate", id: "button" %>
         </div>
+      <% end %>
     </div>
+  </div>
+
+  <!-- 結果表示 -->
+  <div class="mx-auto my-4 col-12 col-md-10 col-lg-9 px-0" id="result-section">
+    <div id="result_succession_gift" class="card result-card" style="display: none;">
+      <div class="card-body p-4">
+        <div class="result-header text-center mb-4">
+          <i class="fa fa-chart-line fa-2x text-success mb-3"></i>
+          <h5 class="font-weight-bold mb-0">計算結果</h5>
+        </div>
+        <div id="result-content"></div>
+      </div>
+    </div>
+  </div>
 </div>
 
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const hasSpouseSelect = document.getElementById('has_spouse_select');
+    const giftToSpouseSelect = document.getElementById('gift_to_spouse_select');
+    
+    // 配偶者の有無に応じて配偶者への贈与を制御する関数
+    function updateGiftToSpouseControl() {
+      if (hasSpouseSelect && giftToSpouseSelect) {
+        const hasSpouse = hasSpouseSelect.value;
+        
+        if (hasSpouse === "0") {
+          // 配偶者「無」の場合：配偶者への贈与を無効化し、「贈与しない」に設定
+          giftToSpouseSelect.disabled = true;
+          giftToSpouseSelect.value = "0";
+          giftToSpouseSelect.style.opacity = "0.6";
+          giftToSpouseSelect.style.cursor = "not-allowed";
+        } else {
+          // 配偶者「有」の場合：配偶者への贈与を有効化
+          giftToSpouseSelect.disabled = false;
+          giftToSpouseSelect.style.opacity = "1";
+          giftToSpouseSelect.style.cursor = "default";
+        }
+      }
+    }
+    
+    // 初期状態を設定
+    updateGiftToSpouseControl();
+    
+    // 配偶者の有無が変更されたときに制御を更新
+    if (hasSpouseSelect) {
+      hasSpouseSelect.addEventListener('change', updateGiftToSpouseControl);
+    }
+  });
+</script>
 

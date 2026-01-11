@@ -1,17 +1,142 @@
-<div class="page-top mt-4"> 
-  <div class="container-fluid">
-    <div class="white-block">
-      <h1 class="block-title text-center font-weight-bold text-primary mb-5">掲示板</h1>
-        <div class="d-flex justify-content-center mb-5">
-          <% @board.each do |board| %>
-          <div class="col-6 col-sm-6 col-md-6 col-lg-4 px-0 text-center">
-            <%= link_to board.title, board_path(board, tab: "questions"), class: "btn btn-primary btn-lg mb-3 mx-2", style: "width: 200px; font-size: 1.25rem;" %> <!-- フォントサイズを追加 -->
-          </div>
-          <% end %>
+<div class="row business-succession-container">
+  <div class="card mx-auto col-12 col-md-10 col-lg-9 modern-card">
+    <div class="card-body px-4 py-4">
+      <div class="header-section text-center mb-4">
+        <div class="icon-wrapper mb-3">
+          <i class="fa fa-comments fa-3x text-primary" aria-hidden="true"></i>
         </div>
-      <div class="text-center">
-        <p class="sub-text">各ジャンルの質問や意見交換などの投稿掲示版です。</p>
+        <h4 class="card-title mb-2 font-weight-bold">
+          相続・事業承継<br>相談掲示板
+        </h4>
+        <p class="text-muted small mb-0">各税制に関する質問や意見交換の場です</p>
+      </div>
+
+      <div class="alert alert-info alert-modern mb-4">
+        <div class="d-flex align-items-start">
+          <i class="fa fa-info-circle fa-lg mr-2 mt-1"></i>
+          <div>
+            <strong class="d-block mb-2">ご利用について</strong>
+            <ul class="mb-0 pl-3">
+              <li>各税制に関する質問や意見交換などの投稿掲示板です。</li>
+              <li>ご質問やご相談がございましたら、該当する税制の掲示板に投稿してください。</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="board-buttons-section">
+        <div class="row justify-content-center">
+          <div class="col-md-6 mb-3">
+            <div class="d-flex flex-column align-items-center">
+              <% inheritance_tax_board = @boards.find_by(title: '相続税') %>
+              <% gift_tax_board = @boards.find_by(title: '贈与税') %>
+              
+              <% if inheritance_tax_board %>
+                <%= link_to board_path(inheritance_tax_board), class: "btn btn-modern btn-primary mb-3 w-100", style: "max-width: 300px;" do %>
+                  <i class="fa fa-file-invoice-dollar mr-2"></i>相続税
+                <% end %>
+              <% end %>
+              
+              <% if gift_tax_board %>
+                <%= link_to board_path(gift_tax_board), class: "btn btn-modern btn-success mb-3 w-100", style: "max-width: 300px;" do %>
+                  <i class="fa fa-gift mr-2"></i>贈与税
+                <% end %>
+              <% end %>
+            </div>
+          </div>
+          <div class="col-md-6 mb-3">
+            <div class="d-flex flex-column align-items-center">
+              <% business_succession_board = @boards.find_by(title: '事業承継税制') %>
+              <% income_tax_board = @boards.find_by(title: '所得税') %>
+              
+              <% if business_succession_board %>
+                <%= link_to board_path(business_succession_board), class: "btn btn-modern btn-warning mb-3 w-100", style: "max-width: 300px;" do %>
+                  <i class="fa fa-building mr-2"></i>事業承継税制
+                <% end %>
+              <% end %>
+              
+              <% if income_tax_board %>
+                <%= link_to board_path(income_tax_board), class: "btn btn-modern btn-info mb-3 w-100", style: "max-width: 300px;" do %>
+                  <i class="fa fa-calculator mr-2"></i>所得税
+                <% end %>
+              <% end %>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
 </div>
+
+<style>
+  .board-buttons-section {
+    padding: 2rem 0;
+  }
+  
+  .btn-modern {
+    padding: 1.25rem 2rem;
+    font-size: 1.15rem;
+    font-weight: 600;
+    border-radius: 12px;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 60px;
+  }
+  
+  .btn-modern:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+  }
+  
+  .btn-modern.btn-primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+  }
+  
+  .btn-modern.btn-primary:hover {
+    background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+    color: white;
+  }
+  
+  .btn-modern.btn-success {
+    background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+    color: white;
+  }
+  
+  .btn-modern.btn-success:hover {
+    background: linear-gradient(135deg, #38ef7d 0%, #11998e 100%);
+    color: white;
+  }
+  
+  .btn-modern.btn-warning {
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    color: white;
+  }
+  
+  .btn-modern.btn-warning:hover {
+    background: linear-gradient(135deg, #f5576c 0%, #f093fb 100%);
+    color: white;
+  }
+  
+  .btn-modern.btn-info {
+    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+    color: white;
+  }
+  
+  .btn-modern.btn-info:hover {
+    background: linear-gradient(135deg, #00f2fe 0%, #4facfe 100%);
+    color: white;
+  }
+  
+  @media (max-width: 768px) {
+    .btn-modern {
+      font-size: 1rem;
+      padding: 1rem 1.5rem;
+      min-height: 55px;
+    }
+  }
+</style>

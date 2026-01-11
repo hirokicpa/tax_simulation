@@ -1,0 +1,13 @@
+$("#result-content").html("<%= escape_javascript(render 'result') %>");
+$("#result_first_second_succession").show();
+
+// 計算結果が表示されたら、結果セクションまで自動スクロール
+setTimeout(function() {
+  const resultSection = document.getElementById('result-section');
+  if (resultSection) {
+    resultSection.scrollIntoView({ 
+      behavior: 'smooth', 
+      block: 'start' 
+    });
+  }
+}, 100);

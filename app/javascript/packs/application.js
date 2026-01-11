@@ -21,4 +21,11 @@ import 'mdbootstrap/css/mdb.min.css';
 import '@fortawesome/fontawesome-free/js/all';
 
 import Rails from '@rails/ujs';
+import "chartkick/chart.js"
+import Chartkick from "chartkick"
+import { Chart } from "chart.js"
+
+Chartkick.use(Chart)
+
+
 Rails.start();

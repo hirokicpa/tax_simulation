@@ -24,13 +24,60 @@
         </li>
       <% else %>
         <li class="nav-item">
-          <%= link_to 'ログイン', new_user_session_path, class: "btn nav-btn me-3 text-purple" %>
+          <%= link_to new_user_session_path, class: "btn btn-modern-header btn-login me-3", style: "display: inline-flex; align-items: center; justify-content: center; min-height: 45px; padding: 0.625rem 1.5rem; font-size: 1rem; font-weight: 600; line-height: 1.5;" do %>
+            <i class="fa fa-sign-in-alt mr-2"></i>ログイン
+          <% end %>
         </li>
         <li class="nav-item">
-          <%= link_to 'アカウント登録', new_user_registration_path, class: "btn btn-purple" %>
+          <%= link_to new_user_registration_path, class: "btn btn-modern-header btn-register", style: "display: inline-flex; align-items: center; justify-content: center; min-height: 45px; padding: 0.625rem 1.5rem; font-size: 1rem; font-weight: 600; line-height: 1.5;" do %>
+            <i class="fa fa-user-plus mr-2"></i>アカウント登録
+          <% end %>
         </li>
       <% end %>
     </ul>
     </div>
   </div>
 </nav>
+
+<style>
+  .btn-modern-header {
+    border-radius: 10px;
+    transition: all 0.3s ease;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.15);
+    border: none;
+    white-space: nowrap;
+  }
+  
+  .btn-modern-header:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+  }
+  
+  .btn-login {
+    background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+    color: white;
+  }
+  
+  .btn-login:hover {
+    background: linear-gradient(135deg, #38ef7d 0%, #11998e 100%);
+    color: white;
+  }
+  
+  .btn-register {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+  }
+  
+  .btn-register:hover {
+    background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+    color: white;
+  }
+  
+  @media (max-width: 768px) {
+    .btn-modern-header {
+      font-size: 0.9rem;
+      padding: 0.5rem 1.25rem;
+      min-height: 40px;
+    }
+  }
+</style>

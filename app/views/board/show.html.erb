@@ -1,27 +1,96 @@
-<div class="container py-4">
-  <h2 class="text-center mt-5"><%= @board.title %>に関する質問投稿</h2>
-
-  <div class="text-center mb-9">
-    <%= link_to "質問投稿", new_board_question_path(@board), class: "btn btn-primary btn-sm mt-5 mb-5", style: "font-size: 1.5rem;" %>
-  </div>
-
-  <div class="row justify-content-center">
-    <% @board.questions.each do |question| %>
-    <div class="col-md-6">
-      <div class="card mb-4 border-primary">
-        <div class="card-header bg-white text-left">
-          <h5 class="card-title text-dark">質問タイトル:</h5>
-          <%= link_to question.title, [question.board, question], class: "text-primary font-weight-bold", style: "font-size: 1.2rem;" %>
+<div class="row business-succession-container">
+  <div class="card mx-auto col-12 col-md-10 col-lg-9 modern-card">
+    <div class="card-body px-4 py-4">
+      <div class="header-section text-center mb-4">
+        <div class="icon-wrapper mb-3">
+          <i class="fa fa-question-circle fa-3x text-primary" aria-hidden="true"></i>
         </div>
-        <div class="card-body text-left">
-          <h5>質問内容:</h5>
-          <p class="card-text"><%= question.content %></p>
-            <p class="card-text text-small">
-            投稿日時: <%= question.created_at.strftime('%Y/%m/%d %H:%M') %>
-            </p>
+        <h4 class="card-title mb-2 font-weight-bold">
+          <%= @board.title %><br>に関する質問投稿
+        </h4>
+        <p class="text-muted small mb-0">質問や意見交換の場です</p>
+      </div>
+
+      <div class="text-center mb-4">
+        <%= link_to new_board_question_path(@board), class: "btn btn-primary btn-lg btn-modern", style: "display: inline-flex; align-items: center; justify-content: center;" do %>
+          <i class="fa fa-plus-circle mr-2"></i>新しい質問を投稿する
+        <% end %>
+      </div>
+
+      <% if @board.questions.any? %>
+        <div class="questions-section">
+          <div class="row">
+            <% @board.questions.order(created_at: :desc).each do |question| %>
+              <div class="col-md-6 mb-4">
+                <div class="card h-100 question-card" style="border-radius: 12px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); transition: all 0.3s ease;">
+                  <div class="card-header" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-radius: 12px 12px 0 0; padding: 1.25rem 1.5rem;">
+                    <h5 class="card-title mb-0">
+                      <%= link_to question.title, [question.board, question], class: "text-white font-weight-bold", style: "font-size: 1.2rem; text-decoration: none; display: block; line-height: 1.5;" %>
+                    </h5>
+                  </div>
+                  <div class="card-body" style="padding: 1.5rem; display: flex; flex-direction: column; min-height: 200px;">
+                    <p class="card-text" style="color: #495057; line-height: 1.8; margin-bottom: 1.5rem; font-size: 1.05rem; flex-grow: 1;">
+                      <%= truncate(question.content, length: 100) %>
+                    </p>
+                    <div class="d-flex justify-content-between align-items-center mb-3" style="font-size: 0.95rem;">
+                      <small class="text-muted">
+                        <i class="fa fa-user mr-1"></i><%= question.user.full_name %>
+                      </small>
+                      <small class="text-muted">
+                        <i class="fa fa-clock mr-1"></i><%= question.created_at.strftime('%Y/%m/%d %H:%M') %>
+                      </small>
+                    </div>
+                    <div class="text-center mt-auto d-flex align-items-center justify-content-center" style="min-height: 50px;">
+                      <span class="badge badge-info d-inline-flex align-items-center justify-content-center" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); padding: 0.875rem 1.5rem; border-radius: 10px; font-size: 1.15rem; font-weight: 600; line-height: 1.5; min-height: 45px;">
+                        <i class="fa fa-comments mr-2"></i>回答数: <%= question.answers.count %>
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            <% end %>
+          </div>
         </div>
+      <% else %>
+        <div class="text-center mt-5 mb-5">
+          <div class="alert alert-info alert-modern">
+            <div class="d-flex align-items-start">
+              <i class="fa fa-info-circle fa-lg mr-2 mt-1"></i>
+              <div>
+                <h5 class="mb-2">まだ質問がありません</h5>
+                <p class="mb-0">この税制に関する最初の質問を投稿してみませんか？</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      <% end %>
+
+      <div class="text-center mt-4">
+        <%= link_to board_index_path, class: "btn btn-secondary btn-modern" do %>
+          <i class="fa fa-arrow-left mr-2"></i>掲示板一覧に戻る
+        <% end %>
       </div>
     </div>
-    <% end %>
   </div>
 </div>
+
+<style>
+  .question-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15) !important;
+  }
+  
+  .question-card .card-header a:hover {
+    opacity: 0.9;
+  }
+  
+  .questions-section {
+    padding: 1rem 0;
+  }
+  
+  @media (max-width: 768px) {
+    .questions-section .col-md-6 {
+      margin-bottom: 1.5rem;
+    }
+  }
+</style>

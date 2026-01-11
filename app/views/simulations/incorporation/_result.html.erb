@@ -1,82 +1,95 @@
- 
-<div style="text-align: center;">
-  <div style="font-size: 18px; font-weight: bold;">
-    <div style="background-color: #e6f7ff; padding: 20px; margin-bottom: 20px; border-radius: 10px;">
-      <h1 style="color: #1890ff;">法人化した場合の税額影響</h1>
-        <table style="margin: 0 auto;">
-    	    <thead>
-    	      <tr>
-    		      <th style="width: 15%;"></th>	
-    			    <th style="width: 25%; text-align: right; white-space: nowrap;">法人化前</th>
-    			    <th style="width: 25%; text-align: right; white-space: nowrap;">法人化後</th>
-    			    <th style="width: 25%; text-align: right; white-space: nowrap;">差額</th>
-    		    </tr>
-    		  </thead>
+<div class="card result-card">
+  <div class="card-body p-4">
+    <div class="result-header text-center mb-4">
+      <i class="fa fa-chart-line fa-2x text-success mb-3"></i>
+      <h5 class="font-weight-bold mb-0">法人化した場合の税額影響</h5>
+    </div>
     
-    			 <tbody>
-    			 	<tr style="border-bottom: 1px solid #f0f0f0;">
-                      <th class="center" style="white-space: nowrap;">所得税（復興所得税含む）</th>
-                      <td style="text-align: right;"><%= @result_income.to_s(:delimited) %></td>
-                      <td style="text-align: right;"><%= @result_income_after.to_s(:delimited) %></td>
-                      <td></td>
-                    </tr>
-    			 </tbody>
-    			 <tbody>
-    			 	<tr style="border-bottom: 1px solid #f0f0f0;">
-    			 	 <th class="center" style="white-space: nowrap;">個人住民税</th>
-                      <td style="text-align: right;"><%= @result_individual_resident.to_s(:delimited) %></td>
-                      <td style="text-align: right;"><%= @result_individual_resident_after.to_s(:delimited) %></td>
-                      <td></td>
-    			 	</tr>
-    			 </tbody>
-    			 <tbody>
-    			 	<tr style="border-bottom: 1px solid #f0f0f0;">
-    			 	  <th class="center" style="white-space: nowrap;">個人事業税</th>
-                      <td style="text-align: right;"><%= @result_individual_business.to_s(:delimited) %></td>
-                      <td style="text-align: right;"><%= @result_individual_business_after.to_s(:delimited) %></td>
-                      <td></td>
-    			 	</tr>
-    			 </tbody>
-    			 <tbody>
-    			 	<tr style="border-bottom: 1px solid #f0f0f0;">
-    			 	 <th class="center" style="white-space: nowrap;">法人税（地方法人税含む）</th>
-                      <td style="text-align: right;">0</td>
-                      <td style="text-align: right;"><%= @result_houjinzei.to_s(:delimited) %></td>
-                      <td></td>
-    			 	</tr>
-    			 </tbody>
-    			 <tbody>
-    			 	<tr style="border-bottom: 1px solid #f0f0f0;">
-    			 	  <th class="center" style="white-space: nowrap;">住民税(均等割除く）</th>
-                      <td style="text-align: right;">0</td>
-                      <td style="text-align: right;"><%= @result_resident.to_s(:delimited) %></td>
-                      <td></td>
-    			 	</tr>
-    			 </tbody>
-    			 <tbody>
-    			 	<tr style="border-bottom: 1px solid #f0f0f0;">
-    			 	 <th class="center" style="white-space: nowrap;">事業税(所得割）</th>
-                      <td style="text-align: right;">0</td>
-                      <td style="text-align: right;"><%= @business_tax_sum.to_s(:delimited) %></td>
-                      <td></td>
-    			 	</tr>
-                 </tbody>
-    			 <tbody>
-                 </tbody>
-    			 	 <tr style="border-bottom: 1px solid #f0f0f0;">
-                      <th class="center" style="white-space: nowrap;">合計</th>
-                      <td style="text-align: right;"><%= (@result_income + @result_individual_resident + @result_individual_business).to_s(:delimited) %></td>
-                      <% total_result = (@result_income + @result_individual_resident + @result_individual_business) %>
-                      <td style="text-align: right;"><%= (@result_houjinzei + @result_resident + @business_tax_sum + @local_corporate_tax + @result_income_after + @result_individual_resident_after + @result_individual_business_after).to_s(:delimited) %></td>
-                      <% total_result = (@result_houjinzei + @result_resident + @business_tax_sum + @local_corporate_tax + @result_income_after + @result_individual_resident_after + @result_individual_business_after) %>
-                      <td></td>
-                    </tr>
-    			 </tbody>
-	      </table>
-	      </br>
-   </div>
+    <div class="table-responsive">
+      <table class="table table-modern table-hover mb-0">
+        <thead>
+          <tr>
+            <th style="width: 30%;" class="text-left">項目</th>
+            <th style="width: 20%;" class="text-right">法人化前</th>
+            <th style="width: 20%;" class="text-right">法人化後</th>
+            <th style="width: 20%;" class="text-right">差額</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th class="text-left" style="white-space: nowrap;">所得税（復興所得税含む）</th>
+            <td class="text-right"><%= @result_income.to_s(:delimited) %>万円</td>
+            <td class="text-right"><%= @result_income_after.to_s(:delimited) %>万円</td>
+            <% income_diff = @result_income_after - @result_income %>
+            <td class="text-right <%= income_diff < 0 ? 'text-success' : 'text-danger' %>">
+              <%= income_diff.to_s(:delimited) %>万円
+            </td>
+          </tr>
+          <tr>
+            <th class="text-left" style="white-space: nowrap;">個人住民税</th>
+            <td class="text-right"><%= @result_individual_resident.to_s(:delimited) %>万円</td>
+            <td class="text-right"><%= @result_individual_resident_after.to_s(:delimited) %>万円</td>
+            <% resident_diff = @result_individual_resident_after - @result_individual_resident %>
+            <td class="text-right <%= resident_diff < 0 ? 'text-success' : 'text-danger' %>">
+              <%= resident_diff.to_s(:delimited) %>万円
+            </td>
+          </tr>
+          <tr>
+            <th class="text-left" style="white-space: nowrap;">個人事業税</th>
+            <td class="text-right"><%= @result_individual_business.to_s(:delimited) %>万円</td>
+            <td class="text-right"><%= @result_individual_business_after.to_s(:delimited) %>万円</td>
+            <% business_diff = @result_individual_business_after - @result_individual_business %>
+            <td class="text-right <%= business_diff < 0 ? 'text-success' : 'text-danger' %>">
+              <%= business_diff.to_s(:delimited) %>万円
+            </td>
+          </tr>
+          <tr>
+            <th class="text-left" style="white-space: nowrap;">法人税（地方法人税含む）</th>
+            <td class="text-right">0万円</td>
+            <td class="text-right"><%= @result_houjinzei.to_s(:delimited) %>万円</td>
+            <% houjinzei_diff = @result_houjinzei - 0 %>
+            <td class="text-right <%= houjinzei_diff < 0 ? 'text-success' : 'text-danger' %>">
+              <%= houjinzei_diff.to_s(:delimited) %>万円
+            </td>
+          </tr>
+          <tr>
+            <th class="text-left" style="white-space: nowrap;">住民税（均等割除く）</th>
+            <td class="text-right">0万円</td>
+            <td class="text-right"><%= @result_resident.to_s(:delimited) %>万円</td>
+            <% resident_corp_diff = @result_resident - 0 %>
+            <td class="text-right <%= resident_corp_diff < 0 ? 'text-success' : 'text-danger' %>">
+              <%= resident_corp_diff.to_s(:delimited) %>万円
+            </td>
+          </tr>
+          <tr>
+            <th class="text-left" style="white-space: nowrap;">事業税（所得割）</th>
+            <td class="text-right">0万円</td>
+            <td class="text-right"><%= @business_tax_sum.to_s(:delimited) %>万円</td>
+            <% business_tax_diff = @business_tax_sum - 0 %>
+            <td class="text-right <%= business_tax_diff < 0 ? 'text-success' : 'text-danger' %>">
+              <%= business_tax_diff.to_s(:delimited) %>万円
+            </td>
+          </tr>
+          <tr class="table-active font-weight-bold">
+            <th class="text-left">合計</th>
+            <% total_before = @result_income + @result_individual_resident + @result_individual_business %>
+            <td class="text-right"><%= total_before.to_s(:delimited) %>万円</td>
+            <% total_after = @result_houjinzei + @result_resident + @business_tax_sum + @local_corporate_tax + @result_income_after + @result_individual_resident_after + @result_individual_business_after %>
+            <td class="text-right"><%= total_after.to_s(:delimited) %>万円</td>
+            <% total_diff = total_after - total_before %>
+            <td class="text-right <%= total_diff < 0 ? 'text-success' : 'text-danger' %>">
+              <%= total_diff.to_s(:delimited) %>万円
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    
+    <div class="mt-3 text-center">
+      <small class="text-muted">
+        <i class="fa fa-info-circle mr-1"></i>
+        差額がマイナスの場合は税額が減額、プラスの場合は税額が増額となります
+      </small>
+    </div>
   </div>
 </div>
-
-
-
