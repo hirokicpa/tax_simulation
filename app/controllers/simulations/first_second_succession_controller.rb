@@ -37,13 +37,14 @@ class Simulations::FirstSecondSuccessionController < ApplicationController
     	child_tax = souzoku_tax(child_sum).to_f
     	@total = (mate_tax + child_tax * @count_heir_children).to_f
 
-    	if @total_heritage * marital_rate > @maxTaxLimit
-    		
-    		first_result = (@total - @total * @maxTaxLimit / @total_heritage).floor
-    	elsif @total_heritage * marital_rate <= @maxTaxLimit
-    		first_mate_tax = (@total * marital_rate - @total *  @total_heritage * marital_rate / @total_heritage).floor
-    		first_children_tax = (@total * (1 - marital_rate)).floor
-    		first_result = first_mate_tax + first_children_tax
+    	if @total_heritage * 0.5 > @maxTaxLimit
+			first_result = (@total * (1- marital_rate) + @total * marital_rate - @total * ((@total_heritage * 0.5).to_f / @total_heritage)).floor
+    	elsif @total_heritage * 0.5 <= @maxTaxLimit
+			if @total_heritage * marital_rate >= @maxTaxLimit
+			first_result = (@total * (1- marital_rate) + @total * marital_rate - @total * (@maxTaxLimit.to_f / @total_heritage)).floor
+			elsif @total_heritage * marital_rate < @maxTaxLimit
+			first_result = (@total * (1- marital_rate) + @total * marital_rate - @total * ((@total_heritage * marital_rate).to_f / @total_heritage)).floor
+			end
     	end
 
     end

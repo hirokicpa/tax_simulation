@@ -14,7 +14,7 @@ class ApplicationController < ActionController::Base
 def http_basic_authenticate
   authenticate_or_request_with_http_basic("Restricted Area") do |user, pass|
     ActiveSupport::SecurityUtils.secure_compare(user.to_s, ENV.fetch("BASIC_AUTH_USER", "test")) &&
-      ActiveSupport::SecurityUtils.secure_compare(pass.to_s, ENV.fetch("BASIC_AUTH_PASSWORD", "testpass"))
+      ActiveSupport::SecurityUtils.secure_compare(pass.to_s, ENV.fetch("BASIC_AUTH_PASSWORD", "testpass2"))
   end
 end
   def configure_permitted_parameters
