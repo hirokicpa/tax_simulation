@@ -1,2 +1,6 @@
+<% if @incorporation_error.present? %>
+document.getElementById("result_incorporation").innerHTML = "<%= escape_javascript(render 'simulations/incorporation/result_error') %>";
+<% else %>
 document.getElementById("result_incorporation").innerHTML = "<%= escape_javascript(render 'simulations/incorporation/result') %>";
+<% end %>
 

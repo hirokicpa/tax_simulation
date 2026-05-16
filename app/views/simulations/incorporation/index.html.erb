@@ -18,7 +18,7 @@
             <strong class="d-block mb-2">入力時のご注意</strong>
             <ul class="mb-0 pl-3">
               <li>値はすべて<strong>半角数字</strong>で入力してください。</li>
-              <li>基礎控除は個人課税所得額に応じて自動設定されます（令和7年分基準）。</li>
+              <li>基礎控除は個人課税所得額に応じて自動設定されます（令和8年分基準）。</li>
               <li>あくまでも目安としてご利用ください。</li>
             </ul>
           </div>
@@ -338,20 +338,16 @@
     const basicDeductionDisplay = document.getElementById('basic_deduction_display');
     const totalIncomeDeductionField = document.getElementById('total_income_deduction');
     
-    // 基礎控除の自動計算（令和7年分基準）
+    // 基礎控除の自動計算（令和8年分基準）
     function calculateBasicDeduction(income) {
-      const incomeValue = parseInt(income) || 0;
+      const incomeValue = parseInt(income, 10) || 0;
       
-      if (incomeValue <= 132) {
-        return 95; // 132万円以下: 95万円
-      } else if (incomeValue <= 336) {
-        return 58; // 132万円超 336万円以下: 58万円
-      } else if (incomeValue <= 489) {
-        return 68; // 336万円超 489万円以下: 68万円
+      if (incomeValue <= 489) {
+        return 104; // 489万円以下: 104万円
       } else if (incomeValue <= 655) {
-        return 63; // 489万円超 655万円以下: 63万円
+        return 67; // 489万円超 655万円以下: 67万円
       } else if (incomeValue <= 2350) {
-        return 58; // 655万円超2,350万円以下: 58万円
+        return 62; // 655万円超2,350万円以下: 62万円
       } else if (incomeValue <= 2400) {
         return 48; // 2,350万円超2,400万円以下: 48万円
       } else if (incomeValue <= 2450) {

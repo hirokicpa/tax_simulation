@@ -6,7 +6,7 @@ class Simulations::IncomeTaxController < ApplicationController
     @income = income_tax_params[:income].to_i
     @total_income_deduction = income_tax_params[:total_income_deduction].to_i
     
-    # 基礎控除の計算（令和7年分基準）
+    # 基礎控除の計算（令和8年分基準）
     @basic_deduction = calculate_basic_deduction(@income)
     
     # 基礎控除以外の所得控除 = 所得控除合計 - 基礎控除
@@ -30,19 +30,15 @@ class Simulations::IncomeTaxController < ApplicationController
     params.permit(:income, :total_income_deduction, :breakdown1, :breakdown2, :breakdown3, :breakdown4, :breakdown5, :breakdown6, :breakdown7, :breakdown8, :breakdown9, :breakdown10, :breakdown11, :breakdown12)
   end
 
-  # 基礎控除の計算（令和7年分基準）
+  # 基礎控除の計算（令和8年分基準）
   def calculate_basic_deduction(income)
     case income
-    when 0..132
-      95 # 132万円以下: 95万円
-    when 133..336
-      58 # 132万円超 336万円以下: 58万円
-    when 337..489
-      68 # 336万円超 489万円以下: 68万円
+    when 0..489
+      104 # 489万円以下: 104万円
     when 490..655
-      63 # 489万円超 655万円以下: 63万円
+      67 # 489万円超 655万円以下: 67万円
     when 656..2350
-      58 # 655万円超2,350万円以下: 58万円
+      62 # 655万円超2,350万円以下: 62万円
     when 2351..2400
       48 # 2,350万円超2,400万円以下: 48万円
     when 2401..2450

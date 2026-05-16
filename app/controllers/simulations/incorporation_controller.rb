@@ -6,16 +6,19 @@ class Simulations::IncorporationController < ApplicationController
     
     def variables
         @taxableincome = incorporation_params[:taxableincome].to_i # 個人課税所得額
-        @income_deduction = incorporation_params[:total_income_deduction].to_i  #所得控除合計
-        @taxableincome_after_deduction = (@taxableincome - @income_deduction).to_i
         @blue_return = incorporation_params[:blue_return].to_i#青色申告特別控除額
-        @corporate_taxableincome = incorporation_params[:transferincome].to_i # 法人化による個人所得の法人移転額(
+        @income_deduction = incorporation_params[:total_income_deduction].to_i  #所得控除合計
+        @taxableincome_after_deduction = (@taxableincome - @blue_return - @income_deduction).to_i
+        @transfer_income_input = incorporation_params[:transferincome].to_i
+        @corporate_taxableincome = @transfer_income_input # 法人化による個人所得の法人移転額
         @salary = incorporation_params[:salary].to_i # 法人からの役員報酬額
         @corporate_taxableincome_after_salary = (@corporate_taxableincome - @salary *12 ).to_i  #法人化後の給与控除後の課税所得
-        @taxableincome_deduction_transferincome = (@taxableincome - @corporate_taxableincome).to_i #法人に移転した後の個人所得
+        @taxableincome_deduction_transferincome = (@taxableincome - @blue_return - @corporate_taxableincome).to_i #法人に移転した後の個人所得
         
-        # 基礎控除の計算（令和7年分基準）
+        # 基礎控除の計算（令和8年分基準）
         @basic_deduction = calculate_basic_deduction(@taxableincome)
+        # 住民税基礎控除の計算（令和8年分基準）
+        @basic_redience_deduction = calculate_basic_redience_deduction(@taxableincome)
     end
     
    
@@ -34,7 +37,7 @@ class Simulations::IncorporationController < ApplicationController
       variables
       @result_individual_resident = 0
       if @taxableincome_after_deduction && @taxableincome_after_deduction >= 0
-        @result_individual_resident = ((@taxableincome_after_deduction + 5) * 0.1).floor
+        @result_individual_resident = ((@taxableincome_after_deduction + @basic_deduction - @basic_redience_deduction) * 0.1).floor
       end
     end
 
@@ -71,7 +74,7 @@ class Simulations::IncorporationController < ApplicationController
     variables
     @result_individual_resident_after = 0
     if @taxableincome_after_corporate && @taxableincome_after_corporate >= 38
-      @result_individual_resident_after = ((@taxableincome_after_corporate + 5) * 0.1).floor
+      @result_individual_resident_after = ((@taxableincome_after_corporate + @basic_deduction - @basic_redience_deduction) * 0.1).floor
     end
   end
 
@@ -80,7 +83,7 @@ class Simulations::IncorporationController < ApplicationController
     variables
     @result_individual_business_after = 0
     if @taxableincome_deduction_transferincome && (@taxableincome_deduction_transferincome - 290) >= 0
-      @result_individual_business_after = ((@taxableincome_deduction_transferincome - 290 ) * 0.05).floor
+      @result_individual_business_after = ((@taxableincome_deduction_transferincome + @blue_return - 290 ) * 0.05).floor
     end
   end
 
@@ -96,11 +99,11 @@ class Simulations::IncorporationController < ApplicationController
       
       if @corporate_taxableincome_after_salary > 0 && @corporate_taxableincome_after_salary <=800
         @houjinzei_nation = (@corporate_taxableincome_after_salary *0.15).floor
-        @houjinzei_local = (@houjinzei_nation * 0.044).floor
+        @houjinzei_local = (@houjinzei_nation * 0.103).floor
         @result_houjinzei = @houjinzei_nation + @houjinzei_local
       elsif @corporate_taxableincome_after_salary > 800
         @houjinzei_nation = (800 * 0.15 + (@corporate_taxableincome_after_salary - 800) * 0.232).floor
-        @houjinzei_local = (@houjinzei_nation * 0.044).floor
+        @houjinzei_local = (@houjinzei_nation * 0.103).floor
         @result_houjinzei = @houjinzei_nation + @houjinzei_local
       end    
     end
@@ -114,9 +117,9 @@ class Simulations::IncorporationController < ApplicationController
       return if @result_houjinzei.nil? || @result_houjinzei <= 0
       
       if @result_houjinzei > 0 && @result_houjinzei < 1000
-        @result_resident = (@result_houjinzei * 0.129).floor
+        @result_resident = (@houjinzei_nation * 0.07).floor
       elsif @result_houjinzei >= 1000
-        @result_resident = (@result_houjinzei * 0.163).floor
+        @result_resident = (@houjinzei_nation * 0.104).floor
       end
     end
 
@@ -140,12 +143,12 @@ class Simulations::IncorporationController < ApplicationController
         elsif @corporate_taxableincome_after_salary > 800 
           @business_tax_sum = ((@corporate_taxableincome_after_salary - 800) * 0.07 + 400 * 0.035 + 400 * 0.053).floor
         end
-        @business_tax_local = (@business_tax_sum * 0.432).floor
+        @business_tax_local = (@business_tax_sum * 0.37).floor
         @sum_business_tax = @business_tax_sum + @business_tax_local
       elsif @corporate_taxableincome_after_salary > 2500
         @business_tax_sum = ((@corporate_taxableincome_after_salary - 800) * 0.0748 + 400 * 0.0375 + 400 * 0.05665).floor
         @business_tax_standard_sum = ((@corporate_taxableincome_after_salary - 800) * 0.07 + 400 * 0.035 + 400 * 0.053).floor
-        @business_tax_local = (@business_tax_standard_sum * 0.432).floor
+        @business_tax_local = (@business_tax_standard_sum * 0.37).floor
         @sum_business_tax = @business_tax_sum + @business_tax_local
       end
       
@@ -178,9 +181,9 @@ class Simulations::IncorporationController < ApplicationController
       sum = sum.to_f
       return 0 if sum <= 0  # ★これを追加（0以下は控除なし）
       result = 0
-      if sum <= 190
-        result = 65
-      elsif sum > 190 && sum <= 360
+      if sum <= 220
+        result = 74
+      elsif sum > 220 && sum <= 360
         result = ((sum * 0.3) + 8).to_f
       elsif sum > 360 && sum <= 660
         result = ((sum * 0.2) + 44).to_f
@@ -194,6 +197,17 @@ class Simulations::IncorporationController < ApplicationController
     
     def result_tax
         variables
+        if @transfer_income_input > @taxableincome
+          @incorporation_error =
+            '法人化による個人所得の法人移転額（役員報酬控除前の法人の課税所得）は、' \
+            '個人課税所得額（所得控除前の不動産所得）を超えられません。入力を修正してください。'
+          respond_to do |format|
+            format.html { render partial: 'simulations/incorporation/result_error' }
+            format.js   { render :result_tax }
+          end
+          return
+        end
+
         individual_income_after_tax
         corporate_tax
         resident_tax
@@ -217,25 +231,34 @@ class Simulations::IncorporationController < ApplicationController
                    :breakdown7, :breakdown8, :breakdown9, :breakdown10, :breakdown11, :breakdown12)
     end
 
-    # 基礎控除の計算（令和7年分基準）
+    # 基礎控除の計算（令和８年分基準）
     def calculate_basic_deduction(income)
       case income
-      when 0..132
-        95 # 132万円以下: 95万円
-      when 133..336
-        58 # 132万円超 336万円以下: 58万円
-      when 337..489
-        68 # 336万円超 489万円以下: 68万円
-      when 490..655
-        63 # 489万円超 655万円以下: 63万円
-      when 656..2350
-        58 # 655万円超2,350万円以下: 58万円
+      when 0..489
+        104 # 489万円以下: 104万円
+      when 489..655
+        67 # 489万円超 655万円以下: 67万円
+      when 655..2350
+        62 # 655万円超 2350万円以下: 62万円
       when 2351..2400
         48 # 2,350万円超2,400万円以下: 48万円
       when 2401..2450
         32 # 2,400万円超2,450万円以下: 32万円
       when 2451..2500
         16 # 2,450万円超2,500万円以下: 16万円
+      else
+        0 # 2,500万円超: 0円
+      end
+    end
+    
+    def calculate_basic_redience_deduction(income)
+      case income
+      when 0..2400
+        43 # 489万円以下: 104万円
+      when 2401..2450
+        29 # 2,400万円超2,450万円以下: 32万円
+      when 2451..2500
+        15 # 2,450万円超2,500万円以下: 16万円
       else
         0 # 2,500万円超: 0円
       end
