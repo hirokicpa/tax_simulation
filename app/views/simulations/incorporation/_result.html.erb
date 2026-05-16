@@ -64,8 +64,9 @@
           <tr>
             <th class="text-left" style="white-space: nowrap;">事業税（所得割）</th>
             <td class="text-right">0万円</td>
-            <td class="text-right"><%= @business_tax_sum.to_s(:delimited) %>万円</td>
-            <% business_tax_diff = @business_tax_sum - 0 %>
+            <% enterprise_tax_total = @sum_business_tax.to_i %>
+            <td class="text-right"><%= enterprise_tax_total.to_s(:delimited) %>万円</td>
+            <% business_tax_diff = enterprise_tax_total - 0 %>
             <td class="text-right <%= business_tax_diff < 0 ? 'text-success' : 'text-danger' %>">
               <%= business_tax_diff.to_s(:delimited) %>万円
             </td>
@@ -74,7 +75,7 @@
             <th class="text-left">合計</th>
             <% total_before = @result_income + @result_individual_resident + @result_individual_business %>
             <td class="text-right"><%= total_before.to_s(:delimited) %>万円</td>
-            <% total_after = @result_houjinzei + @result_resident + @business_tax_sum + @local_corporate_tax + @result_income_after + @result_individual_resident_after + @result_individual_business_after %>
+            <% total_after = @result_houjinzei + @result_resident + @sum_business_tax.to_i + @result_income_after + @result_individual_resident_after + @result_individual_business_after %>
             <td class="text-right"><%= total_after.to_s(:delimited) %>万円</td>
             <% total_diff = total_after - total_before %>
             <td class="text-right <%= total_diff < 0 ? 'text-success' : 'text-danger' %>">
