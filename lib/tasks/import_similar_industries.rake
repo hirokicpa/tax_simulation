@@ -55,7 +55,15 @@ namespace :similar_industries do
   task dedupe: :environment do
     year = ENV.fetch("YEAR", SimilarIndustry::CURRENT_YEAR).to_i
     SimilarIndustry.dedupe_for_year!(year)
+    SimilarIndustry.normalize_all_names!(year)
     puts "整理完了: #{SimilarIndustry.where(year: year).count}件"
+  end
+
+  desc "業種名の表示用正規化（PDF由来のスペース除去）"
+  task normalize_names: :environment do
+    year = ENV.fetch("YEAR", SimilarIndustry::CURRENT_YEAR).to_i
+    SimilarIndustry.normalize_all_names!(year)
+    puts "正規化完了: #{SimilarIndustry.where(year: year).count}件"
   end
 
   desc "類似業種比準価額データを国税庁HTMLから取込（実験的）"

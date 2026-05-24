@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2023_06_21_133738) do
+ActiveRecord::Schema.define(version: 2026_05_09_120000) do
 
   create_table "answers", force: :cascade do |t|
     t.text "content"
@@ -26,6 +26,23 @@ ActiveRecord::Schema.define(version: 2023_06_21_133738) do
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
     t.string "title"
+  end
+
+  create_table "similar_industries", force: :cascade do |t|
+    t.integer "year", null: false
+    t.string "industry_number", null: false
+    t.string "major_category"
+    t.string "middle_category"
+    t.string "small_category"
+    t.string "industry_name", null: false
+    t.decimal "stock_price_a_average", precision: 12, scale: 2, null: false
+    t.decimal "dividend_b", precision: 12, scale: 4, default: "0.0", null: false
+    t.decimal "profit_c", precision: 12, scale: 4, default: "0.0", null: false
+    t.decimal "net_asset_d", precision: 12, scale: 4, default: "0.0", null: false
+    t.string "source_url"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["year", "industry_number"], name: "index_similar_industries_on_year_and_number", unique: true
   end
 
   create_table "questions", force: :cascade do |t|

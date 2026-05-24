@@ -67,6 +67,30 @@ class StockValuation::CompanySizeJudgerTest < ActiveSupport::TestCase
     assert_in_delta 0.6, result.discretion_rate
   end
 
+  test "卸売業・小売・サービス業以外で取引15億円ちょうどはL0.90" do
+    result = StockValuation::CompanySizeJudger.new(
+      total_assets: 10_000_000_000,
+      annual_sales: 1_500_000_000,
+      employees: 10,
+      industry_type: "other"
+    ).call
+
+    assert_equal :medium, result.size_code
+    assert_in_delta 0.9, result.l_ratio
+  end
+
+  test "卸売業・小売・サービス業以外で取引15億円超は取引によるLは付かない" do
+    result = StockValuation::CompanySizeJudger.new(
+      total_assets: 40_000_000,
+      annual_sales: 1_500_000_001,
+      employees: 5,
+      industry_type: "other"
+    ).call
+
+    assert_equal :medium, result.size_code
+    assert_in_delta 0.0, result.l_ratio
+  end
+
   test "小売・サービス業で大会社は取引20億円以上" do
     result = StockValuation::CompanySizeJudger.new(
       total_assets: 16_000_000_000,

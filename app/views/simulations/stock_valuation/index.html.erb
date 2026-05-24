@@ -21,12 +21,21 @@
         </div>
       <% end %>
 
-      <% unless @data_imported %>
+      <% if @data_setup_required %>
+        <div class="alert alert-danger alert-modern mb-4">
+          <i class="fa fa-exclamation-triangle mr-2"></i>
+          データベースに <code>similar_industries</code> テーブルがありません。ターミナルで次を実行してください。
+          <pre class="mb-0 mt-2 small bg-light p-2 rounded">bundle install
+rails db:migrate
+rails similar_industries:reimport_r07</pre>
+          <p class="mb-0 mt-2 small">マイグレーションが通らない場合: <code>rails db:setup_similar_industries</code></p>
+        </div>
+      <% elsif !@data_imported %>
         <div class="alert alert-warning alert-modern mb-4">
           <i class="fa fa-exclamation-triangle mr-2"></i>
           類似業種データを自動取得できませんでした。ターミナルで
           <code>rails similar_industries:import</code>（CSV）または
-          <code>rails similar_industries:import_r07_pdfs</code>（国税庁PDF）を実行してください。
+          <code>rails similar_industries:reimport_r07</code>（国税庁PDF）を実行してください。
         </div>
       <% end %>
 
@@ -157,10 +166,10 @@
             </div>
           </div>
           <div class="form-group">
-            <label class="form-label" for="similar_industry_id">業種</label>
+            <label class="form-label" for="similar_industry_id">業種目（No.1〜No.115）</label>
             <%= select_tag :similar_industry_id,
                 options_from_collection_for_select(@similar_industries, :id, :display_label, params[:similar_industry_id]),
-                { id: "similar_industry_id", class: "form-control form-control-modern", required: true, prompt: "選択してください", disabled: !@data_imported } %>
+                { id: "similar_industry_id", class: "form-control form-control-modern", required: true, prompt: "業種目を選択してください", disabled: !@data_imported } %>
           </div>
         </div>
 
@@ -412,11 +421,15 @@
       const tiers = config.lSalesTiers[industryType] || [];
       for (let i = 0; i < tiers.length; i++) {
         const tier = tiers[i];
-        if (annualSalesSen >= tier.sales_min && annualSalesSen < tier.sales_max) {
-          return tier.ratio;
-        }
+        if (!salesInLTier(annualSalesSen, tier, i === 0)) continue;
+        return tier.ratio;
       }
       return 0;
+    }
+
+    function salesInLTier(salesSen, tier, highestTier) {
+      if (salesSen < tier.sales_min) return false;
+      return highestTier ? salesSen <= tier.sales_max : salesSen < tier.sales_max;
     }
 
     function determineLRatio(totalAssetsSen, annualSalesSen, employees, industryType) {

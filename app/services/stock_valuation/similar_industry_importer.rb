@@ -13,21 +13,42 @@ module StockValuation
 
     Result = Struct.new(:imported, :skipped, :errors, keyword_init: true)
 
-    # データ未登録時に CSV → list_all.pdf の順で取込を試みる
+    # 国税庁公表の業種目は欠番を含め最大115。PDF取込でおおよそ95業種。
+    MIN_COMPLETE_COUNT = 90
+
+    # データ未登録・不足時に国税庁PDFから取込（サンプルCSVのみの11件では止めない）
     def self.ensure_data!(year: DEFAULT_YEAR)
-      return true if SimilarIndustry.where(year: year).exists?
+      return true if complete_dataset?(year)
 
       importer = new(year: year)
-      if File.exist?(DEFAULT_CSV_PATH)
+      if File.exist?(DEFAULT_CSV_PATH) && csv_row_count(DEFAULT_CSV_PATH) >= MIN_COMPLETE_COUNT
         importer.import_csv
-        return true if SimilarIndustry.where(year: year).exists?
+        SimilarIndustry.normalize_all_names!(year)
+        return true if complete_dataset?(year)
       end
 
       importer.import_nta_r07_list_all
-      SimilarIndustry.where(year: year).exists?
+      importer.import_nta_r07_split_pdfs unless complete_dataset?(year)
+      SimilarIndustry.normalize_all_names!(year)
+      SimilarIndustry.dedupe_for_year!(year)
+      complete_dataset?(year)
     rescue StandardError => e
       Rails.logger.error("[SimilarIndustryImporter] #{e.class}: #{e.message}")
       false
+    end
+
+    def self.complete_dataset?(year)
+      SimilarIndustry.where(year: year).where("profit_c > 0 AND net_asset_d > 0").count >= MIN_COMPLETE_COUNT
+    end
+
+    def self.csv_row_count(path)
+      return 0 unless File.exist?(path)
+
+      count = 0
+      CSV.foreach(path, headers: true) { count += 1 }
+      count
+    rescue StandardError
+      0
     end
 
     def initialize(year: DEFAULT_YEAR, source_url: DEFAULT_SOURCE_URL)

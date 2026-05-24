@@ -52,10 +52,17 @@
               <% end %>
             </div>
           </div>
-		  <div class="col-md-6 mb-3">
+          <div class="col-md-6 mb-3">
             <div class="d-flex flex-column align-items-center">
-			<%= link_to simulations_income_tax_path, class: "btn btn-modern btn-info mb-3 w-100", style: "max-width: 400px;" do %>
-				<i class="fa fa-file-invoice-dollar mr-2"></i>所得税
+              <%= link_to simulations_income_tax_path, class: "btn btn-modern btn-info mb-3 w-100", style: "max-width: 400px;" do %>
+                <i class="fa fa-file-invoice-dollar mr-2"></i>所得税
+              <% end %>
+            </div>
+          </div>
+          <div class="col-md-6 mb-3">
+            <div class="d-flex flex-column align-items-center">
+              <%= link_to simulations_stock_valuation_path, class: "btn btn-modern btn-secondary mb-3 w-100", style: "max-width: 400px;" do %>
+                <i class="fa fa-line-chart mr-2"></i>取引相場のない株式の評価
               <% end %>
             </div>
           </div>
@@ -139,6 +146,16 @@
   
   .btn-modern.btn-info:hover {
     background: linear-gradient(135deg, #00f2fe 0%, #4facfe 100%);
+    color: white;
+  }
+
+  .btn-modern.btn-secondary {
+    background: linear-gradient(135deg, #6c757d 0%, #495057 100%);
+    color: white;
+  }
+
+  .btn-modern.btn-secondary:hover {
+    background: linear-gradient(135deg, #495057 0%, #6c757d 100%);
     color: white;
   }
   
