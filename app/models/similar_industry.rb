@@ -3,6 +3,7 @@ class SimilarIndustry < ApplicationRecord
   MAX_INDUSTRY_NUMBER = 115
 
   before_validation :normalize_industry_number
+  before_validation :normalize_industry_name
 
   validates :year, presence: true
   validates :industry_number, presence: true, uniqueness: { scope: :year }
@@ -63,9 +64,7 @@ class SimilarIndustry < ApplicationRecord
   end
 
   def display_label
-    parts = ["No.#{display_number}", industry_name]
-    parts << major_category if major_category.present?
-    parts.join(" ")
+    "業種目 No.#{display_number} #{industry_name}"
   end
 
   def display_number
@@ -83,5 +82,26 @@ class SimilarIndustry < ApplicationRecord
 
     stripped = industry_number.to_s.strip
     self.industry_number = stripped.to_i.to_s if stripped.match?(/\A\d+\z/)
+  end
+
+  def normalize_industry_name
+    return if industry_name.blank?
+
+    self.industry_name = self.class.compact_industry_name(industry_name)
+  end
+
+  # PDF由来の「建 設 業」など、漢字間の余分なスペースを除去
+  def self.compact_industry_name(name)
+    text = name.to_s.encode("UTF-8", invalid: :replace, undef: :replace)
+    text.gsub(/(?<=[一-龥ぁ-んァ-ン])\s+(?=[一-龥ぁ-んァ-ン])/, "")
+        .gsub(/[　\s]+/, " ")
+        .strip
+  end
+
+  def self.normalize_all_names!(year = CURRENT_YEAR)
+    where(year: year).find_each do |record|
+      normalized = compact_industry_name(record.industry_name)
+      record.update_columns(industry_name: normalized) if record.industry_name != normalized
+    end
   end
 end

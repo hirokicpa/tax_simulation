@@ -4,9 +4,17 @@ class Simulations::StockValuationController < ApplicationController
   helper Simulations::StockValuationHelper
 
   def index
+    @industry_types = ::StockValuation::CompanySizeJudger::INDUSTRY_TYPES
+
+    unless similar_industries_table_exists?
+      @data_setup_required = true
+      @similar_industries = []
+      @data_imported = false
+      return
+    end
+
     ensure_similar_industries_loaded
     @similar_industries = load_similar_industries_for_select
-    @industry_types = ::StockValuation::CompanySizeJudger::INDUSTRY_TYPES
     @data_imported = @similar_industries.any?
   end
 
@@ -90,8 +98,18 @@ class Simulations::StockValuationController < ApplicationController
     SimilarIndustry.ordered_for_select
   end
 
+  def similar_industries_table_exists?
+    SimilarIndustry.table_exists?
+  rescue ActiveRecord::StatementInvalid => e
+    raise e unless e.message.include?("similar_industries")
+
+    false
+  end
+
   def ensure_similar_industries_loaded
-    loaded = SimilarIndustry.exists? || ::StockValuation::SimilarIndustryImporter.ensure_data!
+    return false unless similar_industries_table_exists?
+
+    loaded = ::StockValuation::SimilarIndustryImporter.ensure_data!
     SimilarIndustry.dedupe_for_year! if loaded && SimilarIndustry.needs_dedupe?
     loaded
   end

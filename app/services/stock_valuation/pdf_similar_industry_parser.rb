@@ -53,7 +53,7 @@ module StockValuation
         name = extract_name(line, number)
         next if name.blank? || invalid_industry_name?(name)
 
-        rows[number] = {
+        candidate = {
           industry_number: number,
           industry_name: name,
           dividend_b: b,
@@ -61,6 +61,7 @@ module StockValuation
           net_asset_d: d,
           stock_price_a_average: prior_year_a
         }
+        rows[number] = rows[number] ? prefer_industry_row(rows[number], candidate) : candidate
       end
       rows
     end
@@ -114,7 +115,14 @@ module StockValuation
     end
 
     def extract_industry_number_before_bcd(line, bcd_position)
-      before = line.tr("０-９", "0-9")[0...bcd_position].to_s
+      before = strip_footnote_suffix(line.tr("０-９", "0-9")[0...bcd_position].to_s)
+
+      # 業種番号の直後に業種説明が続くパターン（79 百貨店… / 85 小売業(…）
+      numbers = before.scan(/(\d{1,3})\s+(?=[^0-9.\s])/).filter_map do |match|
+        num = match.first.to_i
+        num if num.between?(1, MAX_INDUSTRY_NUMBER)
+      end
+      return format_number(numbers.last) if numbers.any?
 
       if before.match(/業(\d{1,3})\s/)
         num = ::Regexp.last_match(1).to_i
@@ -126,17 +134,29 @@ module StockValuation
         return format_number(num) if num.between?(1, MAX_INDUSTRY_NUMBER)
       end
 
-      if before.match(/(\d{1,3})\s*$/)
-        num = ::Regexp.last_match(1).to_i
-        return format_number(num) if num.between?(1, MAX_INDUSTRY_NUMBER)
-      end
-
       before.scan(/(?:^|[^\d])(\d{1,3})(?=\s)/).each do |match|
         num = match.first.to_i
         return format_number(num) if num.between?(1, MAX_INDUSTRY_NUMBER)
       end
 
       nil
+    end
+
+    def strip_footnote_suffix(before)
+      before.sub(/のうち[、,]\s*\d+\s*\z/, "")
+            .sub(/から\d+に?該当[^\d]*\z/, "")
+    end
+
+    def prefer_industry_row(incumbent, challenger)
+      industry_row_quality(challenger) > industry_row_quality(incumbent) ? challenger : incumbent
+    end
+
+    def industry_row_quality(row)
+      name = row[:industry_name].to_s
+      score = name.gsub(/[　\s]/, "").length
+      score -= 100 if name.match?(/のうち|を除く|に該当/)
+      score -= 50 if name.match?(/[業]..*業.*\(/)
+      score
     end
 
     def parse_stock_price_page(text)

@@ -194,13 +194,26 @@ module StockValuation
     end
 
     def l_ratio_from_sales
-      L_SALES_TIERS.fetch(@industry_type).each do |tier|
-        next unless @annual_sales >= tier[:sales_min] && @annual_sales < tier[:sales_max]
+      tiers = L_SALES_TIERS.fetch(@industry_type)
+      tiers.each_with_index do |tier, index|
+        next unless sales_in_l_tier?(@annual_sales, tier, highest_tier: index.zero?)
 
         return tier[:ratio]
       end
 
       0.0
+    end
+
+    # 通達の「○億円以上△億円未満」は区間の重複を避けるため下位区分は上限未満。
+    # 最上位区分のみ、入力単位（千円）の上限値ちょうど（例: 15億円）を含める。
+    def sales_in_l_tier?(sales, tier, highest_tier:)
+      return false unless sales >= tier[:sales_min]
+
+      if highest_tier
+        sales <= tier[:sales_max]
+      else
+        sales < tier[:sales_max]
+      end
     end
   end
 end
