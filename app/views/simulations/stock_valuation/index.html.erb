@@ -1,0 +1,487 @@
+<div class="row business-succession-container stock-valuation-page">
+  <div class="card mx-auto col-12 col-md-10 col-lg-9 modern-card">
+    <div class="card-body px-4 py-4">
+      <div class="header-section text-center mb-4">
+        <div class="icon-wrapper mb-3">
+          <i class="fa fa-line-chart fa-3x text-primary" aria-hidden="true"></i>
+        </div>
+        <h4 class="card-title mb-2 font-weight-bold">
+          取引相場のない株式<br>類似業種比準価額・会社規模判定
+        </h4>
+        <p class="text-muted small mb-0">国税庁公表資料に基づく概算シミュレーション（令和7年分・業種目 No.1〜No.115）</p>
+      </div>
+
+      <% if flash[:alert].present? %>
+        <div class="alert alert-danger alert-modern mb-4">
+          <ul class="mb-0 pl-3">
+            <% Array(flash[:alert]).each do |message| %>
+              <li><%= message %></li>
+            <% end %>
+          </ul>
+        </div>
+      <% end %>
+
+      <% unless @data_imported %>
+        <div class="alert alert-warning alert-modern mb-4">
+          <i class="fa fa-exclamation-triangle mr-2"></i>
+          類似業種データを自動取得できませんでした。ターミナルで
+          <code>rails similar_industries:import</code>（CSV）または
+          <code>rails similar_industries:import_r07_pdfs</code>（国税庁PDF）を実行してください。
+        </div>
+      <% end %>
+
+      <div class="alert alert-info alert-modern mb-4">
+        <div class="d-flex align-items-start">
+          <i class="fa fa-info-circle fa-lg mr-2 mt-1"></i>
+          <div>
+            <strong class="d-block mb-2">入力時のご注意</strong>
+            <ul class="mb-0 pl-3">
+              <li>会社規模判定・類似業種比準価額・純資産価額（相続税評価額）の金額は<strong>千円</strong>で入力してください（カンマ可）。</li>
+              <li>類似業種比準価額は第4表の考え方に基づく概算です。</li>
+              <li>比準要素数1の会社、開業後3年未満、株式等保有特定会社等は今回の対象外です。</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <%= form_tag simulations_stock_valuation_result_path, method: :post, class: "modern-form" do %>
+        <div class="company-size-section mb-4">
+          <div class="d-flex flex-wrap align-items-center justify-content-between mb-3">
+            <h5 class="font-weight-bold mb-0"><i class="fa fa-building mr-2"></i>1. 会社規模判定</h5>
+            <a href="https://www.nta.go.jp/law/tsutatsu/kihon/sisan/hyoka_new/08/02.htm" target="_blank" rel="noopener noreferrer" class="small text-muted">
+              <i class="fa fa-external-link mr-1"></i>国税庁：評価上の区分（第178条）
+            </a>
+          </div>
+
+          <p class="text-muted small mb-3">
+            取引相場のない株式の評価上の区分（大会社・中会社・小会社）を、総資産価額・取引金額・従業員数および業種区分に基づき判定します。
+          </p>
+
+          <div class="form-section company-size-inputs p-3 mb-3">
+            <div class="row">
+              <div class="col-md-6">
+                <div class="form-group mb-md-0">
+                  <label class="form-label" for="total_assets">総資産価額</label>
+                  <div class="input-group-modern">
+                    <%= text_field_tag :total_assets, params[:total_assets].presence, id: "total_assets", class: "form-control form-control-modern text-right company-size-amount-input", inputmode: "numeric", required: true, placeholder: "", autocomplete: "off" %>
+                    <span class="input-unit">千円</span>
+                  </div>
+                  <small class="form-text text-muted">帳簿価額の合計（千円単位）</small>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="form-group mb-md-0">
+                  <label class="form-label" for="annual_sales">直前期末以前1年間における取引金額</label>
+                  <div class="input-group-modern">
+                    <%= text_field_tag :annual_sales, params[:annual_sales].presence, id: "annual_sales", class: "form-control form-control-modern text-right company-size-amount-input", inputmode: "numeric", required: true, placeholder: "", autocomplete: "off" %>
+                    <span class="input-unit">千円</span>
+                  </div>
+                  <small class="form-text text-muted">直前期末以前1年間の取引金額（千円単位）</small>
+                </div>
+              </div>
+            </div>
+            <div class="row mt-3">
+              <div class="col-md-6">
+                <div class="form-group mb-md-0">
+                  <label class="form-label" for="employees">従業員数</label>
+                  <div class="input-group-modern">
+                    <%= text_field_tag :employees, params[:employees].presence, id: "employees", class: "form-control form-control-modern text-right company-size-input", inputmode: "numeric", pattern: "[0-9]*", required: true, placeholder: "", autocomplete: "off" %>
+                    <span class="input-unit">人</span>
+                  </div>
+                  <small class="form-text text-muted">70人以上は大会社</small>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="form-group mb-0">
+                  <label class="form-label" for="industry_type">業種区分</label>
+                  <%= select_tag :industry_type,
+                      options_for_select(@industry_types.map { |k, v| [v, k] }, params[:industry_type]),
+                      { id: "industry_type", class: "form-control form-control-modern company-size-input", required: true, prompt: "選択してください" } %>
+                  <small class="form-text text-muted">卸売業／小売・サービス業／その他</small>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="company-size-result-block mt-3 mb-4" aria-live="polite">
+            <label class="form-label font-weight-bold mb-2 d-block text-center">会社規模区分</label>
+            <div class="company-size-result-inner">
+              <div id="company-size-placeholder" class="company-size-placeholder text-muted small">
+                総資産価額・取引金額・従業員数を入力し、業種区分を選択すると表示されます。
+              </div>
+              <div id="company-size-preview" class="company-size-preview" hidden>
+                <div class="company-size-preview-body">
+                  <span id="company-size-badge" class="company-size-badge badge badge-lg"></span>
+                  <p id="company-size-l-ratio" class="company-size-l-ratio mb-0" hidden></p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <h5 class="font-weight-bold mb-3 mt-4"><i class="fa fa-industry mr-2"></i>2. 類似業種比準価額</h5>
+        <div class="form-section mb-4">
+          <div class="form-group">
+            <label class="form-label" for="capital_amount">資本金等</label>
+            <div class="input-group-modern">
+              <%= text_field_tag :capital_amount, params[:capital_amount].presence, id: "capital_amount", class: "form-control form-control-modern text-right similar-industry-amount-input", inputmode: "numeric", required: true, placeholder: "", autocomplete: "off" %>
+              <span class="input-unit">千円</span>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="issued_shares">発行済株式総数</label>
+            <div class="input-group-modern">
+              <%= text_field_tag :issued_shares, params[:issued_shares].presence, id: "issued_shares", class: "form-control form-control-modern text-right", inputmode: "numeric", required: true, placeholder: "0", autocomplete: "off" %>
+              <span class="input-unit">株</span>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="annual_dividend">年配当金額</label>
+            <div class="input-group-modern">
+              <%= text_field_tag :annual_dividend, params[:annual_dividend].presence, id: "annual_dividend", class: "form-control form-control-modern text-right similar-industry-amount-input", inputmode: "numeric", required: true, placeholder: "", autocomplete: "off" %>
+              <span class="input-unit">千円</span>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="annual_profit">利益金額</label>
+            <div class="input-group-modern">
+              <%= text_field_tag :annual_profit, params[:annual_profit].presence, id: "annual_profit", class: "form-control form-control-modern text-right similar-industry-amount-input", inputmode: "numeric", required: true, placeholder: "", autocomplete: "off" %>
+              <span class="input-unit">千円</span>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="net_assets">純資産額</label>
+            <div class="input-group-modern">
+              <%= text_field_tag :net_assets, params[:net_assets].presence, id: "net_assets", class: "form-control form-control-modern text-right similar-industry-amount-input", inputmode: "numeric", required: true, placeholder: "", autocomplete: "off" %>
+              <span class="input-unit">千円</span>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="similar_industry_id">業種</label>
+            <%= select_tag :similar_industry_id,
+                options_from_collection_for_select(@similar_industries, :id, :display_label, params[:similar_industry_id]),
+                { id: "similar_industry_id", class: "form-control form-control-modern", required: true, prompt: "選択してください", disabled: !@data_imported } %>
+          </div>
+        </div>
+
+        <h5 class="font-weight-bold mb-3 mt-4"><i class="fa fa-balance-scale mr-2"></i>3. 純資産価額（相続税評価額）</h5>
+        <div class="form-section mb-4">
+          <div class="form-group mb-0">
+            <label class="form-label" for="inheritance_net_assets">純資産価額（相続税評価額）</label>
+            <div class="input-group-modern">
+              <%= text_field_tag :inheritance_net_assets, params[:inheritance_net_assets].presence, id: "inheritance_net_assets", class: "form-control form-control-modern text-right similar-industry-amount-input", inputmode: "numeric", placeholder: "", autocomplete: "off" %>
+              <span class="input-unit">千円</span>
+            </div>
+            <small class="form-text text-muted">未入力の場合は類似業種比準価額のみを表示します。</small>
+          </div>
+        </div>
+
+        <div class="text-center mt-4">
+          <%= submit_tag "計算する", class: "btn btn-primary btn-lg btn-calculate", disabled: !@data_imported %>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div>
+
+<style>
+  .stock-valuation-page .modern-card {
+    overflow: visible;
+  }
+
+  .stock-valuation-page .modern-card > .card-body {
+    overflow: visible;
+    padding-bottom: 2rem;
+  }
+
+  .company-size-section .company-size-inputs {
+    background: #f8f9fa;
+    border-radius: 8px;
+    border: 1px solid #e9ecef;
+  }
+
+  .company-size-section {
+    padding-bottom: 1rem;
+    overflow: visible;
+  }
+
+  .company-size-result-block {
+    width: 100%;
+    padding-bottom: 1rem;
+    overflow: visible;
+  }
+
+  .company-size-result-inner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    margin: 0 auto;
+  }
+
+  .company-size-placeholder {
+    width: 100%;
+    max-width: 300px;
+    margin: 0 auto;
+    box-sizing: border-box;
+    text-align: center;
+  }
+
+  .company-size-preview {
+    box-sizing: border-box;
+    width: auto;
+    max-width: 280px;
+    margin: 0 auto;
+    padding: 1rem 1.25rem 1.15rem;
+    background: linear-gradient(135deg, #f8fbff 0%, #f0f4f8 100%);
+    border: 1px solid #dee2e6;
+    border-top: 4px solid #007bff;
+    border-radius: 8px;
+    overflow: visible;
+  }
+
+  .company-size-preview:not([hidden]) {
+    display: block !important;
+  }
+
+  .company-size-preview[hidden] {
+    display: none !important;
+  }
+
+  .company-size-preview-body {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.65rem;
+    text-align: center;
+    width: 100%;
+    overflow: visible;
+  }
+
+  .company-size-result-block .company-size-badge.badge {
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+    float: none !important;
+    position: static !important;
+    margin: 0 !important;
+    padding: 0.5rem 1.5rem 0.95rem !important;
+    font-size: 1.05rem !important;
+    font-weight: 600 !important;
+    line-height: 1.85 !important;
+    height: auto !important;
+    min-height: 2.75rem;
+    box-sizing: border-box;
+    text-align: center;
+    overflow: visible !important;
+    white-space: nowrap;
+    vertical-align: middle;
+  }
+
+  .company-size-l-ratio {
+    color: #495057;
+    font-size: 0.9rem;
+    font-weight: 600;
+    line-height: 1.6;
+    margin: 0;
+    padding: 0;
+    overflow: visible;
+  }
+
+  .company-size-badge.badge-large {
+    background-color: #343a40;
+    color: #fff;
+  }
+
+  .company-size-badge.badge-medium {
+    background-color: #0056b3;
+    color: #fff;
+  }
+
+  .company-size-badge.badge-small {
+    background-color: #6c757d;
+    color: #fff;
+  }
+
+  .company-size-placeholder {
+    padding: 1rem;
+    margin: 0;
+    background: #fafafa;
+    border: 1px dashed #dee2e6;
+    border-radius: 8px;
+  }
+
+  .company-size-placeholder[hidden] {
+    display: none !important;
+  }
+</style>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const config = <%= raw company_size_judger_config_json %>;
+    const preview = document.getElementById('company-size-preview');
+    const placeholder = document.getElementById('company-size-placeholder');
+    const amountFieldIds = ['total_assets', 'annual_sales', 'capital_amount', 'annual_dividend', 'annual_profit', 'net_assets', 'inheritance_net_assets'];
+    const form = document.querySelector('.modern-form');
+
+    function parseSen(value) {
+      const normalized = String(value || '').replace(/[,，\s]/g, '');
+      if (normalized === '') return null;
+      const num = parseInt(normalized, 10);
+      return Number.isFinite(num) ? num : null;
+    }
+
+    function formatWithCommas(digits) {
+      if (!digits) return '';
+      return digits.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+    }
+
+    function setupAmountField(fieldId) {
+      const el = document.getElementById(fieldId);
+      if (!el) return;
+
+      const initial = parseSen(el.value);
+      if (initial !== null) {
+        el.value = formatWithCommas(String(initial));
+      } else {
+        el.value = '';
+      }
+
+      el.addEventListener('input', function() {
+        el.value = el.value.replace(/[^\d,]/g, '');
+        updatePreview();
+      });
+
+      el.addEventListener('blur', function() {
+        const digits = el.value.replace(/[^\d]/g, '');
+        el.value = digits ? formatWithCommas(digits) : '';
+        updatePreview();
+      });
+    }
+
+    amountFieldIds.forEach(setupAmountField);
+
+    if (form) {
+      form.addEventListener('submit', function() {
+        amountFieldIds.forEach(function(fieldId) {
+          const el = document.getElementById(fieldId);
+          const parsed = parseSen(el.value);
+          el.value = parsed === null ? '' : String(parsed);
+        });
+      });
+    }
+
+    function judgeCompanySize(totalAssetsSen, annualSalesSen, employees, industryType) {
+      const criteria = config.criteria[industryType];
+      if (!criteria) return null;
+
+      if (employees >= config.employeeLargeThreshold) {
+        return { sizeCode: 'large', sizeLabel: '大会社', lRatio: null };
+      }
+
+      const large = criteria.large;
+      if (employees >= config.employeeLargeAssetSalesMin &&
+          totalAssetsSen >= large.assets_min && annualSalesSen >= large.sales_min) {
+        return { sizeCode: 'large', sizeLabel: '大会社', lRatio: null };
+      }
+
+      const small = criteria.small;
+      const smallColumn1 = totalAssetsSen < small.assets_max || employees <= small.employees_max;
+      const smallColumn2 = annualSalesSen < small.sales_max;
+      if (smallColumn1 && smallColumn2) {
+        return { sizeCode: 'small', sizeLabel: '小会社', lRatio: null };
+      }
+
+      const lRatio = determineLRatio(totalAssetsSen, annualSalesSen, employees, industryType);
+      return { sizeCode: 'medium', sizeLabel: '中会社', lRatio: lRatio };
+    }
+
+    function lRatioFromAssets(totalAssetsSen, employees, industryType) {
+      const tiers = config.lAssetTiers[industryType] || [];
+      for (let i = 0; i < tiers.length; i++) {
+        const tier = tiers[i];
+        if (totalAssetsSen >= tier.assets_min && employees >= tier.employees_min) {
+          return tier.ratio;
+        }
+      }
+      return 0;
+    }
+
+    function lRatioFromSales(annualSalesSen, industryType) {
+      const tiers = config.lSalesTiers[industryType] || [];
+      for (let i = 0; i < tiers.length; i++) {
+        const tier = tiers[i];
+        if (annualSalesSen >= tier.sales_min && annualSalesSen < tier.sales_max) {
+          return tier.ratio;
+        }
+      }
+      return 0;
+    }
+
+    function determineLRatio(totalAssetsSen, annualSalesSen, employees, industryType) {
+      return Math.max(
+        lRatioFromAssets(totalAssetsSen, employees, industryType),
+        lRatioFromSales(annualSalesSen, industryType)
+      );
+    }
+
+    function badgeClass(sizeCode) {
+      const map = {
+        large: 'badge-large',
+        medium: 'badge-medium',
+        small: 'badge-small'
+      };
+      return map[sizeCode] || 'badge-medium';
+    }
+
+    function fieldFilled(el) {
+      return el && String(el.value).replace(/[,，\s]/g, '') !== '';
+    }
+
+    function updatePreview() {
+      const totalAssetsEl = document.getElementById('total_assets');
+      const annualSalesEl = document.getElementById('annual_sales');
+      const employeesEl = document.getElementById('employees');
+      const industryType = document.getElementById('industry_type').value;
+
+      const ready = fieldFilled(totalAssetsEl) && fieldFilled(annualSalesEl) &&
+        fieldFilled(employeesEl) && industryType;
+      if (!ready) {
+        preview.hidden = true;
+        placeholder.hidden = false;
+        return;
+      }
+
+      const totalAssets = parseSen(totalAssetsEl.value) || 0;
+      const annualSales = parseSen(annualSalesEl.value) || 0;
+      const employees = parseInt(String(employeesEl.value).replace(/[^\d]/g, ''), 10) || 0;
+
+      const result = judgeCompanySize(totalAssets, annualSales, employees, industryType);
+      if (!result) return;
+
+      const badge = document.getElementById('company-size-badge');
+      const lRatioEl = document.getElementById('company-size-l-ratio');
+      badge.textContent = result.sizeLabel;
+      badge.className = 'company-size-badge badge badge-lg ' + badgeClass(result.sizeCode);
+
+      if (result.sizeCode === 'medium' && result.lRatio > 0) {
+        lRatioEl.textContent = 'Lの割合：' + result.lRatio.toFixed(2);
+        lRatioEl.hidden = false;
+      } else {
+        lRatioEl.textContent = '';
+        lRatioEl.hidden = true;
+      }
+
+      preview.hidden = false;
+      placeholder.hidden = true;
+    }
+
+    document.querySelectorAll('.company-size-input, .company-size-amount-input').forEach(function(el) {
+      el.addEventListener('input', updatePreview);
+      el.addEventListener('change', updatePreview);
+    });
+
+    updatePreview();
+  });
+</script>

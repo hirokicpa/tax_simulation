@@ -1,0 +1,200 @@
+<div class="row business-succession-container">
+  <div class="card mx-auto col-12 col-md-10 col-lg-11 modern-card">
+    <div class="card-body px-4 py-4">
+      <div class="header-section text-center mb-4">
+        <i class="fa fa-check-circle fa-2x text-success mb-3"></i>
+        <h4 class="font-weight-bold mb-0">計算結果</h4>
+      </div>
+
+      <% if @warnings.present? %>
+        <div class="alert alert-warning alert-modern mb-4">
+          <ul class="mb-0 pl-3">
+            <% @warnings.each do |warning| %>
+              <li><%= warning %></li>
+            <% end %>
+          </ul>
+        </div>
+      <% end %>
+
+      <h5 class="font-weight-bold mb-3">会社規模判定</h5>
+      <div class="table-responsive mb-4">
+        <table class="table table-modern table-bordered">
+          <tbody>
+            <tr><th>業種区分</th><td><%= @company_size.industry_type_label %></td></tr>
+            <tr><th>会社規模</th><td><strong><%= @company_size.size_label %></strong></td></tr>
+            <tr>
+              <th>Lの割合</th>
+              <td>
+                <% if @company_size.l_ratio %>
+                  <%= stock_ratio(@company_size.l_ratio) %>（中会社）
+                <% else %>
+                  該当なし（大会社・小会社）
+                <% end %>
+              </td>
+            </tr>
+            <tr><th>斟酌率（類似業種比準価額）</th><td><%= stock_ratio(@company_size.discretion_rate) %></td></tr>
+            <% if @company_size.judgment_basis.present? %>
+              <tr><th>判定根拠</th><td class="small"><%= @company_size.judgment_basis %></td></tr>
+            <% end %>
+            <tr><th>総資産価額</th><td><%= stock_sen_yen(@input[:total_assets]) %></td></tr>
+            <tr><th>直前期末以前1年間における取引金額</th><td><%= stock_sen_yen(@input[:annual_sales]) %></td></tr>
+            <tr><th>従業員数</th><td><%= number_with_delimiter(@input[:employees]) %>人</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h5 class="font-weight-bold mb-3">類似業種比準価額</h5>
+      <div class="table-responsive mb-4">
+        <table class="table table-modern table-bordered">
+          <thead>
+            <tr>
+              <th>項目</th>
+              <th class="text-right">類似業種（50円換算）</th>
+              <th class="text-right">評価会社（50円換算）</th>
+              <th class="text-right">比準割合</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>類似業種株価 A（前年平均株価）</td>
+              <td class="text-right"><%= stock_yen(@similar_industry.prior_year_average_stock_price) %></td>
+              <td class="text-right">—</td>
+              <td class="text-right">—</td>
+            </tr>
+            <tr>
+              <td>配当 B</td>
+              <td class="text-right"><%= stock_yen(@similar_industry.dividend_b, precision: 4) %></td>
+              <td class="text-right"><%= stock_yen(@valuation.per_share_dividend, precision: 4) %></td>
+              <td class="text-right"><%= @valuation.element_ratios[:dividend] ? stock_ratio(@valuation.element_ratios[:dividend]) : "除外" %></td>
+            </tr>
+            <tr>
+              <td>利益 C</td>
+              <td class="text-right"><%= stock_yen(@similar_industry.profit_c, precision: 4) %></td>
+              <td class="text-right"><%= stock_yen(@valuation.per_share_profit, precision: 4) %></td>
+              <td class="text-right"><%= @valuation.element_ratios[:profit] ? stock_ratio(@valuation.element_ratios[:profit]) : "除外" %></td>
+            </tr>
+            <tr>
+              <td>純資産 D</td>
+              <td class="text-right"><%= stock_yen(@similar_industry.net_asset_d, precision: 4) %></td>
+              <td class="text-right"><%= stock_yen(@valuation.per_share_net_asset, precision: 4) %></td>
+              <td class="text-right"><%= @valuation.element_ratios[:net_asset] ? stock_ratio(@valuation.element_ratios[:net_asset]) : "除外" %></td>
+            </tr>
+            <tr class="table-active font-weight-bold">
+              <td>比準割合（平均）</td>
+              <td colspan="2"></td>
+              <td class="text-right"><%= stock_ratio(@valuation.comparison_ratio) %></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="table-responsive mb-4">
+        <table class="table table-modern table-bordered">
+          <tbody>
+            <tr>
+              <th>選択業種</th>
+              <td>No.<%= @similar_industry.display_number %> <%= @similar_industry.industry_name %></td>
+            </tr>
+            <tr>
+              <th>1株当たりの資本金等の額</th>
+              <td><%= stock_yen(@valuation.per_share_capital) %></td>
+            </tr>
+            <tr>
+              <th>1株当たり類似業種比準価額</th>
+              <td class="font-weight-bold text-primary">
+                <%= stock_yen(@valuation.per_share_valuation) %>
+              </td>
+            </tr>
+            <tr>
+              <th>発行済株式総数</th>
+              <td><%= number_with_delimiter(@input[:issued_shares]) %>株</td>
+            </tr>
+            <tr>
+              <th>株式全体の評価額</th>
+              <td class="font-weight-bold text-primary"><%= stock_man_yen(@valuation.total_valuation, precision: 0) %></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <% if @blended_valuation %>
+        <h5 class="font-weight-bold mb-3">3. 純資産価額（相続税評価額）</h5>
+        <div class="table-responsive mb-4">
+          <table class="table table-modern table-bordered">
+            <tbody>
+              <tr>
+                <th>純資産価額（相続税評価額）</th>
+                <td><%= stock_sen_yen(@blended_valuation.inheritance_net_assets) %></td>
+              </tr>
+              <tr>
+                <th>1株当たりの純資産価額（相続税評価額）</th>
+                <td>
+                  <%= stock_sen_yen(@blended_valuation.inheritance_net_asset_per_share) %>
+                  <span class="text-muted small d-block">
+                    <%= stock_sen_yen(@blended_valuation.inheritance_net_assets) %> ÷ <%= number_with_delimiter(@input[:issued_shares]) %>株
+                  </span>
+                </td>
+              </tr>
+              <tr>
+                <th>1株当たり類似業種比準価額（参考）</th>
+                <td><%= stock_yen(@blended_valuation.similar_industry_per_share) %></td>
+              </tr>
+              <% if @blended_valuation.l_ratio %>
+                <tr>
+                  <th>Lの割合（併用）</th>
+                  <td><%= stock_ratio(@blended_valuation.l_ratio) %></td>
+                </tr>
+              <% end %>
+              <tr>
+                <th>評価方式</th>
+                <td><%= @blended_valuation.method_label %></td>
+              </tr>
+              <tr>
+                <th>1株当たりの株式評価額（併用後）</th>
+                <td class="font-weight-bold text-primary">
+                  <%= stock_yen(@blended_valuation.per_share_valuation) %>
+                </td>
+              </tr>
+              <tr>
+                <th>株式全体の評価額（併用後）</th>
+                <td class="font-weight-bold text-primary">
+                  <%= stock_man_yen(@blended_valuation.total_valuation, precision: 0) %>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      <% end %>
+
+      <h5 class="font-weight-bold mb-3">計算過程</h5>
+      <p class="text-muted small">類似業種比準価額（第4表）</p>
+      <ol class="mb-3">
+        <% @valuation.calculation_steps.each do |step| %>
+          <li class="mb-1"><%= step %></li>
+        <% end %>
+      </ol>
+      <% if @blended_valuation %>
+        <p class="text-muted small mb-1">純資産価額・併用（第5表・第179条）</p>
+        <ol class="mb-4">
+          <% @blended_valuation.calculation_steps.each do |step| %>
+            <li class="mb-1"><%= step %></li>
+          <% end %>
+        </ol>
+      <% end %>
+
+      <div class="caution-card">
+        <div class="card-body">
+          <h6 class="card-title"><i class="fa fa-info-circle mr-2"></i>ご注意</h6>
+          <p class="mb-0 small">
+            本シミュレーションは、国税庁公表資料に基づく概算計算です。実際の申告・評価にあたっては、評価会社の株主区分、特定の評価会社該当性、土地保有特定会社、株式等保有特定会社、比準要素数1の会社、開業後3年未満会社等の判定が必要です。
+          </p>
+        </div>
+      </div>
+
+      <div class="text-center mt-4">
+        <%= link_to "入力画面に戻る", simulations_stock_valuation_path, class: "btn btn-secondary btn-modern" %>
+        <%= link_to "トップへ", root_path, class: "btn btn-outline-secondary btn-modern ml-2" %>
+      </div>
+    </div>
+  </div>
+</div>
