@@ -53,7 +53,7 @@
             <div class="col-md-4 mb-3 mb-md-0">
               <label class="form-label" for="president_age">代表者年齢</label>
               <div class="input-group-modern">
-                <%= number_field_tag :president_age, params[:president_age], id: "president_age", class: "form-control form-control-modern text-right", min: 18, max: 100, required: true %>
+                <%= text_field_tag :president_age, params[:president_age], id: "president_age", class: "form-control form-control-modern text-right diagnosis-age-input", inputmode: "numeric", pattern: "[0-9]*", maxlength: 3, required: true, autocomplete: "off" %>
                 <span class="input-unit">歳</span>
               </div>
             </div>
@@ -190,19 +190,27 @@
     return value.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
   }
 
-  function setSpouseRateEnabled(hasSpouseEl, spouseRateEl) {
+  function updateSpouseRateControl(hasSpouseEl, spouseRateEl) {
     if (!hasSpouseEl || !spouseRateEl) return;
+
     var enabled = hasSpouseEl.value === '1';
     spouseRateEl.disabled = !enabled;
     spouseRateEl.required = enabled;
     spouseRateEl.classList.toggle('bg-light', !enabled);
     spouseRateEl.classList.toggle('text-muted', !enabled);
-    spouseRateEl.style.pointerEvents = enabled ? '' : 'none';
+    spouseRateEl.style.opacity = enabled ? '1' : '0.6';
+    spouseRateEl.style.cursor = enabled ? 'default' : 'not-allowed';
+
+    if (spouseRateEl.options.length > 0 && spouseRateEl.options[0].value === '') {
+      spouseRateEl.options[0].text = enabled ? '選択してください' : '—';
+    }
+
     if (enabled) {
-      spouseRateEl.setAttribute('name', 'spouse_acquisition_rate');
+      if (!spouseRateEl.value) {
+        spouseRateEl.value = '50';
+      }
     } else {
-      spouseRateEl.removeAttribute('name');
-      spouseRateEl.selectedIndex = 0;
+      spouseRateEl.value = '';
     }
   }
 
@@ -224,32 +232,27 @@
       if (initial) el.value = formatWithCommas(initial);
     });
 
+    page.querySelectorAll('.diagnosis-age-input').forEach(function(el) {
+      if (el.dataset.ageInputInit === '1') return;
+      el.dataset.ageInputInit = '1';
+      el.addEventListener('input', function() {
+        el.value = el.value.replace(/[^\d]/g, '');
+      });
+    });
+
     var form = page.querySelector('.modern-form');
     var hasSpouseEl = document.getElementById('has_spouse');
     var spouseRateEl = document.getElementById('spouse_acquisition_rate');
 
-    setSpouseRateEnabled(hasSpouseEl, spouseRateEl);
-
-    if (form && form.dataset.spouseChangeDelegated !== '1') {
-      form.dataset.spouseChangeDelegated = '1';
-      form.addEventListener('change', function(e) {
-        if (e.target && e.target.id === 'has_spouse') {
-          setSpouseRateEnabled(e.target, document.getElementById('spouse_acquisition_rate'));
-        }
-      });
-    }
+    updateSpouseRateControl(hasSpouseEl, spouseRateEl);
 
     if (form && form.dataset.diagnosisSubmitBound !== '1') {
       form.dataset.diagnosisSubmitBound = '1';
       form.addEventListener('submit', function() {
-        if (hasSpouseEl && spouseRateEl) {
-          if (hasSpouseEl.value === '1') {
-            spouseRateEl.disabled = false;
-            spouseRateEl.setAttribute('name', 'spouse_acquisition_rate');
-          } else {
-            spouseRateEl.disabled = true;
-            spouseRateEl.removeAttribute('name');
-          }
+        var currentHasSpouseEl = document.getElementById('has_spouse');
+        var currentSpouseRateEl = document.getElementById('spouse_acquisition_rate');
+        if (currentHasSpouseEl && currentSpouseRateEl && currentHasSpouseEl.value === '1') {
+          currentSpouseRateEl.disabled = false;
         }
         form.querySelectorAll('.diagnosis-amount-input').forEach(function(el) {
           el.value = el.value.replace(/[^\d]/g, '');
@@ -264,7 +267,7 @@
         e.preventDefault();
         var params = new URLSearchParams();
         params.set('return_context', '<%= Simulations::BusinessSuccessionDiagnosisHelper::RETURN_CONTEXT %>');
-        <%= Simulations::BusinessSuccessionDiagnosisHelper::RETURN_PARAM_KEYS.to_json %>.forEach(function(key) {
+        <%= Simulations::BusinessSuccessionDiagnosisHelper::RETURN_PARAM_KEYS.to_json.html_safe %>.forEach(function(key) {
           if (key === 'spouse_acquisition_rate' && hasSpouseEl && hasSpouseEl.value !== '1') return;
           var el = form.querySelector('[name="' + key + '"]');
           if (!el || el.disabled) return;
@@ -280,5 +283,14 @@
 
   document.addEventListener('turbolinks:load', initDiagnosisForm);
   document.addEventListener('DOMContentLoaded', initDiagnosisForm);
+
+  if (!window.__diagnosisSpouseRateChangeBound) {
+    window.__diagnosisSpouseRateChangeBound = true;
+    document.addEventListener('change', function(e) {
+      if (!e.target || e.target.id !== 'has_spouse') return;
+      if (!document.querySelector('.ai-diagnosis-page')) return;
+      updateSpouseRateControl(e.target, document.getElementById('spouse_acquisition_rate'));
+    });
+  }
 })();
 </script>

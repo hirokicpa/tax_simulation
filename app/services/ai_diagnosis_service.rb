@@ -2,8 +2,9 @@
 
 require "net/http"
 require "json"
+require "openssl"
 
-# 計算結果をもとに OpenAI で社長向け診断コメントを生成（税額計算は行わない）
+# 計算結果をもとに Google AI（Gemini）で社長向け診断コメントを生成（税額計算は行わない）
 class AiDiagnosisService
   SECTIONS = [
     "総合診断",
@@ -28,9 +29,9 @@ class AiDiagnosisService
   end
 
   def call
-    return fallback_result("OpenAI APIキーが未設定です。ルールベースの診断結果を表示しています。") if api_key.blank?
+    return fallback_result("Google AI APIキーが未設定です。ルールベースの診断結果を表示しています。") if api_key.blank?
 
-    response = request_openai
+    response = request_google_ai
     text = extract_text(response)
     return fallback_result(parse_error(response)) if text.blank?
 
@@ -48,34 +49,38 @@ class AiDiagnosisService
   private
 
   def api_key
-    ENV["OPENAI_API_KEY"].to_s.strip
+    ENV["GOOGLE_AI_API_KEY"].presence || ENV["GEMINI_API_KEY"].to_s.strip.presence
   end
 
   def model
-    ENV.fetch("OPENAI_MODEL", "gpt-4o-mini")
+    ENV.fetch("GOOGLE_AI_MODEL", "gemini-2.5-flash")
   end
 
-  def request_openai
-    uri = URI("https://api.openai.com/v1/chat/completions")
+  def request_google_ai
+    uri = URI("https://generativelanguage.googleapis.com/v1beta/models/#{model}:generateContent")
     body = {
-      model: model,
-      temperature: 0.4,
-      messages: [
-        { role: "system", content: system_prompt },
-        { role: "user", content: user_prompt }
-      ]
+      systemInstruction: {
+        parts: [{ text: system_prompt }]
+      },
+      contents: [
+        {
+          role: "user",
+          parts: [{ text: user_prompt }]
+        }
+      ],
+      generationConfig: {
+        temperature: 0.4
+      }
     }
 
     http = Net::HTTP.new(uri.host, uri.port)
-    http.use_ssl = true
-    http.open_timeout = 15
-    http.read_timeout = 60
+    configure_https!(http)
 
     request = Net::HTTP::Post.new(uri)
-    request["Authorization"] = "Bearer #{api_key}"
+    request["x-goog-api-key"] = api_key
     request["Content-Type"] = "application/json"
     request.body = body.to_json
-
+    binding.pry
     response = http.request(request)
     JSON.parse(response.body)
   end
@@ -83,11 +88,52 @@ class AiDiagnosisService
   def extract_text(response)
     return nil if response["error"]
 
-    response.dig("choices", 0, "message", "content").to_s.strip.presence
+    response.dig("candidates", 0, "content", "parts", 0, "text").to_s.strip.presence
   end
 
   def parse_error(response)
-    response.dig("error", "message") || "AIからの応答を取得できませんでした。"
+    response.dig("error", "message") ||
+      response.dig("promptFeedback", "blockReason") ||
+      "AIからの応答を取得できませんでした。"
+  end
+
+  def configure_https!(http)
+    http.use_ssl = true
+    http.verify_mode = OpenSSL::SSL::VERIFY_PEER
+    http.open_timeout = 15
+    http.read_timeout = 60
+    http.cert_store = ssl_cert_store
+  end
+
+  def ssl_cert_store
+    @ssl_cert_store ||= begin
+      store = OpenSSL::X509::Store.new
+      store.set_default_paths
+
+      ssl_certificate_paths.each do |path|
+        store.add_file(path)
+      rescue OpenSSL::X509::StoreError
+        # 既に読み込まれている証明書などは無視
+      end
+
+      # macOS + OpenSSL 3.x で CRL 取得失敗による verify error を回避
+      store.flags = 0 if store.respond_to?(:flags=)
+
+      store
+    end
+  end
+
+  def ssl_certificate_paths
+    [
+      ENV["SSL_CERT_FILE"],
+      (OpenSSL::X509::DEFAULT_CERT_FILE if defined?(OpenSSL::X509::DEFAULT_CERT_FILE)),
+      "/etc/ssl/cert.pem",
+      "/private/etc/ssl/cert.pem",
+      "/usr/local/etc/openssl@3/cert.pem",
+      "/usr/local/etc/openssl/cert.pem",
+      "/opt/homebrew/etc/openssl@3/cert.pem",
+      "/opt/homebrew/etc/ca-certificates/cert.pem"
+    ].compact.select { |path| File.file?(path) }.uniq
   end
 
   def system_prompt
