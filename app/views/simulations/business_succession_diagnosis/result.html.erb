@@ -1,0 +1,273 @@
+<div class="row business-succession-container ai-diagnosis-page">
+  <div class="card mx-auto col-12 col-md-10 col-lg-11 modern-card">
+    <div class="card-body px-4 py-4">
+      <div class="header-section text-center mb-4">
+        <i class="fa fa-check-circle fa-2x text-success mb-3"></i>
+        <h4 class="font-weight-bold mb-2">AI事業承継診断 結果</h4>
+        <p class="text-muted small mb-0">
+          税額・株価・スコアはルール計算、説明文はAI（またはルールベース代替）による概算診断です。
+        </p>
+      </div>
+
+      <% if @ai_diagnosis.error_message.present? %>
+        <div class="alert alert-warning alert-modern mb-4">
+          <i class="fa fa-exclamation-triangle mr-2"></i><%= @ai_diagnosis.error_message %>
+        </div>
+      <% end %>
+
+      <!-- 総合リスク -->
+      <div class="text-center mb-4 p-4 rounded" style="background: linear-gradient(135deg, #667eea15 0%, #764ba215 100%);">
+        <p class="text-muted mb-1">総合リスク</p>
+        <div class="display-4 font-weight-bold mb-2"><%= @diagnosis.overall_risk_score %><small class="h4">点</small></div>
+        <span class="badge badge-lg <%= risk_level_badge_class(@diagnosis.overall_risk_level) %> px-4 py-2" style="font-size: 1.1rem;">
+          <%= @diagnosis.overall_risk_level %>
+        </span>
+      </div>
+
+      <!-- リスク内訳 -->
+      <h5 class="font-weight-bold mb-3"><i class="fa fa-tachometer mr-2"></i>リスク診断（ルール計算）</h5>
+      <div class="row mb-4">
+        <div class="col-lg-6 mb-4">
+          <div class="table-responsive">
+            <table class="table table-modern table-bordered">
+              <tbody>
+                <tr>
+                  <th>事業承継危険度</th>
+                  <td>
+                    <span class="badge <%= risk_level_badge_class(@diagnosis.succession_risk_level) %>"><%= @diagnosis.succession_risk_level %></span>
+                    <%= @diagnosis.succession_risk_score %>点
+                  </td>
+                </tr>
+                <tr>
+                  <th>自社株リスク</th>
+                  <td>
+                    <span class="badge <%= risk_level_badge_class(@diagnosis.stock_risk_level) %>"><%= @diagnosis.stock_risk_level %></span>
+                    <%= @diagnosis.stock_risk_score %>点
+                  </td>
+                </tr>
+                <tr>
+                  <th>納税資金不足リスク</th>
+                  <td>
+                    <span class="badge <%= risk_level_badge_class(@diagnosis.tax_funding_risk_level) %>"><%= @diagnosis.tax_funding_risk_level %></span>
+                    <%= @diagnosis.tax_funding_risk_score %>点
+                  </td>
+                </tr>
+                <tr>
+                  <th>M&A検討必要度</th>
+                  <td>
+                    <span class="badge <%= risk_level_badge_class(@diagnosis.ma_necessity_level) %>"><%= @diagnosis.ma_necessity_level %></span>
+                    <%= @diagnosis.ma_necessity_score %>点
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div class="col-lg-6 mb-4">
+          <%= column_chart @risk_chart_data, colors: ["#667eea"], library: { scales: { y: { max: 100, min: 0 } } } %>
+        </div>
+      </div>
+
+      <!-- 税額概算 -->
+      <h5 class="font-weight-bold mb-3"><i class="fa fa-calculator mr-2"></i>税額・株価概算（ルール計算）</h5>
+      <div class="table-responsive mb-4">
+        <table class="table table-modern table-bordered">
+          <tbody>
+            <tr class="table-active">
+              <th colspan="2">相続財産（遺産総額）</th>
+            </tr>
+            <tr>
+              <th>自社株評価額</th>
+              <td>
+                <%= diagnosis_man_yen(@diagnosis.company_value) %>
+                <% if @diagnosis.company_value_estimated %>
+                  <span class="badge badge-secondary ml-1">簡易推定</span>
+                <% end %>
+              </td>
+            </tr>
+            <tr>
+              <th>不動産</th>
+              <td><%= diagnosis_man_yen(@diagnosis.real_estate_value) %></td>
+            </tr>
+            <tr>
+              <th>それ以外の財産</th>
+              <td><%= diagnosis_man_yen(@diagnosis.other_assets) %></td>
+            </tr>
+            <tr>
+              <th>現預金</th>
+              <td><%= diagnosis_man_yen(@diagnosis.cash_assets) %></td>
+            </tr>
+            <tr class="font-weight-bold">
+              <th>遺産総額（合計）</th>
+              <td><%= diagnosis_man_yen(@diagnosis.total_estate) %></td>
+            </tr>
+            <tr class="table-active">
+              <th colspan="2">相続税</th>
+            </tr>
+            <tr>
+              <th>配偶者</th>
+              <td><%= @diagnosis.has_spouse ? '有' : '無' %></td>
+            </tr>
+            <tr>
+              <th>子供の人数</th>
+              <td><%= @diagnosis.count_heir_children %>人</td>
+            </tr>
+            <% if @diagnosis.has_spouse %>
+              <tr>
+                <th>配偶者の遺産取得割合（選択）</th>
+                <td><%= @diagnosis.spouse_acquisition_rate %>%</td>
+              </tr>
+            <% end %>
+            <% detail = @diagnosis.inheritance_tax_detail %>
+            <tr>
+              <th>基礎控除</th>
+              <td><%= number_with_delimiter(detail.basic_reduction_man) %>万円</td>
+            </tr>
+            <tr>
+              <th>課税遺産総額</th>
+              <td><%= number_with_delimiter(detail.taxable_price_man) %>万円</td>
+            </tr>
+            <% if @diagnosis.has_spouse && detail.gross_tax_man %>
+              <tr>
+                <th>相続税（配偶者控除前）</th>
+                <td><%= number_with_delimiter(detail.gross_tax_man) %>万円</td>
+              </tr>
+            <% end %>
+            <tr>
+              <th>相続税概算</th>
+              <td class="font-weight-bold text-primary">
+                <%= diagnosis_man_yen(@diagnosis.estimated_inheritance_tax) %>
+                <% if @diagnosis.has_spouse %>
+                  <span class="text-muted small d-block">配偶者取得<%= @diagnosis.spouse_acquisition_rate %>%・税額軽減反映後</span>
+                <% end %>
+              </td>
+            </tr>
+            <tr>
+              <th>納税資金不足額</th>
+              <td class="<%= @diagnosis.tax_payment_shortage.positive? ? 'text-danger font-weight-bold' : '' %>">
+                <%= diagnosis_man_yen([@diagnosis.tax_payment_shortage, 0].max) %>
+                <% if @diagnosis.tax_payment_shortage.negative? %>
+                  <span class="text-muted small">（余裕あり）</span>
+                <% end %>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <% if @diagnosis.inheritance_tax_by_spouse_rate.present? %>
+        <h5 class="font-weight-bold mb-3"><i class="fa fa-line-chart mr-2"></i>配偶者の遺産取得割合別 相続税</h5>
+        <p class="text-muted small mb-3">配偶者の税額軽減を反映した相続税を、取得割合0%〜100%（10%刻み）で試算しています。</p>
+        <div class="row mb-4">
+          <div class="col-lg-6 mb-4 mb-lg-0">
+            <div class="table-responsive">
+              <table class="table table-modern table-bordered table-sm">
+                <thead>
+                  <tr>
+                    <th>配偶者の取得割合</th>
+                    <th class="text-right">相続税（万円）</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <% @diagnosis.inheritance_tax_by_spouse_rate.each do |row| %>
+                    <tr class="<%= row.rate * 100 == @diagnosis.spouse_acquisition_rate ? 'table-primary font-weight-bold' : '' %>">
+                      <td><%= row.label %></td>
+                      <td class="text-right"><%= number_with_delimiter(row.tax_man) %></td>
+                    </tr>
+                  <% end %>
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <div class="col-lg-6">
+            <%= line_chart @inheritance_tax_chart_data, colors: ["#667eea"], xtitle: "配偶者の遺産取得割合", ytitle: "相続税（万円）", library: { scales: { y: { min: 0 } } } %>
+          </div>
+        </div>
+      <% end %>
+
+      <!-- 今すぐやるべき対策 -->
+      <h5 class="font-weight-bold mb-3"><i class="fa fa-bolt mr-2"></i>今すぐやるべき対策（ルールベース）</h5>
+      <ul class="mb-4 pl-3">
+        <% @diagnosis.immediate_actions.each do |action| %>
+          <li class="mb-2"><%= action %></li>
+        <% end %>
+      </ul>
+
+      <!-- AI診断コメント -->
+      <h5 class="font-weight-bold mb-3">
+        <i class="fa fa-comments mr-2"></i>AI診断コメント
+        <% if @ai_diagnosis.available %>
+          <span class="badge badge-info ml-1">AI生成</span>
+        <% else %>
+          <span class="badge badge-secondary ml-1">ルールベース代替</span>
+        <% end %>
+      </h5>
+      <div class="ai-diagnosis-sections mb-4">
+        <% @ai_diagnosis.sections.each_with_index do |(title, content), idx| %>
+          <% next if content.blank? %>
+          <div class="card mb-3 border-0 shadow-sm">
+            <div class="card-body">
+              <h6 class="font-weight-bold text-primary mb-2"><%= idx + 1 %>. <%= title %></h6>
+              <div class="diagnosis-comment"><%= diagnosis_section_html(content) %></div>
+            </div>
+          </div>
+        <% end %>
+      </div>
+
+      <!-- 個別相談導線 -->
+      <div class="consultation-cta text-center p-4 mb-4 rounded" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+        <h5 class="font-weight-bold mb-2">専門家による個別相談</h5>
+        <p class="mb-3 small opacity-90">
+          本診断は概算です。自社株評価・事業承継税制・納税資金対策について、税理士等による詳細確認をお勧めします。
+        </p>
+        <%= link_to @consultation_url, target: "_blank", rel: "noopener noreferrer", class: "btn btn-light btn-lg font-weight-bold px-4" do %>
+          <i class="fa fa-calendar-check-o mr-2"></i>無料相談を予約する
+        <% end %>
+      </div>
+
+      <!-- 入力内容 -->
+      <details class="mb-4">
+        <summary class="font-weight-bold text-muted small" style="cursor: pointer;">入力内容を確認</summary>
+        <div class="table-responsive mt-3">
+          <table class="table table-sm table-bordered">
+            <tbody>
+              <tr><th>代表者年齢</th><td><%= @diagnosis.president_age %>歳</td></tr>
+              <tr><th>後継者</th><td><%= @diagnosis.successor_label %></td></tr>
+              <tr><th>配偶者</th><td><%= @diagnosis.has_spouse ? '有' : '無' %></td></tr>
+              <tr><th>子供の人数</th><td><%= @diagnosis.count_heir_children %>人</td></tr>
+              <tr><th>売上</th><td><%= diagnosis_man_yen(@diagnosis.sales) %></td></tr>
+              <tr><th>営業利益</th><td><%= diagnosis_man_yen(@diagnosis.operating_profit) %></td></tr>
+              <tr><th>純資産</th><td><%= diagnosis_man_yen(@diagnosis.net_assets) %></td></tr>
+              <tr><th>借入金</th><td><%= diagnosis_man_yen(@diagnosis.debt) %></td></tr>
+              <tr><th>不動産</th><td><%= diagnosis_man_yen(@diagnosis.real_estate_value) %></td></tr>
+              <tr><th>それ以外の財産</th><td><%= diagnosis_man_yen(@diagnosis.other_assets) %></td></tr>
+              <tr><th>現預金</th><td><%= diagnosis_man_yen(@diagnosis.cash_assets) %></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </details>
+
+      <div class="caution-card mb-4">
+        <div class="card-body">
+          <h6 class="card-title"><i class="fa fa-info-circle mr-2"></i>ご注意</h6>
+          <p class="mb-0 small">
+            本診断は中小企業オーナー向けの簡易シミュレーションです。相続税は個別事情（贈与、保険、特例等）により大きく変動します。
+            断定的な節税効果を保証するものではなく、専門家による詳細確認が必要です。
+          </p>
+        </div>
+      </div>
+
+      <div class="text-center">
+        <%= link_to "もう一度診断する", simulations_business_succession_diagnosis_path, class: "btn btn-primary btn-modern" %>
+        <%= link_to "トップへ", root_path, class: "btn btn-outline-secondary btn-modern ml-2" %>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  .badge-success { background-color: #28a745; color: white; }
+  .badge-warning { background-color: #ffc107; color: #212529; }
+  .badge-danger { background-color: #dc3545; color: white; }
+  .diagnosis-comment p:last-child { margin-bottom: 0; }
+</style>

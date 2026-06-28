@@ -39,6 +39,15 @@ rails similar_industries:reimport_r07</pre>
         </div>
       <% end %>
 
+      <% if @diagnosis_return_active %>
+        <div class="alert alert-warning alert-modern mb-4">
+          <i class="fa fa-exchange mr-2"></i>
+          <strong>AI事業承継診断から移動しました。</strong>
+          自社株評価額を計算後、結果画面から事業承継診断に戻れます。
+          <%= link_to "事業承継診断に戻る", diagnosis_index_path_with(@diagnosis_return_params), class: "alert-link ml-1" %>
+        </div>
+      <% end %>
+
       <div class="alert alert-info alert-modern mb-4">
         <div class="d-flex align-items-start">
           <i class="fa fa-info-circle fa-lg mr-2 mt-1"></i>
@@ -184,6 +193,13 @@ rails similar_industries:reimport_r07</pre>
             <small class="form-text text-muted">未入力の場合は類似業種比準価額のみを表示します。</small>
           </div>
         </div>
+
+        <% if @diagnosis_return_active %>
+          <%= hidden_field_tag :return_context, Simulations::BusinessSuccessionDiagnosisHelper::RETURN_CONTEXT %>
+          <% Simulations::BusinessSuccessionDiagnosisHelper::RETURN_PARAM_KEYS.each do |key| %>
+            <%= hidden_field_tag "diagnosis_#{key}", @diagnosis_return_params[key] %>
+          <% end %>
+        <% end %>
 
         <div class="text-center mt-4">
           <%= submit_tag "計算する", class: "btn btn-primary btn-lg btn-calculate", disabled: !@data_imported %>

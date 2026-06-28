@@ -1,10 +1,14 @@
 # frozen_string_literal: true
 
 class Simulations::StockValuationController < ApplicationController
+  include Simulations::BusinessSuccessionDiagnosisHelper
+
   helper Simulations::StockValuationHelper
+  helper Simulations::BusinessSuccessionDiagnosisHelper
 
   def index
     @industry_types = ::StockValuation::CompanySizeJudger::INDUSTRY_TYPES
+    setup_diagnosis_return
 
     unless similar_industries_table_exists?
       @data_setup_required = true
@@ -59,20 +63,22 @@ class Simulations::StockValuationController < ApplicationController
       @warnings << "中会社の評価には「3. 純資産価額（相続税評価額）」の入力を推奨します（第179条の併用計算）。"
     end
 
-    return unless input[:inheritance_net_assets]
+    if input[:inheritance_net_assets]
+      @blended_valuation = ::StockValuation::BlendedStockValuationCalculator.new(
+        similar_industry_per_share: @valuation.per_share_valuation,
+        inheritance_net_assets: input[:inheritance_net_assets],
+        company_size: @company_size,
+        issued_shares: input[:issued_shares]
+      ).call
+    end
 
-    @blended_valuation = ::StockValuation::BlendedStockValuationCalculator.new(
-      similar_industry_per_share: @valuation.per_share_valuation,
-      inheritance_net_assets: input[:inheritance_net_assets],
-      company_size: @company_size,
-      issued_shares: input[:issued_shares]
-    ).call
+    setup_diagnosis_return
   end
 
   private
 
   def stock_valuation_params
-    params.permit(
+    keys = [
       :total_assets,
       :annual_sales,
       :employees,
@@ -83,14 +89,27 @@ class Simulations::StockValuationController < ApplicationController
       :annual_dividend,
       :annual_profit,
       :net_assets,
-      :inheritance_net_assets
-    )
+      :inheritance_net_assets,
+      :return_context
+    ]
+    Simulations::BusinessSuccessionDiagnosisHelper::RETURN_PARAM_KEYS.each do |key|
+      keys << :"diagnosis_#{key}"
+    end
+    params.permit(*keys)
+  end
+
+  def setup_diagnosis_return
+    return unless diagnosis_return_active?(params)
+
+    @diagnosis_return_active = true
+    @diagnosis_return_params = extract_diagnosis_return_params(params)
   end
 
   def render_index_with_errors
     @similar_industries = load_similar_industries_for_select
     @industry_types = ::StockValuation::CompanySizeJudger::INDUSTRY_TYPES
     @data_imported = @similar_industries.any?
+    setup_diagnosis_return
     render :index, status: :unprocessable_entity
   end
 

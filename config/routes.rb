@@ -18,6 +18,8 @@ Rails.application.routes.draw do
      get "income_tax", to: "income_tax#index", as: :income_tax
      get "stock_valuation", to: "stock_valuation#index", as: :stock_valuation
      match "stock_valuation/result", to: "stock_valuation#result", via: [:get, :post], as: :stock_valuation_result
+     get "business_succession_diagnosis", to: "business_succession_diagnosis#index", as: :business_succession_diagnosis
+     match "business_succession_diagnosis/result", to: "business_succession_diagnosis#result", via: [:get, :post], as: :business_succession_diagnosis_result
 
      
      get 'succession_gift/result_tax', to: 'succession_gift#result_tax'

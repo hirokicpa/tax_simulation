@@ -1,0 +1,284 @@
+<div class="row business-succession-container ai-diagnosis-page">
+  <div class="card mx-auto col-12 col-md-10 col-lg-9 modern-card">
+    <div class="card-body px-4 py-4">
+      <div class="header-section text-center mb-4">
+        <div class="icon-wrapper mb-3" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+          <i class="fa fa-stethoscope fa-3x text-white" aria-hidden="true"></i>
+        </div>
+        <h4 class="card-title mb-2 font-weight-bold">
+          AI事業承継診断
+        </h4>
+        <p class="text-muted mb-0">
+          あなたの会社、相続が起きたらいくら税金がかかるか把握していますか？<br>
+          会社の財務情報とご家族構成から、自社株評価・相続税・納税資金不足リスクを<strong>ルールベースで概算</strong>し、AIがリスクと次のアクションを説明します。
+        </p>
+      </div>
+
+      <% if flash[:alert].present? %>
+        <div class="alert alert-danger alert-modern mb-4">
+          <ul class="mb-0 pl-3">
+            <% Array(flash[:alert]).each do |message| %>
+              <li><%= message %></li>
+            <% end %>
+          </ul>
+        </div>
+      <% end %>
+
+      <% if params[:company_value].present? %>
+        <div class="alert alert-success alert-modern mb-4">
+          <i class="fa fa-check-circle mr-2"></i>
+          「取引相場のない株式の評価」の結果を自社株評価額に反映しました。内容を確認のうえ、診断を実行してください。
+        </div>
+      <% end %>
+
+      <div class="alert alert-info alert-modern mb-4">
+        <div class="d-flex align-items-start">
+          <i class="fa fa-info-circle fa-lg mr-2 mt-1"></i>
+          <div>
+            <strong class="d-block mb-2">診断について</strong>
+            <ul class="mb-0 pl-3">
+              <li>診断時間は約<strong>3分</strong>。結果はその場で表示されます。</li>
+              <li>金額は<strong>万円</strong>で入力してください（カンマ可）。</li>
+              <li>税額・株価・リスクスコアは<strong>システムがルール計算</strong>します。AIは説明のみ担当します。</li>
+              <li>本診断は概算です。実際の申告・承継計画は専門家による確認が必要です。</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <%= form_tag simulations_business_succession_diagnosis_result_path, method: :post, class: "modern-form" do %>
+        <h5 class="font-weight-bold mb-3"><i class="fa fa-user mr-2"></i>1. 代表者・承継</h5>
+        <div class="form-section p-3 mb-4">
+          <div class="row">
+            <div class="col-md-4 mb-3 mb-md-0">
+              <label class="form-label" for="president_age">代表者年齢</label>
+              <div class="input-group-modern">
+                <%= number_field_tag :president_age, params[:president_age], id: "president_age", class: "form-control form-control-modern text-right", min: 18, max: 100, required: true %>
+                <span class="input-unit">歳</span>
+              </div>
+            </div>
+            <div class="col-md-4 mb-3 mb-md-0">
+              <label class="form-label" for="successor_status">後継者の有無</label>
+              <%= select_tag :successor_status,
+                options_for_select(BusinessSuccessionDiagnosisService::SUCCESSOR_LABELS.map { |k, v| [v, k] }, params[:successor_status]),
+                id: "successor_status", class: "form-control form-control-modern", required: true %>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label" for="has_spouse">配偶者の有無</label>
+              <%= select_tag :has_spouse,
+                options_for_select([["無", "0"], ["有", "1"]], params[:has_spouse]),
+                id: "has_spouse", class: "form-control form-control-modern", required: true %>
+            </div>
+          </div>
+          <div class="row mt-3">
+            <div class="col-md-6 mb-3 mb-md-0">
+              <label class="form-label" for="count_heir_children">子供の人数</label>
+              <%= select_tag :count_heir_children,
+                options_for_select(
+                  [["0人", "0"], ["1人", "1"], ["2人", "2"], ["3人", "3"], ["4人", "4"], ["5人", "5"]],
+                  params[:count_heir_children]
+                ),
+                id: "count_heir_children", class: "form-control form-control-modern", required: true %>
+            </div>
+            <div class="col-md-6 mb-3" id="spouse-acquisition-rate-field">
+              <label class="form-label" for="spouse_acquisition_rate">配偶者の遺産取得割合</label>
+              <% spouse_rate_enabled = params[:has_spouse].to_s == "1" %>
+              <%= select_tag :spouse_acquisition_rate,
+                spouse_rate_options(
+                  spouse_rate_enabled ? params[:spouse_acquisition_rate] : nil,
+                  apply_default: spouse_rate_enabled
+                ),
+                id: "spouse_acquisition_rate",
+                class: "form-control form-control-modern spouse-acquisition-rate-select",
+                disabled: !spouse_rate_enabled,
+                include_blank: spouse_rate_enabled ? "選択してください" : "—" %>
+            </div>
+          </div>
+        </div>
+
+        <h5 class="font-weight-bold mb-3"><i class="fa fa-bar-chart mr-2"></i>2. 会社の財務情報</h5>
+        <div class="form-section p-3 mb-4">
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label class="form-label" for="sales">売上</label>
+              <div class="input-group-modern">
+                <%= text_field_tag :sales, params[:sales], id: "sales", class: "form-control form-control-modern text-right diagnosis-amount-input", inputmode: "numeric", required: true, autocomplete: "off" %>
+                <span class="input-unit">万円</span>
+              </div>
+            </div>
+            <div class="col-md-6 mb-3">
+              <label class="form-label" for="operating_profit">営業利益</label>
+              <div class="input-group-modern">
+                <%= text_field_tag :operating_profit, params[:operating_profit], id: "operating_profit", class: "form-control form-control-modern text-right diagnosis-amount-input", inputmode: "numeric", required: true, autocomplete: "off" %>
+                <span class="input-unit">万円</span>
+              </div>
+            </div>
+            <div class="col-md-6 mb-3">
+              <label class="form-label" for="net_assets">純資産</label>
+              <div class="input-group-modern">
+                <%= text_field_tag :net_assets, params[:net_assets], id: "net_assets", class: "form-control form-control-modern text-right diagnosis-amount-input", inputmode: "numeric", required: true, autocomplete: "off" %>
+                <span class="input-unit">万円</span>
+              </div>
+            </div>
+            <div class="col-md-6 mb-3">
+              <label class="form-label" for="debt">借入金</label>
+              <div class="input-group-modern">
+                <%= text_field_tag :debt, params[:debt], id: "debt", class: "form-control form-control-modern text-right diagnosis-amount-input", inputmode: "numeric", required: true, autocomplete: "off" %>
+                <span class="input-unit">万円</span>
+              </div>
+              <small class="form-text text-muted">リスク診断用（相続税の遺産総額には含めません）。</small>
+            </div>
+          </div>
+        </div>
+
+        <h5 class="font-weight-bold mb-3"><i class="fa fa-home mr-2"></i>3. 相続財産（遺産総額）</h5>
+        <p class="text-muted small mb-3">以下4項目の合計を遺産総額とし、相続税を計算します。</p>
+        <div class="form-section p-3 mb-4">
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label class="form-label" for="company_value">自社株評価額</label>
+              <div class="input-group-modern">
+                <%= text_field_tag :company_value, params[:company_value], id: "company_value", class: "form-control form-control-modern text-right diagnosis-amount-input", inputmode: "numeric", autocomplete: "off" %>
+                <span class="input-unit">万円</span>
+              </div>
+              <small class="form-text text-muted">
+                自社株の評価が不明な場合は
+                <%= link_to "取引相場のない株式の評価", simulations_stock_valuation_path(return_context: Simulations::BusinessSuccessionDiagnosisHelper::RETURN_CONTEXT), id: "stock-valuation-from-diagnosis-link" %>
+                で計算できます（入力内容を引き継ぎます）。
+              </small>
+            </div>
+            <div class="col-md-6 mb-3">
+              <label class="form-label" for="real_estate_value">不動産</label>
+              <div class="input-group-modern">
+                <%= text_field_tag :real_estate_value, params[:real_estate_value], id: "real_estate_value", class: "form-control form-control-modern text-right diagnosis-amount-input", inputmode: "numeric", required: true, autocomplete: "off" %>
+                <span class="input-unit">万円</span>
+              </div>
+            </div>
+            <div class="col-md-6 mb-3">
+              <label class="form-label" for="other_assets">それ以外の財産</label>
+              <div class="input-group-modern">
+                <%= text_field_tag :other_assets, params[:other_assets], id: "other_assets", class: "form-control form-control-modern text-right diagnosis-amount-input", inputmode: "numeric", required: true, autocomplete: "off" %>
+                <span class="input-unit">万円</span>
+              </div>
+              <small class="form-text text-muted">有価証券・生命保険・その他の相続財産（自社株・不動産・現預金を除く）。ない場合は0。</small>
+            </div>
+            <div class="col-md-6 mb-3">
+              <label class="form-label" for="cash_assets">現預金（相続財産・納税資金）</label>
+              <div class="input-group-modern">
+                <%= text_field_tag :cash_assets, params[:cash_assets], id: "cash_assets", class: "form-control form-control-modern text-right diagnosis-amount-input", inputmode: "numeric", required: true, autocomplete: "off" %>
+                <span class="input-unit">万円</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="text-center">
+          <%= submit_tag "診断する（約3分）", class: "btn btn-modern btn-primary btn-lg px-5", data: { disable_with: "診断中..." } %>
+        </div>
+      <% end %>
+
+      <div class="text-center mt-4">
+        <%= link_to "トップへ", root_path, class: "btn btn-outline-secondary btn-modern" %>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function() {
+  function formatWithCommas(value) {
+    return value.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+  }
+
+  function setSpouseRateEnabled(hasSpouseEl, spouseRateEl) {
+    if (!hasSpouseEl || !spouseRateEl) return;
+    var enabled = hasSpouseEl.value === '1';
+    spouseRateEl.disabled = !enabled;
+    spouseRateEl.required = enabled;
+    spouseRateEl.classList.toggle('bg-light', !enabled);
+    spouseRateEl.classList.toggle('text-muted', !enabled);
+    spouseRateEl.style.pointerEvents = enabled ? '' : 'none';
+    if (enabled) {
+      spouseRateEl.setAttribute('name', 'spouse_acquisition_rate');
+    } else {
+      spouseRateEl.removeAttribute('name');
+      spouseRateEl.selectedIndex = 0;
+    }
+  }
+
+  function initDiagnosisForm() {
+    var page = document.querySelector('.ai-diagnosis-page');
+    if (!page) return;
+
+    page.querySelectorAll('.diagnosis-amount-input').forEach(function(el) {
+      if (el.dataset.amountInputInit === '1') return;
+      el.dataset.amountInputInit = '1';
+      el.addEventListener('input', function() {
+        el.value = el.value.replace(/[^\d,]/g, '');
+      });
+      el.addEventListener('blur', function() {
+        var digits = el.value.replace(/[^\d]/g, '');
+        el.value = digits ? formatWithCommas(digits) : '';
+      });
+      var initial = el.value.replace(/[^\d]/g, '');
+      if (initial) el.value = formatWithCommas(initial);
+    });
+
+    var form = page.querySelector('.modern-form');
+    var hasSpouseEl = document.getElementById('has_spouse');
+    var spouseRateEl = document.getElementById('spouse_acquisition_rate');
+
+    setSpouseRateEnabled(hasSpouseEl, spouseRateEl);
+
+    if (form && form.dataset.spouseChangeDelegated !== '1') {
+      form.dataset.spouseChangeDelegated = '1';
+      form.addEventListener('change', function(e) {
+        if (e.target && e.target.id === 'has_spouse') {
+          setSpouseRateEnabled(e.target, document.getElementById('spouse_acquisition_rate'));
+        }
+      });
+    }
+
+    if (form && form.dataset.diagnosisSubmitBound !== '1') {
+      form.dataset.diagnosisSubmitBound = '1';
+      form.addEventListener('submit', function() {
+        if (hasSpouseEl && spouseRateEl) {
+          if (hasSpouseEl.value === '1') {
+            spouseRateEl.disabled = false;
+            spouseRateEl.setAttribute('name', 'spouse_acquisition_rate');
+          } else {
+            spouseRateEl.disabled = true;
+            spouseRateEl.removeAttribute('name');
+          }
+        }
+        form.querySelectorAll('.diagnosis-amount-input').forEach(function(el) {
+          el.value = el.value.replace(/[^\d]/g, '');
+        });
+      });
+    }
+
+    var stockLink = document.getElementById('stock-valuation-from-diagnosis-link');
+    if (stockLink && form && stockLink.dataset.stockLinkBound !== '1') {
+      stockLink.dataset.stockLinkBound = '1';
+      stockLink.addEventListener('click', function(e) {
+        e.preventDefault();
+        var params = new URLSearchParams();
+        params.set('return_context', '<%= Simulations::BusinessSuccessionDiagnosisHelper::RETURN_CONTEXT %>');
+        <%= Simulations::BusinessSuccessionDiagnosisHelper::RETURN_PARAM_KEYS.to_json %>.forEach(function(key) {
+          if (key === 'spouse_acquisition_rate' && hasSpouseEl && hasSpouseEl.value !== '1') return;
+          var el = form.querySelector('[name="' + key + '"]');
+          if (!el || el.disabled) return;
+          var val = String(el.value).replace(/[^\d]/g, '');
+          if (!val && el.tagName !== 'SELECT') return;
+          if (el.tagName === 'SELECT' && el.value === '') return;
+          params.set('diagnosis_' + key, el.tagName === 'SELECT' ? el.value : val);
+        });
+        window.location.href = '<%= simulations_stock_valuation_path %>' + '?' + params.toString();
+      });
+    }
+  }
+
+  document.addEventListener('turbolinks:load', initDiagnosisForm);
+  document.addEventListener('DOMContentLoaded', initDiagnosisForm);
+})();
+</script>
