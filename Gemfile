@@ -17,9 +17,11 @@ gem 'concurrent-ruby', '1.3.4'
 gem 'chartkick'
 gem 'groupdate'
 gem 'pdf-reader'
+gem 'dotenv-rails'
 
 group :development, :test do
   gem 'byebug', '11.1.3'
+  gem 'pry-rails'
 end
 
 group :development do

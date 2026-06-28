@@ -16,7 +16,7 @@
         </div>
       <% end %>
 
-      <h5 class="font-weight-bold mb-3">会社規模判定</h5>
+      <h5 class="font-weight-bold mb-3">1. 会社規模判定</h5>
       <div class="table-responsive mb-4">
         <table class="table table-modern table-bordered">
           <tbody>
@@ -43,7 +43,7 @@
         </table>
       </div>
 
-      <h5 class="font-weight-bold mb-3">類似業種比準価額</h5>
+      <h5 class="font-weight-bold mb-3">2. 類似業種比準価額</h5>
       <div class="table-responsive mb-4">
         <table class="table table-modern table-bordered">
           <thead>
@@ -149,6 +149,14 @@
                 <th>評価方式</th>
                 <td><%= @blended_valuation.method_label %></td>
               </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h5 class="font-weight-bold mb-3">4. 株式評価額（併用後）</h5>
+        <div class="table-responsive mb-4">
+          <table class="table table-modern table-bordered">
+            <tbody>
               <tr>
                 <th>1株当たりの株式評価額（併用後）</th>
                 <td class="font-weight-bold text-primary">
@@ -192,7 +200,15 @@
       </div>
 
       <div class="text-center mt-4">
-        <%= link_to "入力画面に戻る", simulations_stock_valuation_path, class: "btn btn-secondary btn-modern" %>
+        <% if @diagnosis_return_active %>
+          <% total_yen = @blended_valuation&.total_valuation || @valuation.total_valuation %>
+          <% company_value_man = yen_to_diagnosis_man_yen(total_yen) %>
+          <%= link_to diagnosis_index_path_with(@diagnosis_return_params, company_value_man: company_value_man),
+              class: "btn btn-success btn-modern mb-2 mb-md-0" do %>
+            <i class="fa fa-arrow-left mr-2"></i>事業承継診断に戻る（評価額 <%= number_with_delimiter(company_value_man) %>万円を反映）
+          <% end %>
+        <% end %>
+        <%= link_to "入力画面に戻る", @diagnosis_return_active ? simulations_stock_valuation_path(diagnosis_return_query_params(@diagnosis_return_params)) : simulations_stock_valuation_path, class: "btn btn-secondary btn-modern #{@diagnosis_return_active ? 'ml-md-2' : ''}" %>
         <%= link_to "トップへ", root_path, class: "btn btn-outline-secondary btn-modern ml-2" %>
       </div>
     </div>

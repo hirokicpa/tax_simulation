@@ -69,6 +69,25 @@
         </div>
       </div>
 
+      <!-- AI事業承継診断 -->
+      <div class="ai-diagnosis-section mb-5">
+        <h5 class="text-center mb-3" style="font-weight: 700; color: #2c3e50; font-size: 1.5rem;">
+          <i class="fa fa-stethoscope mr-2"></i>AI事業承継診断
+        </h5>
+        <p class="text-center text-muted mb-4 px-3">
+          入力 → 税額・株価をルール計算 → AIがリスクと次アクションを説明。<br>
+          あなたの会社、相続が起きたらいくら税金がかかるか把握していますか？
+        </p>
+        <div class="d-flex justify-content-center">
+          <%= link_to simulations_business_succession_diagnosis_path, class: "btn btn-modern btn-diagnosis btn-lg", style: "max-width: 480px; width: 100%; display: inline-flex; align-items: center; justify-content: center;" do %>
+            <i class="fa fa-stethoscope mr-2"></i>AI事業承継診断（約3分）
+          <% end %>
+        </div>
+        <p class="text-center text-muted small mt-3 mb-0">
+          自社株評価・相続税・納税資金不足リスクを簡易診断します
+        </p>
+      </div>
+
       <!-- 掲示板 -->
       <div class="board-section">
         <h5 class="text-center mb-4" style="font-weight: 700; color: #2c3e50; font-size: 1.5rem;">
@@ -86,6 +105,7 @@
 
 <style>
   .simulation-section,
+  .ai-diagnosis-section,
   .board-section {
     padding: 2rem 0;
   }
@@ -156,6 +176,16 @@
 
   .btn-modern.btn-secondary:hover {
     background: linear-gradient(135deg, #495057 0%, #6c757d 100%);
+    color: white;
+  }
+
+  .btn-modern.btn-diagnosis {
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    color: white;
+  }
+
+  .btn-modern.btn-diagnosis:hover {
+    background: linear-gradient(135deg, #f5576c 0%, #f093fb 100%);
     color: white;
   }
   
