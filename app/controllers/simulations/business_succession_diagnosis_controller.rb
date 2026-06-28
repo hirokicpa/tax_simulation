@@ -21,18 +21,9 @@ module Simulations
       @ai_diagnosis = AiDiagnosisService.new(@diagnosis).call
       @consultation_url = consultation_url
       @risk_chart_data = @diagnosis.risk_breakdown
-      @inheritance_tax_chart_data = inheritance_tax_chart_data(@diagnosis)
     end
 
     private
-
-    def inheritance_tax_chart_data(diagnosis)
-      return nil unless diagnosis.inheritance_tax_by_spouse_rate
-
-      diagnosis.inheritance_tax_by_spouse_rate.each_with_object({}) do |row, hash|
-        hash[row.label] = row.tax_man
-      end
-    end
 
     def diagnosis_params
       permitted = params.permit(

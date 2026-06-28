@@ -182,12 +182,89 @@
       </div>
     </div>
   </div>
+
+  <div id="diagnosis-loading-overlay" class="diagnosis-loading-overlay" aria-hidden="true" aria-live="polite">
+    <div class="diagnosis-loading-panel">
+      <div class="diagnosis-loading-spinner" aria-hidden="true"></div>
+      <h5 class="diagnosis-loading-title">AI診断中</h5>
+      <p class="diagnosis-loading-message" id="diagnosis-loading-message">入力内容を分析しています...</p>
+      <ul class="diagnosis-loading-steps">
+        <li class="diagnosis-loading-step is-active" data-step="0">
+          <span class="diagnosis-loading-step-icon"><i class="fa fa-calculator"></i></span>
+          <span class="diagnosis-loading-step-label">リスク・税額の計算</span>
+        </li>
+        <li class="diagnosis-loading-step" data-step="1">
+          <span class="diagnosis-loading-step-icon"><i class="fa fa-comments"></i></span>
+          <span class="diagnosis-loading-step-label">AI診断コメントの生成</span>
+        </li>
+        <li class="diagnosis-loading-step" data-step="2">
+          <span class="diagnosis-loading-step-icon"><i class="fa fa-check-circle"></i></span>
+          <span class="diagnosis-loading-step-label">結果の表示</span>
+        </li>
+      </ul>
+      <p class="diagnosis-loading-note">30秒〜1分ほどお待ちください。この画面のままお待ちください。</p>
+    </div>
+  </div>
 </div>
 
 <script>
 (function() {
   function formatWithCommas(value) {
     return value.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+  }
+
+  function showDiagnosisLoading() {
+    var overlay = document.getElementById('diagnosis-loading-overlay');
+    if (!overlay) return;
+
+    overlay.classList.add('is-visible');
+    overlay.setAttribute('aria-hidden', 'false');
+    document.body.classList.add('diagnosis-loading-active');
+
+    var messages = [
+      '入力内容を分析しています...',
+      '自社株評価・相続税を計算しています...',
+      'AIが診断コメントを生成しています...',
+      'もう少しお待ちください...'
+    ];
+    var steps = overlay.querySelectorAll('.diagnosis-loading-step');
+    var msgEl = document.getElementById('diagnosis-loading-message');
+    var progress = 0;
+    var maxStep = Math.max(steps.length - 1, 0);
+
+    if (window.__diagnosisLoadingInterval) {
+      clearInterval(window.__diagnosisLoadingInterval);
+    }
+
+    function updateLoadingState() {
+      if (msgEl) {
+        msgEl.textContent = messages[Math.min(progress, messages.length - 1)];
+      }
+      var activeStep = Math.min(progress, maxStep);
+      steps.forEach(function(step, index) {
+        step.classList.toggle('is-active', index === activeStep);
+        step.classList.toggle('is-done', index < activeStep);
+      });
+      if (progress < messages.length - 1) {
+        progress += 1;
+      }
+    }
+
+    updateLoadingState();
+    window.__diagnosisLoadingInterval = setInterval(updateLoadingState, 4000);
+  }
+
+  function hideDiagnosisLoading() {
+    var overlay = document.getElementById('diagnosis-loading-overlay');
+    if (overlay) {
+      overlay.classList.remove('is-visible');
+      overlay.setAttribute('aria-hidden', 'true');
+    }
+    document.body.classList.remove('diagnosis-loading-active');
+    if (window.__diagnosisLoadingInterval) {
+      clearInterval(window.__diagnosisLoadingInterval);
+      window.__diagnosisLoadingInterval = null;
+    }
   }
 
   function updateSpouseRateControl(hasSpouseEl, spouseRateEl) {
@@ -217,6 +294,8 @@
   function initDiagnosisForm() {
     var page = document.querySelector('.ai-diagnosis-page');
     if (!page) return;
+
+    hideDiagnosisLoading();
 
     page.querySelectorAll('.diagnosis-amount-input').forEach(function(el) {
       if (el.dataset.amountInputInit === '1') return;
@@ -257,6 +336,7 @@
         form.querySelectorAll('.diagnosis-amount-input').forEach(function(el) {
           el.value = el.value.replace(/[^\d]/g, '');
         });
+        showDiagnosisLoading();
       });
     }
 
@@ -283,6 +363,7 @@
 
   document.addEventListener('turbolinks:load', initDiagnosisForm);
   document.addEventListener('DOMContentLoaded', initDiagnosisForm);
+  document.addEventListener('turbolinks:before-cache', hideDiagnosisLoading);
 
   if (!window.__diagnosisSpouseRateChangeBound) {
     window.__diagnosisSpouseRateChangeBound = true;

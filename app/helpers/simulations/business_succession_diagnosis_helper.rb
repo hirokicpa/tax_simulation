@@ -82,6 +82,30 @@ module Simulations
       end
     end
 
+    RISK_SCORE_MAX = 100
+
+    RISK_LEVEL_GUIDE = [
+      { range: "0〜39点", level: "低", description: "現時点では大きな懸念は少ない状態" },
+      { range: "40〜69点", level: "中", description: "早めの対策検討を推奨" },
+      { range: "70〜100点", level: "高", description: "優先的な対策が必要" }
+    ].freeze
+
+    def diagnosis_risk_score_label(score)
+      "#{score} / #{RISK_SCORE_MAX}点"
+    end
+
+    def diagnosis_risk_progress_width(score)
+      score.to_i.clamp(0, RISK_SCORE_MAX)
+    end
+
+    def diagnosis_risk_level_badge_class(level)
+      risk_level_badge_class(level == "要検討" ? "高" : level)
+    end
+
+    def diagnosis_risk_level_bar_class(level)
+      risk_level_bar_class(level == "要検討" ? "高" : level)
+    end
+
     def diagnosis_section_html(text)
       return "" if text.blank?
 

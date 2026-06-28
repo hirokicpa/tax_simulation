@@ -8,6 +8,12 @@ class BusinessSuccessionDiagnosisService
     "undecided" => "未定"
   }.freeze
 
+  # 0点は「リスクなし」と誤認されないよう、原則付けない。以下を満たす場合のみ0点を許容する。
+  ZERO_SCORE_MAX_COMPANY_VALUE_YEN = 10_000_000 # 1000万円
+  ZERO_SCORE_MIN_CASH_TO_TAX_RATIO = 5
+  BASE_RISK_SCORE = 15
+  DEFAULT_MIN_RISK_SCORE = 25
+
   Result = Struct.new(
     :president_age,
     :successor_status,
@@ -27,7 +33,6 @@ class BusinessSuccessionDiagnosisService
     :total_estate,
     :estimated_inheritance_tax,
     :inheritance_tax_detail,
-    :inheritance_tax_by_spouse_rate,
     :taxable_estate,
     :tax_payment_shortage,
     :succession_risk_score,
@@ -55,6 +60,18 @@ class BusinessSuccessionDiagnosisService
     tax_result = calculate_inheritance_tax(total_estate)
     tax_detail = tax_result[:detail]
     inheritance_tax = tax_detail.tax_man * 10_000
+    tax_shortage = inheritance_tax - cash_assets
+
+    succession_score = finalized_risk_score(succession_risk_score, company_value, inheritance_tax)
+    stock_score = finalized_risk_score(stock_risk_score(company_value), company_value, inheritance_tax)
+    tax_funding_score = finalized_risk_score(tax_funding_risk_score(inheritance_tax), company_value, inheritance_tax)
+    ma_score = finalized_risk_score(ma_necessity_score, company_value, inheritance_tax)
+    overall_score = overall_risk_score_from(
+      succession_score,
+      stock_score,
+      tax_funding_score,
+      ma_score
+    )
 
     Result.new(
       president_age: president_age,
@@ -75,21 +92,25 @@ class BusinessSuccessionDiagnosisService
       total_estate: total_estate,
       estimated_inheritance_tax: inheritance_tax,
       inheritance_tax_detail: tax_detail,
-      inheritance_tax_by_spouse_rate: tax_result[:by_spouse_rate],
       taxable_estate: tax_detail.taxable_price_man * 10_000,
-      tax_payment_shortage: inheritance_tax - cash_assets,
-      succession_risk_score: succession_risk_score,
-      succession_risk_level: level_for(succession_risk_score),
-      stock_risk_score: stock_risk_score(company_value),
-      stock_risk_level: level_for(stock_risk_score(company_value)),
-      tax_funding_risk_score: tax_funding_risk_score(inheritance_tax),
-      tax_funding_risk_level: level_for(tax_funding_risk_score(inheritance_tax)),
-      ma_necessity_score: ma_necessity_score,
-      ma_necessity_level: level_for(ma_necessity_score, high_label: "要検討"),
-      overall_risk_score: overall_risk_score(company_value, inheritance_tax),
-      overall_risk_level: level_for(overall_risk_score(company_value, inheritance_tax)),
-      risk_breakdown: risk_breakdown(company_value, inheritance_tax),
-      immediate_actions: rule_based_actions(company_value, inheritance_tax)
+      tax_payment_shortage: tax_shortage,
+      succession_risk_score: succession_score,
+      succession_risk_level: level_for(succession_score),
+      stock_risk_score: stock_score,
+      stock_risk_level: level_for(stock_score),
+      tax_funding_risk_score: tax_funding_score,
+      tax_funding_risk_level: level_for(tax_funding_score),
+      ma_necessity_score: ma_score,
+      ma_necessity_level: level_for(ma_score, high_label: "要検討"),
+      overall_risk_score: overall_score,
+      overall_risk_level: level_for(overall_score),
+      risk_breakdown: {
+        "事業承継危険度" => succession_score,
+        "自社株リスク" => stock_score,
+        "納税資金不足リスク" => tax_funding_score,
+        "M&A検討必要度" => ma_score
+      },
+      immediate_actions: rule_based_actions(company_value, inheritance_tax, succession_score, stock_score, tax_funding_score, ma_score)
     )
   end
 
@@ -188,28 +209,22 @@ class BusinessSuccessionDiagnosisService
     heritage_man = total_estate_man(company_value)
 
     if has_spouse
-      by_rate = InheritanceTax::FirstSuccessionTaxCalculator.calculate_all_spouse_rates(
+      selected_rate = spouse_acquisition_rate / 100.0
+      detail = InheritanceTax::FirstSuccessionTaxCalculator.new(
         total_heritage_man: heritage_man,
         count_heir_children: count_heir_children,
-        has_spouse: true
-      )
-      selected_rate = spouse_acquisition_rate / 100.0
-      detail = by_rate.find { |row| (row.rate - selected_rate).abs < 0.001 }&.detail ||
-               InheritanceTax::FirstSuccessionTaxCalculator.new(
-                 total_heritage_man: heritage_man,
-                 count_heir_children: count_heir_children,
-                 has_spouse: true,
-                 marital_rate: selected_rate
-               ).call
-      { detail: detail, by_spouse_rate: by_rate }
+        has_spouse: true,
+        marital_rate: selected_rate
+      ).call
     else
       detail = InheritanceTax::FirstSuccessionTaxCalculator.new(
         total_heritage_man: heritage_man,
         count_heir_children: count_heir_children,
         has_spouse: false
       ).call
-      { detail: detail, by_spouse_rate: nil }
     end
+
+    { detail: detail }
   end
 
   def tax_payment_shortage(inheritance_tax)
@@ -217,7 +232,7 @@ class BusinessSuccessionDiagnosisService
   end
 
   def succession_risk_score
-    score = 0
+    score = 12
     score += 35 if successor_status == "no"
     score += 20 if successor_status == "undecided"
     score += 25 if president_age >= 70
@@ -227,9 +242,10 @@ class BusinessSuccessionDiagnosisService
   end
 
   def stock_risk_score(company_value)
-    score = 0
+    score = 12
     score += 30 if company_value >= 300_000_000
     score += 20 if company_value >= 100_000_000 && company_value < 300_000_000
+    score += 15 if company_value >= 10_000_000 && company_value < 100_000_000
     score += 15 if operating_profit.positive? && company_value > net_assets * 2
     score += 15 if real_estate_value < company_value * 0.3 && company_value >= 50_000_000
     [score, 100].min
@@ -237,10 +253,10 @@ class BusinessSuccessionDiagnosisService
 
   def tax_funding_risk_score(inheritance_tax)
     shortage = tax_payment_shortage(inheritance_tax)
-    return 0 if inheritance_tax <= 0
+    score = 12
+    return score if inheritance_tax <= 0
 
     ratio = shortage.to_f / inheritance_tax
-    score = 0
     score += 40 if shortage.positive?
     score += 25 if ratio >= 0.5
     score += 20 if ratio >= 1.0
@@ -249,7 +265,7 @@ class BusinessSuccessionDiagnosisService
   end
 
   def ma_necessity_score
-    score = 0
+    score = 12
     score += 40 if successor_status == "no"
     score += 25 if successor_status == "undecided" && president_age >= 65
     score += 20 if operating_profit.positive? && sales >= 500_000_000
@@ -257,23 +273,24 @@ class BusinessSuccessionDiagnosisService
     [score, 100].min
   end
 
-  def overall_risk_score(company_value, inheritance_tax)
-    scores = [
-      succession_risk_score,
-      stock_risk_score(company_value),
-      tax_funding_risk_score(inheritance_tax),
-      ma_necessity_score
-    ]
+  def overall_risk_score_from(succession_score, stock_score, tax_funding_score, ma_score)
+    scores = [succession_score, stock_score, tax_funding_score, ma_score]
     (scores.sum.to_f / scores.size).round
   end
 
-  def risk_breakdown(company_value, inheritance_tax)
-    {
-      "事業承継危険度" => succession_risk_score,
-      "自社株リスク" => stock_risk_score(company_value),
-      "納税資金不足リスク" => tax_funding_risk_score(inheritance_tax),
-      "M&A検討必要度" => ma_necessity_score
-    }
+  def zero_score_allowed?(company_value, inheritance_tax)
+    return false unless company_value <= ZERO_SCORE_MAX_COMPANY_VALUE_YEN
+    return true if inheritance_tax <= 0
+
+    cash_assets >= inheritance_tax * ZERO_SCORE_MIN_CASH_TO_TAX_RATIO
+  end
+
+  def finalized_risk_score(raw_score, company_value, inheritance_tax)
+    return 0 if raw_score <= BASE_RISK_SCORE && zero_score_allowed?(company_value, inheritance_tax)
+
+    adjusted = raw_score + BASE_RISK_SCORE
+    adjusted = [adjusted, DEFAULT_MIN_RISK_SCORE].max if raw_score <= BASE_RISK_SCORE
+    [adjusted, 100].min
   end
 
   def level_for(score, high_label: "高")
@@ -284,13 +301,13 @@ class BusinessSuccessionDiagnosisService
     end
   end
 
-  def rule_based_actions(company_value, inheritance_tax)
+  def rule_based_actions(company_value, inheritance_tax, succession_score, stock_score, tax_funding_score, ma_score)
     actions = []
     actions << "後継者候補の選定と事業承継計画の策定を検討してください。" if successor_status != "yes"
-    actions << "自社株評価の把握と、評価額引下げの可能性について専門家に確認してください。" if stock_risk_score(company_value) >= 40
+    actions << "自社株評価の把握と、評価額引下げの可能性について専門家に確認してください。" if stock_score >= 40
     actions << "相続税納税資金の確保方法（生命保険・借入・資産売却等）を検討してください。" if tax_payment_shortage(inheritance_tax).positive?
-    actions << "納税資金の不足が見込まれるため、早めの資金計画が必要です。" if tax_funding_risk_score(inheritance_tax) >= 40
-    actions << "M&A・外部承継の選択肢も含め、承継ルートの比較検討余地があります。" if ma_necessity_score >= 40
+    actions << "納税資金の不足が見込まれるため、早めの資金計画が必要です。" if tax_funding_score >= 40
+    actions << "M&A・外部承継の選択肢も含め、承継ルートの比較検討余地があります。" if ma_score >= 40
     actions << "代表者の高齢化に伴い、承継準備の時間的余裕が限られています。早めの専門家相談をお勧めします。" if president_age >= 70
     actions << "現状、大きな緊急リスクは見られませんが、定期的な見直しをお勧めします。" if actions.empty?
     actions.first(5)

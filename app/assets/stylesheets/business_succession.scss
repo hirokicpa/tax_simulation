@@ -683,3 +683,312 @@
   }
 }
 
+// AI事業承継診断：個別相談CTA
+.ai-diagnosis-page {
+  .consultation-cta {
+    p {
+      max-width: 640px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .consultation-cta-btn {
+      height: auto !important;
+      line-height: 1.5 !important;
+      min-height: 50px;
+      padding: 0.875rem 1.75rem;
+      max-width: calc(100% - 1rem);
+      box-sizing: border-box;
+      color: #212529;
+      background-color: #fff;
+      border: none;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+
+      &:hover,
+      &:focus {
+        color: #212529;
+        background-color: #f8f9fa;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+      }
+
+      i {
+        flex-shrink: 0;
+      }
+    }
+  }
+
+  @media (max-width: 576px) {
+    .consultation-cta .consultation-cta-btn {
+      width: 100%;
+      max-width: 300px;
+      white-space: normal;
+    }
+  }
+
+  .diagnosis-loading-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 2000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1.5rem;
+    background: rgba(44, 62, 80, 0.72);
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.25s ease, visibility 0.25s ease;
+
+    &.is-visible {
+      opacity: 1;
+      visibility: visible;
+    }
+  }
+
+  .diagnosis-loading-panel {
+    width: 100%;
+    max-width: 420px;
+    padding: 2rem 1.75rem;
+    border-radius: 16px;
+    background: #fff;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
+    text-align: center;
+  }
+
+  .diagnosis-loading-spinner {
+    width: 56px;
+    height: 56px;
+    margin: 0 auto 1.25rem;
+    border-radius: 50%;
+    border: 4px solid rgba(102, 126, 234, 0.2);
+    border-top-color: #667eea;
+    animation: diagnosis-spin 0.9s linear infinite;
+  }
+
+  .diagnosis-loading-title {
+    margin-bottom: 0.75rem;
+    font-size: 1.35rem;
+    font-weight: 700;
+    color: #2c3e50;
+  }
+
+  .diagnosis-loading-message {
+    margin-bottom: 1.5rem;
+    font-size: 0.95rem;
+    color: #667eea;
+    font-weight: 600;
+    min-height: 1.5em;
+  }
+
+  .diagnosis-loading-steps {
+    list-style: none;
+    margin: 0 0 1.25rem;
+    padding: 0;
+    text-align: left;
+  }
+
+  .diagnosis-loading-step {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.625rem 0.75rem;
+    margin-bottom: 0.5rem;
+    border-radius: 10px;
+    background: #f8f9fa;
+    color: #6c757d;
+    transition: all 0.3s ease;
+
+    &.is-active {
+      background: linear-gradient(135deg, rgba(102, 126, 234, 0.12) 0%, rgba(118, 75, 162, 0.12) 100%);
+      color: #667eea;
+      font-weight: 600;
+    }
+
+    &.is-done {
+      color: #28a745;
+
+      .diagnosis-loading-step-icon {
+        background: rgba(40, 167, 69, 0.15);
+        color: #28a745;
+      }
+    }
+  }
+
+  .diagnosis-loading-step-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: rgba(102, 126, 234, 0.12);
+    color: #667eea;
+    flex-shrink: 0;
+  }
+
+  .diagnosis-loading-step-label {
+    font-size: 0.9rem;
+    line-height: 1.4;
+  }
+
+  .diagnosis-loading-note {
+    margin: 0;
+    font-size: 0.8rem;
+    color: #6c757d;
+    line-height: 1.5;
+  }
+
+  .diagnosis-overall-risk {
+    padding: 1.75rem 1.5rem;
+    border-radius: 16px;
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+    text-align: center;
+  }
+
+  .diagnosis-overall-risk-label {
+    margin-bottom: 1rem;
+    font-size: 0.95rem;
+    color: #6c757d;
+    font-weight: 600;
+  }
+
+  .diagnosis-overall-risk-main {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+  }
+
+  .diagnosis-overall-risk-score {
+    display: flex;
+    align-items: baseline;
+    justify-content: center;
+    gap: 0.35rem;
+    line-height: 1;
+  }
+
+  .diagnosis-overall-risk-value {
+    font-size: 3rem;
+    font-weight: 700;
+    color: #2c3e50;
+  }
+
+  .diagnosis-overall-risk-max {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #6c757d;
+  }
+
+  .diagnosis-overall-risk-note {
+    max-width: 720px;
+    margin: 0 auto;
+    font-size: 0.875rem;
+    color: #555;
+    line-height: 1.6;
+  }
+
+  .diagnosis-risk-level-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 3rem;
+    padding: 0.45rem 1.1rem;
+    border-radius: 999px;
+    font-size: 1rem;
+    font-weight: 700;
+    line-height: 1.2;
+    color: #fff;
+
+    &.badge-success {
+      background-color: #28a745;
+    }
+
+    &.badge-warning {
+      background-color: #ffc107;
+      color: #212529;
+    }
+
+    &.badge-danger {
+      background-color: #dc3545;
+    }
+  }
+
+  .diagnosis-risk-guide {
+    padding: 1rem 1.25rem;
+    border-radius: 12px;
+    background: #f8f9fa;
+    border: 1px solid #e9ecef;
+  }
+
+  .diagnosis-risk-guide-item {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.35rem;
+    height: 100%;
+    padding: 0.75rem;
+    border-radius: 10px;
+    background: #fff;
+    border: 1px solid #e9ecef;
+  }
+
+  .diagnosis-risk-guide-range {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: #2c3e50;
+  }
+
+  .diagnosis-risk-guide-desc {
+    font-size: 0.8rem;
+    color: #666;
+    line-height: 1.5;
+  }
+
+  .diagnosis-risk-table {
+    th {
+      vertical-align: middle;
+      white-space: nowrap;
+    }
+  }
+
+  .diagnosis-risk-item-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .diagnosis-risk-item-score {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #2c3e50;
+    white-space: nowrap;
+  }
+
+  .diagnosis-risk-progress {
+    width: 100%;
+    height: 8px;
+    border-radius: 999px;
+    background: #e9ecef;
+    overflow: hidden;
+  }
+
+  .diagnosis-risk-progress-bar {
+    height: 100%;
+    border-radius: 999px;
+    transition: width 0.3s ease;
+  }
+}
+
+body.diagnosis-loading-active {
+  overflow: hidden;
+}
+
+@keyframes diagnosis-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+

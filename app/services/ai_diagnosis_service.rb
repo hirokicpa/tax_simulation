@@ -80,7 +80,6 @@ class AiDiagnosisService
     request["x-goog-api-key"] = api_key
     request["Content-Type"] = "application/json"
     request.body = body.to_json
-    binding.pry
     response = http.request(request)
     JSON.parse(response.body)
   end
@@ -185,7 +184,6 @@ class AiDiagnosisService
       現預金：#{format_yen(d.cash_assets)}円
       自社株評価額：#{format_yen(d.company_value)}円#{d.company_value_estimated ? '（簡易推定）' : ''}
       相続税概算：#{format_yen(d.estimated_inheritance_tax)}円#{d.has_spouse ? "（配偶者取得#{d.spouse_acquisition_rate}%・税額軽減反映後）" : ''}
-      #{spouse_rate_summary(d)}
       課税遺産総額：#{format_yen(d.taxable_estate)}円
       納税資金不足額：#{format_yen([d.tax_payment_shortage, 0].max)}円
 
@@ -200,15 +198,6 @@ class AiDiagnosisService
 
   def format_yen(amount)
     amount.to_i.to_s.reverse.gsub(/(\d{3})(?=\d)/, '\\1,').reverse
-  end
-
-  def spouse_rate_summary(diagnosis)
-    return "" unless diagnosis.inheritance_tax_by_spouse_rate
-
-    lines = diagnosis.inheritance_tax_by_spouse_rate.map do |row|
-      "#{row.label}取得時：#{format_yen(row.tax_man * 10_000)}円"
-    end
-    "配偶者取得割合別相続税：\n#{lines.join("\n")}"
   end
 
   def parse_sections(text)
